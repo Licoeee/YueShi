@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    /* 保持你原有的配置不变 */
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "module": "CommonJS",
+    "target": "ES2020",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "alwaysStrict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strict": true,
+    "strictPropertyInitialization": true,
+    "lib": ["ES2020"],
+    "typeRoots": [
+      "./typings"
+    ],
+
+    /* --- 新增：为了适配 TDesign 的路径映射 --- */
+    "baseUrl": ".", 
+    "paths": {
+      "tdesign-miniprogram/*": ["./miniprogram_npm/tdesign-miniprogram/*"]
+    }
+  },
+  "include": [
+    "./**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "miniprogram_npm" 
+  ]
+}
