@@ -29,10 +29,14 @@
     }
   },
   "include": [
-    "./**/*.ts"
+    "./**/*.ts",
+    "./typings/**/*.d.ts",
+    "./types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",
-    "miniprogram_npm" 
+    "miniprogram_npm",
+    "./miniprogram/node_modules",
+    "./miniprogram/miniprogram_npm"
   ]
 }

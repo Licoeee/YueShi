@@ -10,20 +10,20 @@
 ## 第一阶段：项目基座
 
 ### 1.1 TDesign 配置校验
-- [ ] 检查 miniprogram/app.json 中的 TDesign 组件引入
-- [ ] 验证 t-design.json 主题配置（日落橙、晨曦桃、淡粉色）
-- [ ] 运行开发者工具确认组件正常渲染
+- [x] 检查 miniprogram/app.json 中的 TDesign 组件引入
+- [x] 验证 t-design.json 主题配置（日落橙、晨曦桃、淡粉色）
+- [x] 运行开发者工具确认组件正常渲染
 
 ### 1.2 TS 类型声明补全
-- [ ] 创建 types/role.d.ts 角色枚举类型
-- [ ] 创建 types/order.d.ts 订单类型定义
-- [ ] 创建 types/product.d.ts 商品类型定义
-- [ ] 创建 types/user.d.ts 用户类型定义
+- [x] 创建 types/role.d.ts 角色枚举类型
+- [x] 创建 types/order.d.ts 订单类型定义
+- [x] 创建 types/product.d.ts 商品类型定义
+- [x] 创建 types/user.d.ts 用户类型定义
 
 ### 1.3 全局样式变量
-- [ ] 在 app.wxss 定义主题色变量（--color-sunset, --color-peach, --color-pink）
-- [ ] 定义圆角变量（--radius-lg: 24rpx）
-- [ ] 定义阴影变量（--glow-effect）
+- [x] 在 app.wxss 定义主题色变量（--color-sunset, --color-peach, --color-pink）
+- [x] 定义圆角变量（--radius-lg: 24rpx）
+- [x] 定义阴影变量（--glow-effect）
 
 ---
 

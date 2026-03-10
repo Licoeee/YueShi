@@ -1,54 +1,67 @@
-// index.ts
-// 获取应用实例
-const app = getApp<IAppOption>()
-const defaultAvatarUrl = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
+import type { RoleType } from '../../../types/role'
 
-Component({
-  data: {
-    motto: 'Hello World',
-    userInfo: {
-      avatarUrl: defaultAvatarUrl,
-      nickName: '',
+interface FoundationCheckItem {
+  key: string
+  title: string
+  note: string
+  description: string
+}
+
+interface RolePreviewCard {
+  role: RoleType
+  title: string
+  description: string
+}
+
+interface IndexPageData {
+  keyword: string
+  stageTags: string[]
+  foundationChecks: FoundationCheckItem[]
+  roleCards: RolePreviewCard[]
+}
+
+const indexPageData: IndexPageData = {
+  keyword: '',
+  stageTags: ['TDesign 全局接入', 'TS 类型声明', '主题变量统一'],
+  foundationChecks: [
+    {
+      key: 'tdesign',
+      title: 'TDesign 组件注册',
+      note: 'app.json / 全局 usingComponents',
+      description: '基础按钮、搜索、标签、单元格组件统一在应用入口注册，后续页面直接复用。',
     },
-    hasUserInfo: false,
-    canIUseGetUserProfile: wx.canIUse('getUserProfile'),
-    canIUseNicknameComp: wx.canIUse('input.type.nickname'),
-  },
-  methods: {
-    // 事件处理函数
-    bindViewTap() {
-      wx.navigateTo({
-        url: '../logs/logs',
-      })
+    {
+      key: 'typing',
+      title: '业务类型声明',
+      note: 'App/types/*.d.ts',
+      description: '角色、订单、商品、用户四类声明补齐，为后续云函数与页面逻辑提供稳定边界。',
     },
-    onChooseAvatar(e: any) {
-      const { avatarUrl } = e.detail
-      const { nickName } = this.data.userInfo
-      this.setData({
-        "userInfo.avatarUrl": avatarUrl,
-        hasUserInfo: nickName && avatarUrl && avatarUrl !== defaultAvatarUrl,
-      })
+    {
+      key: 'theme',
+      title: '品牌主题变量',
+      note: 'app.wxss + t-design.json',
+      description: '日落橙、晨曦桃、淡粉色与圆角、发光阴影已沉淀为全局变量和主题清单。',
     },
-    onInputChange(e: any) {
-      const nickName = e.detail.value
-      const { avatarUrl } = this.data.userInfo
-      this.setData({
-        "userInfo.nickName": nickName,
-        hasUserInfo: nickName && avatarUrl && avatarUrl !== defaultAvatarUrl,
-      })
+  ],
+  roleCards: [
+    {
+      role: 'customer',
+      title: '顾客端',
+      description: '承接首页选购、下单、订单管理，后续直接复用当前搜索与卡片风格。',
     },
-    getUserProfile() {
-      // 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认，开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
-      wx.getUserProfile({
-        desc: '展示用户信息', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-        success: (res) => {
-          console.log(res)
-          this.setData({
-            userInfo: res.userInfo,
-            hasUserInfo: true
-          })
-        }
-      })
+    {
+      role: 'merchant',
+      title: '商家端',
+      description: '承接订单流水线、商品管理与账本能力，重点依赖统一状态类型和主题色。',
     },
-  },
+    {
+      role: 'admin',
+      title: '管理员端',
+      description: '承接商家审核与版本巡检，后续可基于角色声明直接切换入口与导航。',
+    },
+  ],
+}
+
+Page<IndexPageData, {}>({
+  data: indexPageData,
 })

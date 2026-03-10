@@ -1,10 +1,38 @@
-/**app.wxss**/
-.container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 200rpx 0;
+/** app.wxss **/
+page {
+  --color-sunset: #ff7e5f;
+  --color-peach: #feb47b;
+  --color-pink: #ffd1dc;
+  --radius-lg: 24rpx;
+  --glow-effect: 0 18rpx 40rpx -14rpx rgba(255, 126, 95, 0.45), inset 0 2rpx 4rpx rgba(255, 255, 255, 0.34);
+  --td-brand-color: var(--color-sunset);
+  --td-brand-color-hover: #ff9678;
+  --td-brand-color-active: #f16b4e;
+  --td-brand-color-light: #fff1eb;
+  --td-radius-default: var(--radius-lg);
+  --td-bg-color-page: #fff5f7;
+  --td-bg-color-container: rgba(255, 255, 255, 0.88);
+  --td-bg-color-container-hover: rgba(255, 255, 255, 0.94);
+  --td-component-border: rgba(255, 255, 255, 0.7);
+  --td-text-color-primary: #7a4a43;
+  --td-text-color-secondary: #a06c63;
+  min-height: 100%;
+  background-color: #fff5f7;
+  color: #7a4a43;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 30rpx;
   box-sizing: border-box;
-} 
+}
+
+.glass-card {
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--glow-effect);
+  backdrop-filter: blur(28rpx);
+  overflow: hidden;
+}

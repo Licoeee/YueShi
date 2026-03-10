@@ -1,0 +1,28 @@
+{
+  "brand": "悦时",
+  "description": "悦时小程序第一阶段 TDesign 主题与组件清单",
+  "updatedAt": "2026-03-10",
+  "components": {
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "t-cell-group": "tdesign-miniprogram/cell-group/cell-group",
+    "t-divider": "tdesign-miniprogram/divider/divider",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-search": "tdesign-miniprogram/search/search",
+    "t-tag": "tdesign-miniprogram/tag/tag"
+  },
+  "tokens": {
+    "colorSunset": "#FF7E5F",
+    "colorPeach": "#FEB47B",
+    "colorPink": "#FFD1DC",
+    "radiusLarge": "24rpx",
+    "glowEffect": "0 18rpx 40rpx -14rpx rgba(255, 126, 95, 0.45), inset 0 2rpx 4rpx rgba(255, 255, 255, 0.34)"
+  },
+  "tdesign": {
+    "brandColor": "#FF7E5F",
+    "brandColorHover": "#FF9678",
+    "brandColorActive": "#F16B4E",
+    "brandColorLight": "#FFF1EB",
+    "radiusDefault": "24rpx"
+  }
+}
