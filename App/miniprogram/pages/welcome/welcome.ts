@@ -2,9 +2,9 @@ import type { WelcomeParticle, WelcomeStateSnapshot } from '../../utils/welcome-
 import {
   WELCOME_TIMINGS,
   canStartReveal,
+  finishRevealState,
   getInitialWelcomeState,
   getRevealDiameterPx,
-  getWelcomeEntryTarget,
   startRevealState,
 } from '../../utils/welcome-motion'
 
@@ -23,7 +23,7 @@ interface WelcomePageMethods {
 
 let buttonRevealTimer: number | null = null
 let buttonReadyTimer: number | null = null
-let navigationTimer: number | null = null
+let revealCompleteTimer: number | null = null
 
 function clearTimer(timerId: number | null): number | null {
   if (timerId !== null) {
@@ -36,7 +36,7 @@ function clearTimer(timerId: number | null): number | null {
 function clearWelcomeTimers(): void {
   buttonRevealTimer = clearTimer(buttonRevealTimer)
   buttonReadyTimer = clearTimer(buttonReadyTimer)
-  navigationTimer = clearTimer(navigationTimer)
+  revealCompleteTimer = clearTimer(revealCompleteTimer)
 }
 
 function buildWelcomeData(revealDiameterPx: number): WelcomePageData {
@@ -89,13 +89,8 @@ Page<WelcomePageData, WelcomePageMethods>({
 
     this.setData(startRevealState())
 
-    navigationTimer = setTimeout((): void => {
-      wx.reLaunch({
-        url: `/${getWelcomeEntryTarget()}`,
-        fail: (error: WechatMiniprogram.GeneralCallbackResult): void => {
-          console.error('welcome reLaunch failed', error)
-        },
-      })
+    revealCompleteTimer = setTimeout((): void => {
+      this.setData(finishRevealState())
     }, WELCOME_TIMINGS.revealDurationMs)
   },
 })

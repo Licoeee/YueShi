@@ -2,8 +2,10 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import {
+  WELCOME_TIMINGS,
   canStartReveal,
   createRevealParticles,
+  finishRevealState,
   getInitialWelcomeState,
   getRevealDiameterPx,
   getWelcomeEntryTarget,
@@ -37,6 +39,7 @@ test('builds the initial welcome state with a locked CTA and prepared particles'
   assert.equal(state.isButtonReady, false)
   assert.equal(state.isRevealing, false)
   assert.equal(state.isPreviewVisible, false)
+  assert.equal(state.isHomeActive, false)
   assert.equal(state.particles.length, createRevealParticles().length)
 })
 
@@ -52,6 +55,15 @@ test('starts reveal by showing the destination preview before navigation', () =>
   assert.equal(state.isButtonReady, false)
   assert.equal(state.isRevealing, true)
   assert.equal(state.isPreviewVisible, true)
+  assert.equal(state.isHomeActive, false)
+})
+
+test('finishes reveal by handing control to the home state without extra navigation', () => {
+  const state = finishRevealState()
+
+  assert.equal(state.isRevealing, false)
+  assert.equal(state.isPreviewVisible, true)
+  assert.equal(state.isHomeActive, true)
 })
 
 test('calculates a reveal diameter large enough to cover the viewport corners', () => {
@@ -59,4 +71,8 @@ test('calculates a reveal diameter large enough to cover the viewport corners', 
 
   assert.ok(diameter > 930)
   assert.ok(diameter < 1100)
+})
+
+test('keeps the reveal animation deliberately slow enough for the handoff', () => {
+  assert.ok(WELCOME_TIMINGS.revealDurationMs >= 1400)
 })

@@ -149,14 +149,6 @@
   margin-top: 16rpx;
 }
 
-.foundation-shell--preview {
-  pointer-events: none;
-}
-
-.foundation-shell--preview .foundation-shell__content {
-  padding-top: 24rpx;
-}
-
 @media (max-width: 640rpx) {
   .role-card {
     width: calc(100% - 20rpx);

@@ -13,6 +13,7 @@ export interface WelcomeStateSnapshot {
   isButtonReady: boolean
   isRevealing: boolean
   isPreviewVisible: boolean
+  isHomeActive: boolean
   particles: WelcomeParticle[]
 }
 
@@ -28,7 +29,7 @@ interface WelcomeParticleSeed {
 export const WELCOME_TIMINGS = {
   buttonRevealDelayMs: 120,
   buttonReadyDelayMs: 640,
-  revealDurationMs: 1120,
+  revealDurationMs: 1480,
 } as const
 
 const REVEAL_PARTICLE_SEEDS: WelcomeParticleSeed[] = [
@@ -64,6 +65,7 @@ export function getInitialWelcomeState(): WelcomeStateSnapshot {
     isButtonReady: false,
     isRevealing: false,
     isPreviewVisible: false,
+    isHomeActive: false,
     particles: createRevealParticles(),
   }
 }
@@ -74,12 +76,24 @@ export function canStartReveal(isButtonReady: boolean, isRevealing: boolean): bo
 
 export function startRevealState(): Pick<
   WelcomeStateSnapshot,
-  'isButtonReady' | 'isRevealing' | 'isPreviewVisible'
+  'isButtonReady' | 'isRevealing' | 'isPreviewVisible' | 'isHomeActive'
 > {
   return {
     isButtonReady: false,
     isRevealing: true,
     isPreviewVisible: true,
+    isHomeActive: false,
+  }
+}
+
+export function finishRevealState(): Pick<
+  WelcomeStateSnapshot,
+  'isRevealing' | 'isPreviewVisible' | 'isHomeActive'
+> {
+  return {
+    isRevealing: false,
+    isPreviewVisible: true,
+    isHomeActive: true,
   }
 }
 

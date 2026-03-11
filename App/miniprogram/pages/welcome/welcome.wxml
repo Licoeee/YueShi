@@ -1,11 +1,13 @@
-<view class="welcome-page">
+<view class="welcome-page {{isHomeActive ? 'welcome-page--home' : ''}}">
   <view class="welcome-page__background"></view>
   <view class="welcome-page__ambient welcome-page__ambient--top"></view>
   <view class="welcome-page__ambient welcome-page__ambient--bottom"></view>
 
-  <view class="welcome-page__destination {{isPreviewVisible ? 'welcome-page__destination--visible' : ''}}">
+  <view
+    class="welcome-page__destination {{isPreviewVisible ? 'welcome-page__destination--visible' : ''}} {{isHomeActive ? 'welcome-page__destination--home' : ''}}"
+  >
     <view
-      class="welcome-page__destination-window {{isRevealing ? 'welcome-page__destination-window--active' : ''}}"
+      class="welcome-page__destination-window {{isRevealing || isHomeActive ? 'welcome-page__destination-window--active' : ''}} {{isHomeActive ? 'welcome-page__destination-window--home' : ''}}"
       style="--reveal-diameter: {{revealDiameterPx}}px;"
     >
       <view class="welcome-page__destination-content">
@@ -14,7 +16,9 @@
     </view>
   </view>
 
-  <view class="welcome-page__content {{isRevealing ? 'welcome-page__content--leaving' : ''}}">
+  <view
+    class="welcome-page__content {{isRevealing ? 'welcome-page__content--leaving' : ''}} {{isHomeActive ? 'welcome-page__content--hidden' : ''}}"
+  >
     <view class="welcome-page__brand">
       <view class="welcome-page__title-stack">
         <text class="welcome-page__title-shadow">悦时</text>
@@ -84,7 +88,7 @@
             size="large"
             shape="round"
             block="{{true}}"
-            disabled="{{!isButtonReady || isRevealing}}"
+            disabled="{{!isButtonReady || isRevealing || isHomeActive}}"
             bindtap="handleEnterTap"
           >
             进入主页
