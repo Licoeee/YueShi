@@ -12,6 +12,7 @@ export interface WelcomeStateSnapshot {
   isButtonVisible: boolean
   isButtonReady: boolean
   isRevealing: boolean
+  isPreviewVisible: boolean
   particles: WelcomeParticle[]
 }
 
@@ -26,8 +27,8 @@ interface WelcomeParticleSeed {
 
 export const WELCOME_TIMINGS = {
   buttonRevealDelayMs: 120,
-  buttonReadyDelayMs: 580,
-  revealDurationMs: 760,
+  buttonReadyDelayMs: 640,
+  revealDurationMs: 1120,
 } as const
 
 const REVEAL_PARTICLE_SEEDS: WelcomeParticleSeed[] = [
@@ -62,10 +63,28 @@ export function getInitialWelcomeState(): WelcomeStateSnapshot {
     isButtonVisible: false,
     isButtonReady: false,
     isRevealing: false,
+    isPreviewVisible: false,
     particles: createRevealParticles(),
   }
 }
 
 export function canStartReveal(isButtonReady: boolean, isRevealing: boolean): boolean {
   return isButtonReady && !isRevealing
+}
+
+export function startRevealState(): Pick<
+  WelcomeStateSnapshot,
+  'isButtonReady' | 'isRevealing' | 'isPreviewVisible'
+> {
+  return {
+    isButtonReady: false,
+    isRevealing: true,
+    isPreviewVisible: true,
+  }
+}
+
+export function getRevealDiameterPx(windowWidth: number, windowHeight: number): number {
+  const radius = Math.hypot(windowWidth / 2, windowHeight / 2)
+
+  return Math.ceil(radius * 2 + 48)
 }

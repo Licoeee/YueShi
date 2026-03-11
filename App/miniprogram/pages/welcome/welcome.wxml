@@ -3,10 +3,19 @@
   <view class="welcome-page__ambient welcome-page__ambient--top"></view>
   <view class="welcome-page__ambient welcome-page__ambient--bottom"></view>
 
-  <view class="welcome-page__content">
-    <view class="welcome-page__brand">
-      <text class="welcome-page__eyebrow">YUE SHI</text>
+  <view class="welcome-page__destination {{isPreviewVisible ? 'welcome-page__destination--visible' : ''}}">
+    <view
+      class="welcome-page__destination-window {{isRevealing ? 'welcome-page__destination-window--active' : ''}}"
+      style="--reveal-diameter: {{revealDiameterPx}}px;"
+    >
+      <view class="welcome-page__destination-content">
+        <foundation-home-shell mode="preview"></foundation-home-shell>
+      </view>
+    </view>
+  </view>
 
+  <view class="welcome-page__content {{isRevealing ? 'welcome-page__content--leaving' : ''}}">
+    <view class="welcome-page__brand">
       <view class="welcome-page__title-stack">
         <text class="welcome-page__title-shadow">悦时</text>
         <text class="welcome-page__title">悦时</text>
@@ -21,60 +30,69 @@
 
         <view class="cake__candles">
           <view class="cake__candle cake__candle--left">
-            <view class="cake__wick"></view>
             <view class="cake__flame"></view>
           </view>
           <view class="cake__candle cake__candle--center">
-            <view class="cake__wick"></view>
             <view class="cake__flame"></view>
           </view>
           <view class="cake__candle cake__candle--right">
-            <view class="cake__wick"></view>
             <view class="cake__flame"></view>
           </view>
         </view>
 
-        <view class="cake__top-cream"></view>
-        <view class="cake__drip cake__drip--left"></view>
-        <view class="cake__drip cake__drip--center"></view>
-        <view class="cake__drip cake__drip--right"></view>
+        <view class="cake__layer cake__layer--top">
+          <view class="cake__cream-ribbon cake__cream-ribbon--top"></view>
+          <view class="cake__puff cake__puff--top-1"></view>
+          <view class="cake__puff cake__puff--top-2"></view>
+          <view class="cake__puff cake__puff--top-3"></view>
+          <view class="cake__puff cake__puff--top-4"></view>
+          <view class="cake__puff cake__puff--top-5"></view>
+          <view class="cake__sponge cake__sponge--top"></view>
+          <view class="cake__candy cake__candy--sky"></view>
+          <view class="cake__candy cake__candy--lemon"></view>
+          <view class="cake__candy cake__candy--rose"></view>
+          <view class="cake__candy cake__candy--mint"></view>
+        </view>
 
-        <view class="cake__candy cake__candy--one"></view>
-        <view class="cake__candy cake__candy--two"></view>
-        <view class="cake__candy cake__candy--three"></view>
-        <view class="cake__candy cake__candy--four"></view>
-        <view class="cake__candy cake__candy--five"></view>
-        <view class="cake__candy cake__candy--six"></view>
-        <view class="cake__candy cake__candy--seven"></view>
-
-        <view class="cake__sponge cake__sponge--upper"></view>
-        <view class="cake__cream-fill"></view>
-        <view class="cake__sponge cake__sponge--lower"></view>
-        <view class="cake__plate"></view>
+        <view class="cake__layer cake__layer--bottom">
+          <view class="cake__cream-ribbon cake__cream-ribbon--bottom"></view>
+          <view class="cake__puff cake__puff--bottom-1"></view>
+          <view class="cake__puff cake__puff--bottom-2"></view>
+          <view class="cake__puff cake__puff--bottom-3"></view>
+          <view class="cake__puff cake__puff--bottom-4"></view>
+          <view class="cake__puff cake__puff--bottom-5"></view>
+          <view class="cake__puff cake__puff--bottom-6"></view>
+          <view class="cake__sponge cake__sponge--bottom"></view>
+          <view class="cake__candy cake__candy--apricot"></view>
+          <view class="cake__candy cake__candy--violet"></view>
+          <view class="cake__candy cake__candy--blue"></view>
+          <view class="cake__candy cake__candy--gold"></view>
+          <view class="cake__candy cake__candy--pink"></view>
+        </view>
       </view>
     </view>
 
     <view class="welcome-page__footer">
-      <view
-        class="welcome-page__cta-shell {{isButtonVisible ? 'welcome-page__cta-shell--visible' : ''}} {{isButtonReady ? 'welcome-page__cta-shell--ready' : ''}}"
-      >
-        <t-button
-          class="welcome-page__cta-button"
-          theme="primary"
-          variant="base"
-          size="large"
-          shape="round"
-          block="{{true}}"
-          disabled="{{!isButtonReady || isRevealing}}"
-          bindtap="handleEnterTap"
+      <view class="welcome-page__cta-track">
+        <view
+          class="welcome-page__cta-shell {{isButtonVisible ? 'welcome-page__cta-shell--visible' : ''}} {{isButtonReady ? 'welcome-page__cta-shell--ready' : ''}}"
         >
-          进入主页
-        </t-button>
+          <t-button
+            class="welcome-page__cta-button"
+            theme="primary"
+            variant="base"
+            size="large"
+            shape="round"
+            block="{{true}}"
+            disabled="{{!isButtonReady || isRevealing}}"
+            bindtap="handleEnterTap"
+          >
+            进入主页
+          </t-button>
+        </view>
       </view>
     </view>
   </view>
-
-  <view class="welcome-page__reveal {{isRevealing ? 'welcome-page__reveal--active' : ''}}"></view>
 
   <view class="welcome-page__particles {{isRevealing ? 'welcome-page__particles--active' : ''}}">
     <view

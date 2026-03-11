@@ -3,14 +3,18 @@ import {
   WELCOME_TIMINGS,
   canStartReveal,
   getInitialWelcomeState,
+  getRevealDiameterPx,
   getWelcomeEntryTarget,
+  startRevealState,
 } from '../../utils/welcome-motion'
 
 interface WelcomePageData extends WelcomeStateSnapshot {
   particles: WelcomeParticle[]
+  revealDiameterPx: number
 }
 
 interface WelcomePageMethods {
+  onLoad(): void
   handleEnterTap(): void
   onShow(): void
   onHide(): void
@@ -35,18 +39,27 @@ function clearWelcomeTimers(): void {
   navigationTimer = clearTimer(navigationTimer)
 }
 
-function buildWelcomeData(): WelcomePageData {
+function buildWelcomeData(revealDiameterPx: number): WelcomePageData {
   return {
     ...getInitialWelcomeState(),
+    revealDiameterPx,
   }
 }
 
 Page<WelcomePageData, WelcomePageMethods>({
-  data: buildWelcomeData(),
+  data: buildWelcomeData(getRevealDiameterPx(390, 844)),
+
+  onLoad() {
+    const systemInfo = wx.getSystemInfoSync()
+
+    this.setData({
+      revealDiameterPx: getRevealDiameterPx(systemInfo.windowWidth, systemInfo.windowHeight),
+    })
+  },
 
   onShow() {
     clearWelcomeTimers()
-    this.setData(buildWelcomeData())
+    this.setData(buildWelcomeData(this.data.revealDiameterPx))
 
     buttonRevealTimer = setTimeout((): void => {
       this.setData({
@@ -74,10 +87,7 @@ Page<WelcomePageData, WelcomePageMethods>({
       return
     }
 
-    this.setData({
-      isButtonReady: false,
-      isRevealing: true,
-    })
+    this.setData(startRevealState())
 
     navigationTimer = setTimeout((): void => {
       wx.reLaunch({
