@@ -1,0 +1,87 @@
+<view class="welcome-page">
+  <view class="welcome-page__background"></view>
+  <view class="welcome-page__ambient welcome-page__ambient--top"></view>
+  <view class="welcome-page__ambient welcome-page__ambient--bottom"></view>
+
+  <view class="welcome-page__content">
+    <view class="welcome-page__brand">
+      <text class="welcome-page__eyebrow">YUE SHI</text>
+
+      <view class="welcome-page__title-stack">
+        <text class="welcome-page__title-shadow">悦时</text>
+        <text class="welcome-page__title">悦时</text>
+      </view>
+
+      <text class="welcome-page__subtitle">遇见你的专属甜蜜时刻</text>
+    </view>
+
+    <view class="welcome-page__hero">
+      <view class="cake">
+        <view class="cake__shadow"></view>
+
+        <view class="cake__candles">
+          <view class="cake__candle cake__candle--left">
+            <view class="cake__wick"></view>
+            <view class="cake__flame"></view>
+          </view>
+          <view class="cake__candle cake__candle--center">
+            <view class="cake__wick"></view>
+            <view class="cake__flame"></view>
+          </view>
+          <view class="cake__candle cake__candle--right">
+            <view class="cake__wick"></view>
+            <view class="cake__flame"></view>
+          </view>
+        </view>
+
+        <view class="cake__top-cream"></view>
+        <view class="cake__drip cake__drip--left"></view>
+        <view class="cake__drip cake__drip--center"></view>
+        <view class="cake__drip cake__drip--right"></view>
+
+        <view class="cake__candy cake__candy--one"></view>
+        <view class="cake__candy cake__candy--two"></view>
+        <view class="cake__candy cake__candy--three"></view>
+        <view class="cake__candy cake__candy--four"></view>
+        <view class="cake__candy cake__candy--five"></view>
+        <view class="cake__candy cake__candy--six"></view>
+        <view class="cake__candy cake__candy--seven"></view>
+
+        <view class="cake__sponge cake__sponge--upper"></view>
+        <view class="cake__cream-fill"></view>
+        <view class="cake__sponge cake__sponge--lower"></view>
+        <view class="cake__plate"></view>
+      </view>
+    </view>
+
+    <view class="welcome-page__footer">
+      <view
+        class="welcome-page__cta-shell {{isButtonVisible ? 'welcome-page__cta-shell--visible' : ''}} {{isButtonReady ? 'welcome-page__cta-shell--ready' : ''}}"
+      >
+        <t-button
+          class="welcome-page__cta-button"
+          theme="primary"
+          variant="base"
+          size="large"
+          shape="round"
+          block="{{true}}"
+          disabled="{{!isButtonReady || isRevealing}}"
+          bindtap="handleEnterTap"
+        >
+          进入主页
+        </t-button>
+      </view>
+    </view>
+  </view>
+
+  <view class="welcome-page__reveal {{isRevealing ? 'welcome-page__reveal--active' : ''}}"></view>
+
+  <view class="welcome-page__particles {{isRevealing ? 'welcome-page__particles--active' : ''}}">
+    <view
+      wx:for="{{particles}}"
+      wx:key="id"
+      class="welcome-page__particle"
+      style="--particle-size: {{item.sizeRpx}}rpx; --particle-x: {{item.offsetX}}rpx; --particle-y: {{item.offsetY}}rpx; --particle-delay: {{item.delayMs}}ms; --particle-duration: {{item.durationMs}}ms; --particle-color: {{item.color}};"
+    ></view>
+  </view>
+</view>
