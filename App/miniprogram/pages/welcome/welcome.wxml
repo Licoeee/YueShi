@@ -11,7 +11,10 @@
       style="--reveal-diameter: {{revealDiameterPx}}px;"
     >
       <view class="welcome-page__destination-content">
-        <foundation-home-shell mode="preview"></foundation-home-shell>
+        <view class="welcome-page__role-loading">
+          <text class="welcome-page__role-loading-title">{{loadingRoleTitle}}</text>
+          <text class="welcome-page__role-loading-subtitle">{{loadingRoleSubtitle}}</text>
+        </view>
       </view>
     </view>
   </view>
@@ -29,49 +32,51 @@
     </view>
 
     <view class="welcome-page__hero">
-      <view class="cake">
-        <view class="cake__shadow"></view>
+      <view class="welcome-page__hero-stage">
+        <view class="cake">
+          <view class="cake__shadow"></view>
 
-        <view class="cake__candles">
-          <view class="cake__candle cake__candle--left">
-            <view class="cake__flame"></view>
+          <view class="cake__candles">
+            <view class="cake__candle cake__candle--left">
+              <view class="cake__flame"></view>
+            </view>
+            <view class="cake__candle cake__candle--center">
+              <view class="cake__flame"></view>
+            </view>
+            <view class="cake__candle cake__candle--right">
+              <view class="cake__flame"></view>
+            </view>
           </view>
-          <view class="cake__candle cake__candle--center">
-            <view class="cake__flame"></view>
-          </view>
-          <view class="cake__candle cake__candle--right">
-            <view class="cake__flame"></view>
-          </view>
-        </view>
 
-        <view class="cake__layer cake__layer--top">
-          <view class="cake__cream-ribbon cake__cream-ribbon--top"></view>
-          <view class="cake__puff cake__puff--top-1"></view>
-          <view class="cake__puff cake__puff--top-2"></view>
-          <view class="cake__puff cake__puff--top-3"></view>
-          <view class="cake__puff cake__puff--top-4"></view>
-          <view class="cake__puff cake__puff--top-5"></view>
-          <view class="cake__sponge cake__sponge--top"></view>
-          <view class="cake__candy cake__candy--sky"></view>
-          <view class="cake__candy cake__candy--lemon"></view>
-          <view class="cake__candy cake__candy--rose"></view>
-          <view class="cake__candy cake__candy--mint"></view>
-        </view>
+          <view class="cake__layer cake__layer--top">
+            <view class="cake__cream-ribbon cake__cream-ribbon--top"></view>
+            <view class="cake__puff cake__puff--top-1"></view>
+            <view class="cake__puff cake__puff--top-2"></view>
+            <view class="cake__puff cake__puff--top-3"></view>
+            <view class="cake__puff cake__puff--top-4"></view>
+            <view class="cake__puff cake__puff--top-5"></view>
+            <view class="cake__sponge cake__sponge--top"></view>
+            <view class="cake__candy cake__candy--sky"></view>
+            <view class="cake__candy cake__candy--lemon"></view>
+            <view class="cake__candy cake__candy--rose"></view>
+            <view class="cake__candy cake__candy--mint"></view>
+          </view>
 
-        <view class="cake__layer cake__layer--bottom">
-          <view class="cake__cream-ribbon cake__cream-ribbon--bottom"></view>
-          <view class="cake__puff cake__puff--bottom-1"></view>
-          <view class="cake__puff cake__puff--bottom-2"></view>
-          <view class="cake__puff cake__puff--bottom-3"></view>
-          <view class="cake__puff cake__puff--bottom-4"></view>
-          <view class="cake__puff cake__puff--bottom-5"></view>
-          <view class="cake__puff cake__puff--bottom-6"></view>
-          <view class="cake__sponge cake__sponge--bottom"></view>
-          <view class="cake__candy cake__candy--apricot"></view>
-          <view class="cake__candy cake__candy--violet"></view>
-          <view class="cake__candy cake__candy--blue"></view>
-          <view class="cake__candy cake__candy--gold"></view>
-          <view class="cake__candy cake__candy--pink"></view>
+          <view class="cake__layer cake__layer--bottom">
+            <view class="cake__cream-ribbon cake__cream-ribbon--bottom"></view>
+            <view class="cake__puff cake__puff--bottom-1"></view>
+            <view class="cake__puff cake__puff--bottom-2"></view>
+            <view class="cake__puff cake__puff--bottom-3"></view>
+            <view class="cake__puff cake__puff--bottom-4"></view>
+            <view class="cake__puff cake__puff--bottom-5"></view>
+            <view class="cake__puff cake__puff--bottom-6"></view>
+            <view class="cake__sponge cake__sponge--bottom"></view>
+            <view class="cake__candy cake__candy--apricot"></view>
+            <view class="cake__candy cake__candy--violet"></view>
+            <view class="cake__candy cake__candy--blue"></view>
+            <view class="cake__candy cake__candy--gold"></view>
+            <view class="cake__candy cake__candy--pink"></view>
+          </view>
         </view>
       </view>
     </view>

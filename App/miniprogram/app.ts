@@ -1,18 +1,23 @@
-// app.ts
+import { bootstrapRoleSession } from './utils/role-bootstrap'
+
+function appendLaunchLog(): void {
+  const logs = wx.getStorageSync('logs') || []
+  logs.unshift(Date.now())
+  wx.setStorageSync('logs', logs)
+}
+
 App<IAppOption>({
   globalData: {},
-  onLaunch() {
-    // 展示本地存储能力
-    const logs = wx.getStorageSync('logs') || []
-    logs.unshift(Date.now())
-    wx.setStorageSync('logs', logs)
 
-    // 登录
-    wx.login({
-      success: res => {
-        console.log(res.code)
-        // 发送 res.code 到后台换取 openId, sessionKey, unionId
-      },
-    })
+  onLaunch() {
+    appendLaunchLog()
+
+    void bootstrapRoleSession(this)
+      .then((): void => {
+        return
+      })
+      .catch((error: unknown): void => {
+        console.warn('[role-bootstrap] 启动期角色预取失败', error)
+      })
   },
 })

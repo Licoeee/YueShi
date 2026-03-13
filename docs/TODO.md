@@ -41,9 +41,9 @@
 - [x] 实现点击按钮后从屏幕中心向外扩散的圆形 reveal 转场与粒子拖尾效果
 
 ### 2.2 OpenID 静默获取
-- [ ] 在 app.ts 中实现 onLaunch 静默获取 OpenID
-- [ ] 创建云函数 get-user-openid 用于获取用户唯一标识
-- [ ] 建立本地缓存（wx.setStorage）存储用户身份信息
+- [x] 在 app.ts 中实现 onLaunch 静默获取 OpenID
+- [x] 创建云函数 get-user-openid 用于获取用户唯一标识
+- [x] 建立本地缓存（wx.setStorage）存储用户身份信息
 
 ### 2.3 角色识别与分流逻辑
 - [ ] 设计角色枚举类型（RoleType: admin | merchant | customer）

@@ -2,7 +2,6 @@
   "navigationStyle": "custom",
   "disableScroll": false,
   "usingComponents": {
-    "t-button": "tdesign-miniprogram/button/button",
-    "foundation-home-shell": "/components/foundation-home-shell/foundation-home-shell"
+    "t-button": "tdesign-miniprogram/button/button"
   }
 }

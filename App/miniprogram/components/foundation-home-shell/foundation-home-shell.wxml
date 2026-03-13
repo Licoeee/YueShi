@@ -38,6 +38,8 @@
           title="{{item.title}}"
           note="{{item.note}}"
           description="{{item.description}}"
+          t-class-title="app-interactive-text"
+          t-class-note="app-interactive-text"
         ></t-cell>
       </t-cell-group>
     </view>

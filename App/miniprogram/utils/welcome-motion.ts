@@ -44,7 +44,7 @@ const REVEAL_PARTICLE_SEEDS: WelcomeParticleSeed[] = [
 ]
 
 export function getWelcomeEntryTarget(): string {
-  return 'pages/index/index'
+  return 'pages/customer/home/home'
 }
 
 export function createRevealParticles(): WelcomeParticle[] {

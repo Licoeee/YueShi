@@ -1,6 +1,18 @@
 {
   "pages": [
     "pages/welcome/welcome",
+    "pages/customer/home/home",
+    "pages/customer/cart/cart",
+    "pages/customer/orders/orders",
+    "pages/customer/profile/profile",
+    "pages/merchant/products/products",
+    "pages/merchant/orders/orders",
+    "pages/merchant/account-book/account-book",
+    "pages/merchant/inventory/inventory",
+    "pages/merchant/profile/profile",
+    "pages/admin/reviews/reviews",
+    "pages/admin/overview/overview",
+    "pages/admin/profile/profile",
     "pages/index/index",
     "pages/logs/logs"
   ],
@@ -8,6 +20,9 @@
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "悦时",
     "navigationBarBackgroundColor": "#FFF5F7",
+    "backgroundColor": "#FFF5F7",
+    "backgroundColorTop": "#FFF5F7",
+    "backgroundColorBottom": "#FFE5D6",
     "backgroundTextStyle": "light"
   },
   "usingComponents": {

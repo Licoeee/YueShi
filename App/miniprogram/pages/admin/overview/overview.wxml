@@ -1,0 +1,10 @@
+<view class="role-page">
+  <view class="role-page__background"></view>
+  <role-page-scene
+    scenePath="/pages/admin/overview/overview"
+    activeRole="{{activeRole}}"
+    isPreviewMode="{{isPreviewMode}}"
+  ></role-page-scene>
+
+  <custom-tab-bar role="{{activeRole}}" currentPath="/pages/admin/overview/overview"></custom-tab-bar>
+</view>

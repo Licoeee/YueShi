@@ -12,8 +12,8 @@ import {
   startRevealState,
 } from '../miniprogram/utils/welcome-motion'
 
-test('resolves the welcome entry target to the placeholder home page', () => {
-  assert.equal(getWelcomeEntryTarget(), 'pages/index/index')
+test('resolves the welcome entry target to customer home entry', () => {
+  assert.equal(getWelcomeEntryTarget(), 'pages/customer/home/home')
 })
 
 test('creates renderable reveal particle seeds', () => {

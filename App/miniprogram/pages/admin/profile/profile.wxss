@@ -1,0 +1,5 @@
+@import "../../role-shell.wxss";
+
+.role-page__section .t-tag + .t-tag {
+  margin-left: 12rpx;
+}

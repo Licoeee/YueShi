@@ -1,3 +1,7 @@
+import type { RoleSession } from '../../../types/role'
+import { bootstrapRoleSession } from '../../utils/role-bootstrap'
+import { warmRoleTabbarPages, type PagePreloadAdapter } from '../../utils/role-page-preload'
+import { getRoleEntryPath, getRoleWelcomeMessage } from '../../utils/role-routing'
 import type { WelcomeParticle, WelcomeStateSnapshot } from '../../utils/welcome-motion'
 import {
   WELCOME_TIMINGS,
@@ -11,6 +15,8 @@ import {
 interface WelcomePageData extends WelcomeStateSnapshot {
   particles: WelcomeParticle[]
   revealDiameterPx: number
+  loadingRoleTitle: string
+  loadingRoleSubtitle: string
 }
 
 interface WelcomePageMethods {
@@ -43,6 +49,37 @@ function buildWelcomeData(revealDiameterPx: number): WelcomePageData {
   return {
     ...getInitialWelcomeState(),
     revealDiameterPx,
+    loadingRoleTitle: '正在识别你的身份...',
+    loadingRoleSubtitle: '系统将自动进入对应主页',
+  }
+}
+
+function enterRoleHome(roleSession: RoleSession): void {
+  wx.reLaunch({
+    url: getRoleEntryPath(roleSession.currentRole),
+  })
+}
+
+function buildRoleLoadingCopy(roleSession: RoleSession): Pick<WelcomePageData, 'loadingRoleTitle' | 'loadingRoleSubtitle'> {
+  const welcomeMessage = getRoleWelcomeMessage(roleSession)
+
+  if (roleSession.currentRole === 'admin') {
+    return {
+      loadingRoleTitle: welcomeMessage ?? '正在进入管理员主页',
+      loadingRoleSubtitle: '权限中心与巡检看板加载中',
+    }
+  }
+
+  if (roleSession.currentRole === 'merchant') {
+    return {
+      loadingRoleTitle: welcomeMessage ?? '正在进入商家主页',
+      loadingRoleSubtitle: '订单与商品工作台加载中',
+    }
+  }
+
+  return {
+    loadingRoleTitle: '正在进入顾客主页',
+    loadingRoleSubtitle: '选购与订单入口加载中',
   }
 }
 
@@ -87,10 +124,33 @@ Page<WelcomePageData, WelcomePageMethods>({
       return
     }
 
-    this.setData(startRevealState())
+    const app = getApp<IAppOption>()
+    const roleSessionTask = bootstrapRoleSession(app).then((roleSession): RoleSession => {
+      warmRoleTabbarPages(roleSession.currentRole, '', wx as Partial<PagePreloadAdapter>)
+      this.setData(buildRoleLoadingCopy(roleSession))
+
+      return roleSession
+    })
+
+    this.setData({
+      ...startRevealState(),
+      loadingRoleTitle: '正在识别你的身份...',
+      loadingRoleSubtitle: '系统将自动进入对应主页',
+    })
 
     revealCompleteTimer = setTimeout((): void => {
       this.setData(finishRevealState())
+
+      void roleSessionTask
+        .then((roleSession): void => {
+          enterRoleHome(roleSession)
+        })
+        .catch((error: unknown): void => {
+          console.warn('[role-routing] 角色识别失败，回退顾客入口', error)
+          wx.reLaunch({
+            url: getRoleEntryPath('customer'),
+          })
+        })
     }, WELCOME_TIMINGS.revealDurationMs)
   },
 })
