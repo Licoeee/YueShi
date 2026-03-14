@@ -4,6 +4,8 @@ export type ProductStatus = 'draft' | 'active' | 'archived'
 
 export type ProductSpecSize = '6-inch' | '8-inch' | '10-inch'
 
+export type CakeLayerId = 'single' | 'double' | 'triple'
+
 export interface ProductMedia {
   url: string
   alt: string
@@ -31,4 +33,33 @@ export interface ProductSummary {
   coverImage: string
   gallery: ProductMedia[]
   specs: ProductSpec[]
+}
+
+export interface CakeLayerOption {
+  id: CakeLayerId
+  label: string
+  layers: number
+}
+
+export interface CakeSizePlan {
+  id: string
+  label: string
+  layers: number
+  sizes: ProductSpecSize[]
+  price: number
+  isDefault: boolean
+}
+
+export interface CakeCreamOption {
+  id: string
+  label: string
+  priceDelta: number
+  isDefault: boolean
+}
+
+export interface CakeDetail extends ProductSummary {
+  detailImages: ProductMedia[]
+  layerOptions: CakeLayerOption[]
+  sizePlans: CakeSizePlan[]
+  creamOptions: CakeCreamOption[]
 }
