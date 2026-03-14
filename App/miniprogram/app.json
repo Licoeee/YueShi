@@ -2,8 +2,11 @@
   "pages": [
     "pages/welcome/welcome",
     "pages/customer/home/home",
+    "pages/customer/product-detail/product-detail",
     "pages/customer/cart/cart",
+    "pages/customer/checkout/checkout",
     "pages/customer/orders/orders",
+    "pages/customer/order-detail/order-detail",
     "pages/customer/profile/profile",
     "pages/merchant/products/products",
     "pages/merchant/orders/orders",

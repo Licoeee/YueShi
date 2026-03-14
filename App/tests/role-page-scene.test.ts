@@ -2,11 +2,10 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 import test from 'node:test'
+import { workspaceRoot } from './test-workspace-root'
 
 import { getRoleTabbarItems } from '../miniprogram/utils/role-tabbar'
 import { getRolePageScene } from '../miniprogram/utils/role-page-scenes'
-
-const workspaceRoot = process.cwd()
 
 function readWorkspaceFile(relativePath: string): string {
   return fs.readFileSync(path.join(workspaceRoot, relativePath), 'utf8')
@@ -69,4 +68,20 @@ test('binds all role pages to scene-mode tab switching to avoid cross-page route
     assert.match(source, /scenePath="\{\{scenePath\}\}"/)
     assert.match(source, /bind:tabchange="handleTabChange"/)
   })
+})
+
+test('renders customer business scenes instead of placeholder cards for home, cart, and orders', () => {
+  const source = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.wxml')
+
+  assert.match(source, /<customer-home-scene/)
+  assert.match(source, /<customer-cart-scene/)
+  assert.match(source, /<customer-orders-scene/)
+})
+
+test('wraps customer scenes with a top safe-area shell to avoid status-bar overlap', () => {
+  const wxml = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.wxml')
+  const wxss = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.wxss')
+
+  assert.match(wxml, /role-page-scene__customer-shell/)
+  assert.match(wxss, /padding:\s*calc\(14rpx \+ env\(safe-area-inset-top\) \+ 88rpx\)\s*30rpx\s*0;/)
 })

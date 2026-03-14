@@ -1,6 +1,13 @@
 .role-page-scene {
   position: relative;
   z-index: 1;
+  min-height: 100%;
+}
+
+.role-page-scene__customer-shell {
+  min-height: 100%;
+  padding: calc(14rpx + env(safe-area-inset-top) + 88rpx) 30rpx 0;
+  box-sizing: border-box;
 }
 
 .role-page-scene__tag-row {

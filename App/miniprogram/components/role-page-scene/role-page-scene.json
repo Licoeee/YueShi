@@ -2,6 +2,9 @@
   "component": true,
   "styleIsolation": "apply-shared",
   "usingComponents": {
+    "customer-cart-scene": "/components/customer-cart-scene/customer-cart-scene",
+    "customer-home-scene": "/components/customer-home-scene/customer-home-scene",
+    "customer-orders-scene": "/components/customer-orders-scene/customer-orders-scene",
     "t-button": "tdesign-miniprogram/button/button",
     "t-cell": "tdesign-miniprogram/cell/cell",
     "t-cell-group": "tdesign-miniprogram/cell-group/cell-group",

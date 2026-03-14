@@ -1,0 +1,20 @@
+<view class="customer-product-detail-page">
+  <customer-product-detail
+    cake="{{cake}}"
+    selection="{{selection}}"
+    selectable-size-plans="{{selectableSizePlans}}"
+    current-price="{{currentPrice}}"
+    home-label="首页"
+    cart-label="购物车"
+    add-cart-label="加入购物车"
+    buy-now-label="立即购买"
+    bind:layerchange="handleLayerChange"
+    bind:sizeplanchange="handleSizePlanChange"
+    bind:creamchange="handleCreamChange"
+    bind:previewimage="handlePreviewImage"
+    bind:gohome="handleGoHome"
+    bind:gocart="handleGoCart"
+    bind:addtocart="handleAddToCart"
+    bind:buynow="handleBuyNow"
+  ></customer-product-detail>
+</view>

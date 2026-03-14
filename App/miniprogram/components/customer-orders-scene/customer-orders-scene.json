@@ -1,0 +1,8 @@
+{
+  "component": true,
+  "styleIsolation": "apply-shared",
+  "usingComponents": {
+    "t-empty": "tdesign-miniprogram/empty/empty",
+    "t-tag": "tdesign-miniprogram/tag/tag"
+  }
+}

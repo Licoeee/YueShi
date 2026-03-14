@@ -1,0 +1,228 @@
+/* ===== 页面整体 ===== */
+.customer-product-detail {
+  min-height: 100vh;
+  padding: 40rpx 28rpx calc(320rpx + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at top left, rgba(255, 219, 210, 0.92), transparent 38%),
+    linear-gradient(180deg, #fff8f4 0%, #fff3ef 44%, #fffdfb 100%);
+  box-sizing: border-box;
+}
+
+/* ===== Hero 区域 ===== */
+.customer-product-detail__hero {
+  overflow: hidden;
+  border-radius: 36rpx;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 22rpx 60rpx rgba(204, 128, 103, 0.16);
+}
+
+.customer-product-detail__hero-image {
+  overflow: hidden;
+  height: 66vh;
+  min-height: 620rpx;
+}
+
+.customer-product-detail__cover {
+  width: 100%;
+  height: 100%;
+}
+
+.customer-product-detail__hero-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  padding: 28rpx;
+}
+
+.customer-product-detail__eyebrow {
+  font-size: 22rpx;
+  line-height: 1.2;
+  letter-spacing: 6rpx;
+  color: #d08d78;
+  text-transform: uppercase;
+}
+
+.customer-product-detail__title {
+  font-size: 42rpx;
+  line-height: 1.3;
+  font-weight: 600;
+  color: #4c352d;
+}
+
+.customer-product-detail__description {
+  font-size: 26rpx;
+  line-height: 1.7;
+  color: #7a5a50;
+}
+
+.customer-product-detail__price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+}
+
+.customer-product-detail__price {
+  font-size: 44rpx;
+  line-height: 1;
+  font-weight: 700;
+  color: #d75d3f;
+}
+
+/* ===== 选项区块 ===== */
+.customer-product-detail__section {
+  margin-top: 28rpx;
+  padding: 28rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18rpx 48rpx rgba(210, 143, 120, 0.11);
+}
+
+.customer-product-detail__section-title {
+  display: block;
+  margin-bottom: 20rpx;
+  font-size: 30rpx;
+  line-height: 1.3;
+  font-weight: 600;
+  color: #543c34;
+}
+
+.customer-product-detail__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18rpx;
+}
+
+.customer-product-detail__chip {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  min-width: 180rpx;
+  padding: 18rpx 18rpx 16rpx;
+  border: 2rpx solid rgba(225, 198, 190, 0.7);
+  border-radius: 28rpx;
+  background: #fffdfa;
+  box-sizing: border-box;
+}
+
+.customer-product-detail__chip--active {
+  border-color: rgba(225, 122, 94, 0.66);
+  box-shadow: 0 12rpx 24rpx rgba(215, 93, 63, 0.12);
+}
+
+.customer-product-detail__chip-meta {
+  font-size: 22rpx;
+  line-height: 1.4;
+  color: #8a675e;
+}
+
+/* ===== 详情图 ===== */
+.customer-product-detail__detail-image + .customer-product-detail__detail-image {
+  margin-top: 20rpx;
+}
+
+.customer-product-detail__detail-media {
+  width: 100%;
+}
+
+/* ===========================================================
+   底栏 (状态 C 布局)
+   结构: [nav-group: 首页 | 购物车]  [action-group: 加入购物车 | 立即购买]
+   使用 flex 布局，导航收缩、操作撑满
+   =========================================================== */
+.customer-product-detail__footer {
+  position: fixed;
+  right: 24rpx;
+  bottom: 24rpx;
+  left: 24rpx;
+  display: flex;
+  align-items: stretch;
+  gap: 12rpx;
+  padding: 12rpx 12rpx calc(12rpx + env(safe-area-inset-bottom));
+  border: 2rpx solid rgba(195, 127, 109, 0.24);
+  border-radius: 28rpx;
+  background: rgba(255, 251, 248, 0.97);
+  box-shadow: 0 12rpx 32rpx rgba(163, 98, 84, 0.16);
+  backdrop-filter: blur(12rpx);
+  z-index: 90;
+  box-sizing: border-box;
+}
+
+/* ---- 左侧: 导航按钮组 ---- */
+.customer-product-detail__footer-nav-group {
+  flex: none;
+  display: flex;
+  gap: 8rpx;
+}
+
+.customer-product-detail__nav-cell {
+  width: 80rpx;
+  height: 72rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rpx;
+  border: 2rpx solid rgba(185, 119, 103, 0.24);
+  border-radius: 16rpx;
+  background: #fffdfc;
+}
+
+.customer-product-detail__nav-cell:active {
+  background: #fff0ea;
+}
+
+.customer-product-detail__nav-icon-image {
+  width: 28rpx;
+  height: 28rpx;
+}
+
+.customer-product-detail__nav-label {
+  font-size: 18rpx;
+  line-height: 1;
+  font-weight: 600;
+  color: #7a5951;
+  white-space: nowrap;
+}
+
+/* ---- 右侧: 操作按钮组 ---- */
+.customer-product-detail__footer-action-group {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 8rpx;
+}
+
+.customer-product-detail__action-host {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 操作按钮基础: 高度跟随父容器 stretch */
+.customer-product-detail__action-btn {
+  width: 100%;
+  min-width: 0;
+  --td-button-medium-height: 72rpx;
+  --td-button-border-radius: 16rpx;
+  --td-button-medium-padding-horizontal: 4rpx;
+  --td-button-font-weight: 700;
+  --td-font-size-m: 26rpx;
+}
+
+/* Ghost 按钮: 加入购物车 */
+.customer-product-detail__action-btn--ghost {
+  --td-button-default-outline-color: #bf5e46;
+  --td-button-default-outline-border-color: rgba(189, 122, 106, 0.24);
+  --td-bg-color-container: #fff5ef;
+  --td-button-default-outline-active-bg-color: #ffd8c4;
+  --td-button-default-outline-active-border-color: rgba(189, 122, 106, 0.36);
+}
+
+/* Primary 按钮: 立即购买 */
+.customer-product-detail__action-btn--primary {
+  --td-button-primary-bg-color: #f37a57;
+  --td-button-primary-border-color: transparent;
+  --td-button-primary-color: #fffdfa;
+  --td-button-primary-active-bg-color: #e76545;
+  --td-button-primary-active-border-color: transparent;
+}

@@ -25,6 +25,10 @@ export interface OrderItem {
   productId: string
   productName: string
   specId: string
+  specLabel: string
+  layerId: string
+  sizePlanId: string
+  creamId: string
   size: ProductSpecSize
   quantity: number
   unitPrice: number

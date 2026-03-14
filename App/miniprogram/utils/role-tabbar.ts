@@ -4,27 +4,125 @@ export interface RoleTabbarItem {
   value: string
   label: string
   path: string
+  iconKey: RoleTabbarIconKey
+  iconInactive: string
+  iconActive: string
 }
 
+export type RoleTabbarIconKey =
+  | 'home'
+  | 'cart'
+  | 'orders'
+  | 'profile'
+  | 'products'
+  | 'account-book'
+  | 'inventory'
+  | 'reviews'
+  | 'overview'
+
 const CUSTOMER_TABBAR_ITEMS: RoleTabbarItem[] = [
-  { value: 'customer-home', label: '首页', path: '/pages/customer/home/home' },
-  { value: 'customer-cart', label: '购物车', path: '/pages/customer/cart/cart' },
-  { value: 'customer-orders', label: '订单', path: '/pages/customer/orders/orders' },
-  { value: 'customer-profile', label: '我的', path: '/pages/customer/profile/profile' },
+  {
+    value: 'customer-home',
+    label: '首页',
+    path: '/pages/customer/home/home',
+    iconKey: 'home',
+    iconInactive: '/assets/icons/tab/home-inactive.svg',
+    iconActive: '/assets/icons/tab/home-active.svg',
+  },
+  {
+    value: 'customer-cart',
+    label: '购物车',
+    path: '/pages/customer/cart/cart',
+    iconKey: 'cart',
+    iconInactive: '/assets/icons/tab/cart-inactive.svg',
+    iconActive: '/assets/icons/tab/cart-active.svg',
+  },
+  {
+    value: 'customer-orders',
+    label: '订单',
+    path: '/pages/customer/orders/orders',
+    iconKey: 'orders',
+    iconInactive: '/assets/icons/tab/orders-inactive.svg',
+    iconActive: '/assets/icons/tab/orders-active.svg',
+  },
+  {
+    value: 'customer-profile',
+    label: '我的',
+    path: '/pages/customer/profile/profile',
+    iconKey: 'profile',
+    iconInactive: '/assets/icons/tab/profile-inactive.svg',
+    iconActive: '/assets/icons/tab/profile-active.svg',
+  },
 ]
 
 const MERCHANT_TABBAR_ITEMS: RoleTabbarItem[] = [
-  { value: 'merchant-products', label: '商品管理', path: '/pages/merchant/products/products' },
-  { value: 'merchant-orders', label: '订单管理', path: '/pages/merchant/orders/orders' },
-  { value: 'merchant-account-book', label: '账本', path: '/pages/merchant/account-book/account-book' },
-  { value: 'merchant-inventory', label: '商品库存', path: '/pages/merchant/inventory/inventory' },
-  { value: 'merchant-profile', label: '我的', path: '/pages/merchant/profile/profile' },
+  {
+    value: 'merchant-products',
+    label: '商品管理',
+    path: '/pages/merchant/products/products',
+    iconKey: 'products',
+    iconInactive: '/assets/icons/tab/products-inactive.svg',
+    iconActive: '/assets/icons/tab/products-active.svg',
+  },
+  {
+    value: 'merchant-orders',
+    label: '订单管理',
+    path: '/pages/merchant/orders/orders',
+    iconKey: 'orders',
+    iconInactive: '/assets/icons/tab/orders-inactive.svg',
+    iconActive: '/assets/icons/tab/orders-active.svg',
+  },
+  {
+    value: 'merchant-account-book',
+    label: '账本',
+    path: '/pages/merchant/account-book/account-book',
+    iconKey: 'account-book',
+    iconInactive: '/assets/icons/tab/account-book-inactive.svg',
+    iconActive: '/assets/icons/tab/account-book-active.svg',
+  },
+  {
+    value: 'merchant-inventory',
+    label: '商品库存',
+    path: '/pages/merchant/inventory/inventory',
+    iconKey: 'inventory',
+    iconInactive: '/assets/icons/tab/inventory-inactive.svg',
+    iconActive: '/assets/icons/tab/inventory-active.svg',
+  },
+  {
+    value: 'merchant-profile',
+    label: '我的',
+    path: '/pages/merchant/profile/profile',
+    iconKey: 'profile',
+    iconInactive: '/assets/icons/tab/profile-inactive.svg',
+    iconActive: '/assets/icons/tab/profile-active.svg',
+  },
 ]
 
 const ADMIN_TABBAR_ITEMS: RoleTabbarItem[] = [
-  { value: 'admin-reviews', label: '商家审核', path: '/pages/admin/reviews/reviews' },
-  { value: 'admin-overview', label: '数据概览', path: '/pages/admin/overview/overview' },
-  { value: 'admin-profile', label: '我的', path: '/pages/admin/profile/profile' },
+  {
+    value: 'admin-reviews',
+    label: '商家审核',
+    path: '/pages/admin/reviews/reviews',
+    iconKey: 'reviews',
+    iconInactive: '/assets/icons/tab/reviews-inactive.svg',
+    iconActive: '/assets/icons/tab/reviews-active.svg',
+  },
+  {
+    value: 'admin-overview',
+    label: '数据概览',
+    path: '/pages/admin/overview/overview',
+    iconKey: 'overview',
+    iconInactive: '/assets/icons/tab/overview-inactive.svg',
+    iconActive: '/assets/icons/tab/overview-active.svg',
+  },
+  {
+    value: 'admin-profile',
+    label: '我的',
+    path: '/pages/admin/profile/profile',
+    iconKey: 'profile',
+    iconInactive: '/assets/icons/tab/profile-inactive.svg',
+    iconActive: '/assets/icons/tab/profile-active.svg',
+  },
 ]
 
 const TABBAR_BY_ROLE: Record<RoleType, RoleTabbarItem[]> = {

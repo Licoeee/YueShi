@@ -1,3 +1,4 @@
 .worktrees/
+App/node_modules/
 App/miniprogram/node_modules/miniprogram-api-typings/
 .superpowers/

@@ -2,10 +2,9 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 import test from 'node:test'
+import { workspaceRoot } from './test-workspace-root'
 
 import { resolveTabRouteAction } from '../miniprogram/utils/tab-route-strategy'
-
-const workspaceRoot = process.cwd()
 
 function readWorkspaceFile(relativePath: string): string {
   return fs.readFileSync(path.join(workspaceRoot, relativePath), 'utf8')

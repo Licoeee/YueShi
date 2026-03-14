@@ -2,8 +2,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 import test from 'node:test'
-
-const workspaceRoot = process.cwd()
+import { workspaceRoot } from './test-workspace-root'
 
 function readWorkspaceFile(relativePath: string): string {
   return fs.readFileSync(path.join(workspaceRoot, relativePath), 'utf8')
@@ -28,19 +27,32 @@ test('forces tabbar labels into a single line with truncation-safe styles', () =
 })
 
 test('tightens tabbar proportions while keeping labels larger and readable', () => {
+  const wxml = readWorkspaceFile('App/miniprogram/components/custom-tab-bar/custom-tab-bar.wxml')
   const wxss = readWorkspaceFile('App/miniprogram/components/custom-tab-bar/custom-tab-bar.wxss')
 
   assert.match(
-    wxss,
-    /\.custom-tab-bar__panel\s*\{[\s\S]*--td-tab-bar-height:\s*72rpx;/,
+    wxml,
+    /custom-tab-bar__item-content[\s\S]*custom-tab-bar__icon-image[\s\S]*custom-tab-bar__label/,
   )
   assert.match(
     wxss,
-    /\.custom-tab-bar__item\s*\{[\s\S]*height:\s*72rpx;[\s\S]*margin:\s*10rpx 0;[\s\S]*padding:\s*0 12rpx;/,
+    /\.custom-tab-bar__panel\s*\{[\s\S]*--td-tab-bar-height:\s*118rpx;/,
   )
   assert.match(
     wxss,
-    /\.custom-tab-bar__label\s*\{[\s\S]*font-size:\s*26rpx;[\s\S]*line-height:\s*34rpx;/,
+    /\.custom-tab-bar__item\s*\{[\s\S]*height:\s*118rpx;[\s\S]*margin:\s*5rpx 0;[\s\S]*padding:\s*0 6rpx;/,
+  )
+  assert.match(
+    wxss,
+    /\.custom-tab-bar__item-content\s*\{[\s\S]*flex-direction:\s*column;[\s\S]*align-items:\s*center;/,
+  )
+  assert.match(
+    wxss,
+    /\.custom-tab-bar__icon-image\s*\{[\s\S]*width:\s*36rpx;[\s\S]*height:\s*36rpx;/,
+  )
+  assert.match(
+    wxss,
+    /\.custom-tab-bar__label\s*\{[\s\S]*font-size:\s*22rpx;[\s\S]*line-height:\s*30rpx;/,
   )
 })
 

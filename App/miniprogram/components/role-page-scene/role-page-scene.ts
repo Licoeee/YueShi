@@ -7,8 +7,11 @@ interface RoleSwitchOption {
   note: string
 }
 
+type RolePageSceneRenderMode = 'placeholder' | 'customer-home' | 'customer-cart' | 'customer-orders'
+
 interface RolePageSceneData {
   scene: RolePageScene | null
+  renderMode: RolePageSceneRenderMode
 }
 
 function parseRoleType(rawValue: unknown): RoleType | null {
@@ -49,6 +52,7 @@ Component({
 
   data: {
     scene: null,
+    renderMode: 'placeholder',
   } as RolePageSceneData,
 
   observers: {
@@ -74,11 +78,23 @@ Component({
       }
 
       const nextScene = getRolePageScene(scenePath)
-      if (this.data.scene?.path === nextScene.path) {
+      const renderMode: RolePageSceneRenderMode =
+        nextScene.path === '/pages/customer/home/home'
+          ? 'customer-home'
+          : nextScene.path === '/pages/customer/cart/cart'
+            ? 'customer-cart'
+            : nextScene.path === '/pages/customer/orders/orders'
+              ? 'customer-orders'
+            : 'placeholder'
+
+      if (this.data.scene?.path === nextScene.path && this.data.renderMode === renderMode) {
         return
       }
 
-      this.setData({ scene: nextScene })
+      this.setData({
+        scene: nextScene,
+        renderMode,
+      })
     },
 
     getRoleSwitchOptions(): RoleSwitchOption[] {

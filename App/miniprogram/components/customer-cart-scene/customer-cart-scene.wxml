@@ -1,0 +1,38 @@
+<view class="customer-cart-scene">
+  <view class="customer-cart-scene__hero">
+    <text class="customer-cart-scene__title">购物车</text>
+    <text class="customer-cart-scene__subtitle">当前已勾选 {{checkedCount}} 件蛋糕</text>
+  </view>
+
+  <view class="customer-cart-scene__empty" wx:if="{{items.length === 0}}">
+    <t-empty description="暂无蛋糕，先去首页逛逛吧"></t-empty>
+  </view>
+
+  <view class="customer-cart-scene__list" wx:else>
+    <view wx:for="{{items}}" wx:key="id" class="customer-cart-scene__item">
+      <t-checkbox
+        checked="{{item.checked}}"
+        label="{{item.productName}}"
+        data-item-id="{{item.id}}"
+        bind:change="handleItemCheckChange"
+      ></t-checkbox>
+      <view class="customer-cart-scene__meta">
+        <text class="customer-cart-scene__spec">{{item.specLabel}}</text>
+        <text class="customer-cart-scene__price">¥ {{item.totalPrice}} x {{item.quantity}}</text>
+      </view>
+    </view>
+
+    <view class="customer-cart-scene__summary">
+      <view class="customer-cart-scene__summary-copy">
+        <text class="customer-cart-scene__summary-label">合计</text>
+        <text class="customer-cart-scene__summary-price">¥ {{checkedAmount}}</text>
+      </view>
+      <t-button
+        theme="primary"
+        size="medium"
+        disabled="{{!canCheckout}}"
+        bindtap="handleCheckout"
+      >去结算</t-button>
+    </view>
+  </view>
+</view>
