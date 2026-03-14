@@ -27,3 +27,10 @@
 - **角色判定时机**：点击“进入主页”后立即完成角色判定并直达目标端；禁止先进入顾客端再异步纠偏。
 - **Tab 规则一致性**：三端 TabBar 的配置、顺序、文案、高亮必须与实际页面 route 一致；方向判定按“左→右=前进，右→左=后退”，禁止环形推断。
 - **快速切换稳定性**：`custom-tab-bar` 的 scene 切换必须保留限流与 pending 覆盖策略，避免高频切换导致主线程阻塞、白屏闪烁和不可恢复卡死。
+
+## 5. Worktree 生命周期流程 (必须执行)
+- **创建前**：先在主工作区执行 `git switch dev && git pull`，确保新 worktree 基线最新。
+- **隔离原则**：一个 worktree 只承载一个任务，禁止多个任务共用同一 worktree。
+- **收尾顺序**：功能完成后按“测试通过 -> 提交 -> 合并到主分支”执行，不允许长期悬挂未收尾 worktree。
+- **清理动作**：合并完成后必须执行 `git cherry -v dev <branch>` 确认无独有提交，再 `git worktree remove <path>` 与 `git branch -d <branch>`。
+- **日终巡检**：收工前执行 `git worktree list` + 各 worktree `git status -sb`，确保无遗留脏区。
