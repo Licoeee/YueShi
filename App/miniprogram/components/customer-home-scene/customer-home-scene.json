@@ -1,0 +1,10 @@
+{
+  "component": true,
+  "styleIsolation": "apply-shared",
+  "usingComponents": {
+    "customer-product-sheet": "/components/customer-product-sheet/customer-product-sheet",
+    "t-image": "tdesign-miniprogram/image/image",
+    "t-search": "tdesign-miniprogram/search/search",
+    "t-tag": "tdesign-miniprogram/tag/tag"
+  }
+}

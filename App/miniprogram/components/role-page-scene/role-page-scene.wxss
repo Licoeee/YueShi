@@ -1,6 +1,7 @@
 .role-page-scene {
   position: relative;
   z-index: 1;
+  min-height: 100%;
 }
 
 .role-page-scene__tag-row {

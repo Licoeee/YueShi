@@ -69,3 +69,10 @@ test('binds all role pages to scene-mode tab switching to avoid cross-page route
     assert.match(source, /bind:tabchange="handleTabChange"/)
   })
 })
+
+test('renders customer business scenes instead of placeholder cards for home and cart', () => {
+  const source = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.wxml')
+
+  assert.match(source, /<customer-home-scene/)
+  assert.match(source, /<customer-cart-scene/)
+})

@@ -1,0 +1,90 @@
+<view class="customer-home-scene">
+  <view class="customer-home-scene__hero">
+    <text class="customer-home-scene__brand">悦时</text>
+    <text class="customer-home-scene__subtitle">今天也想预见一块被认真庆祝的蛋糕</text>
+  </view>
+
+  <view class="customer-home-scene__search">
+    <t-search
+      value="{{keyword}}"
+      placeholder="搜索蛋糕名 / 商品 ID"
+      left-icon=""
+      bind:change="handleSearchChange"
+    ></t-search>
+  </view>
+
+  <view class="customer-home-scene__filters">
+    <view
+      wx:for="{{sortOptions}}"
+      wx:key="value"
+      class="customer-home-scene__filter"
+      data-sort-mode="{{item.value}}"
+      bindtap="handleSortTap"
+    >
+      <t-tag theme="{{sortMode === item.value ? 'primary' : 'default'}}" variant="light">
+        {{item.label}}
+      </t-tag>
+    </view>
+  </view>
+
+  <view class="customer-home-scene__waterfall">
+    <view class="customer-home-scene__column">
+      <view
+        wx:for="{{leftColumn}}"
+        wx:key="id"
+        class="customer-home-scene__card"
+        data-product-id="{{item.id}}"
+        bindtap="handleProductTap"
+      >
+        <t-image
+          class="customer-home-scene__image"
+          src="{{item.coverImage}}"
+          mode="aspectFill"
+          shape="round"
+          lazy="{{true}}"
+        ></t-image>
+        <view class="customer-home-scene__card-body">
+          <text class="customer-home-scene__card-title">{{item.title}}</text>
+          <text class="customer-home-scene__card-meta">{{item.description}}</text>
+          <view class="customer-home-scene__card-footer">
+            <text class="customer-home-scene__card-price">¥ {{item.basePrice}}</text>
+            <text class="customer-home-scene__card-sales">月售 {{item.monthlySales}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="customer-home-scene__column">
+      <view
+        wx:for="{{rightColumn}}"
+        wx:key="id"
+        class="customer-home-scene__card"
+        data-product-id="{{item.id}}"
+        bindtap="handleProductTap"
+      >
+        <t-image
+          class="customer-home-scene__image"
+          src="{{item.coverImage}}"
+          mode="aspectFill"
+          shape="round"
+          lazy="{{true}}"
+        ></t-image>
+        <view class="customer-home-scene__card-body">
+          <text class="customer-home-scene__card-title">{{item.title}}</text>
+          <text class="customer-home-scene__card-meta">{{item.description}}</text>
+          <view class="customer-home-scene__card-footer">
+            <text class="customer-home-scene__card-price">¥ {{item.basePrice}}</text>
+            <text class="customer-home-scene__card-sales">月售 {{item.monthlySales}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <customer-product-sheet
+    visible="{{isSheetVisible}}"
+    cake="{{selectedCake}}"
+    bind:close="handleSheetClose"
+    bind:lift="handleSheetLift"
+  ></customer-product-sheet>
+</view>

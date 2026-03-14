@@ -1,0 +1,28 @@
+<view class="customer-product-sheet" wx:if="{{visible && cake}}">
+  <view class="customer-product-sheet__mask" bindtap="handleMaskTap"></view>
+  <view
+    class="customer-product-sheet__panel"
+    bindtouchstart="handleTouchStart"
+    bindtouchend="handleTouchEnd"
+  >
+    <view class="customer-product-sheet__handle"></view>
+    <view class="customer-product-sheet__heading">
+      <text class="customer-product-sheet__eyebrow">Cake Preview</text>
+      <text class="customer-product-sheet__title">{{cake.title}}</text>
+      <text class="customer-product-sheet__description">{{cake.description}}</text>
+    </view>
+
+    <t-swiper
+      class="customer-product-sheet__swiper"
+      list="{{imageUrls}}"
+      height="360rpx"
+      autoplay="{{false}}"
+      navigation="{{ { type: 'dots' } }}"
+    ></t-swiper>
+
+    <view class="customer-product-sheet__hint">
+      <t-tag theme="primary" variant="light">展示态</t-tag>
+      <text class="customer-product-sheet__hint-text">在详情区域内继续上滑，进入完整详情页</text>
+    </view>
+  </view>
+</view>
