@@ -102,60 +102,49 @@
     </view>
   </view>
 
+  <!-- 底栏：左侧导航 + 右侧操作 -->
   <view class="customer-product-detail__footer">
     <view class="customer-product-detail__footer-nav-group">
-      <t-button
-        class="customer-product-detail__nav-button"
-        theme="default"
-        variant="outline"
-        shape="round"
-        size="small"
-        bindtap="handleGoHome"
-      >
-        <view class="customer-product-detail__nav-button-content">
-          <t-image
-            class="customer-product-detail__nav-icon-image"
-            src="/assets/icons/tab/home-inactive.svg"
-            mode="aspectFit"
-            shape="square"
-            lazy="{{false}}"
-          ></t-image>
-          <text class="customer-product-detail__nav-label">{{homeLabel}}</text>
-        </view>
-      </t-button>
-      <t-button
-        class="customer-product-detail__nav-button"
-        theme="default"
-        variant="outline"
-        shape="round"
-        size="small"
-        bindtap="handleGoCart"
-      >
-        <view class="customer-product-detail__nav-button-content">
-          <t-image
-            class="customer-product-detail__nav-icon-image"
-            src="/assets/icons/tab/cart-inactive.svg"
-            mode="aspectFit"
-            shape="square"
-            lazy="{{false}}"
-          ></t-image>
-          <text class="customer-product-detail__nav-label">{{cartLabel}}</text>
-        </view>
-      </t-button>
+      <view class="customer-product-detail__nav-cell" bindtap="handleGoHome">
+        <t-image
+          class="customer-product-detail__nav-icon-image"
+          src="/assets/icons/tab/home-inactive.svg"
+          mode="aspectFit"
+          shape="square"
+          lazy="{{false}}"
+        ></t-image>
+        <text class="customer-product-detail__nav-label">{{homeLabel}}</text>
+      </view>
+      <view class="customer-product-detail__nav-cell" bindtap="handleGoCart">
+        <t-image
+          class="customer-product-detail__nav-icon-image"
+          src="/assets/icons/tab/cart-inactive.svg"
+          mode="aspectFit"
+          shape="square"
+          lazy="{{false}}"
+        ></t-image>
+        <text class="customer-product-detail__nav-label">{{cartLabel}}</text>
+      </view>
     </view>
 
     <view class="customer-product-detail__footer-action-group">
       <t-button
-        class="customer-product-detail__action-button"
+        class="customer-product-detail__action-host"
+        t-class="customer-product-detail__action-btn customer-product-detail__action-btn--ghost"
         theme="default"
         variant="outline"
+        size="medium"
+        block="{{true}}"
         bindtap="handleAddToCart"
-      >
-        {{addCartLabel}}
-      </t-button>
-      <t-button class="customer-product-detail__action-button" theme="primary" bindtap="handleBuyNow">
-        {{buyNowLabel}}
-      </t-button>
+      >{{addCartLabel}}</t-button>
+      <t-button
+        class="customer-product-detail__action-host"
+        t-class="customer-product-detail__action-btn customer-product-detail__action-btn--primary"
+        theme="primary"
+        size="medium"
+        block="{{true}}"
+        bindtap="handleBuyNow"
+      >{{buyNowLabel}}</t-button>
     </view>
   </view>
 </view>

@@ -30,5 +30,19 @@ test('uses grouped footer layout in detail component to prevent action overlap',
 
   assert.match(detailWxml, /customer-product-detail__footer-nav-group/)
   assert.match(detailWxml, /customer-product-detail__footer-action-group/)
-  assert.match(detailWxss, /grid-template-columns:\s*272rpx\s*minmax\(0,\s*1fr\);/)
+  assert.match(detailWxml, /customer-product-detail__nav-cell/)
+  assert.match(detailWxml, /t-class="customer-product-detail__action-btn customer-product-detail__action-btn--ghost"/)
+  assert.match(detailWxml, /t-class="customer-product-detail__action-btn customer-product-detail__action-btn--primary"/)
+  assert.match(detailWxss, /\.customer-product-detail__footer\s*\{[\s\S]*display:\s*flex;/)
+  assert.match(detailWxss, /\.customer-product-detail__footer-action-group\s*\{[\s\S]*flex:\s*1;/)
+  assert.match(detailWxss, /--td-button-default-outline-color:\s*#bf5e46;/)
+  assert.match(detailWxss, /--td-button-default-outline-border-color:\s*rgba\(189,\s*122,\s*106,\s*0\.24\);/)
+  assert.doesNotMatch(detailWxss, /line-height:\s*124rpx;/)
+})
+
+test('raises detail hero preview area close to two-thirds of viewport', () => {
+  const detailWxss = readWorkspaceFile('App/miniprogram/components/customer-product-detail/customer-product-detail.wxss')
+
+  assert.match(detailWxss, /\.customer-product-detail__hero-image\s*\{[\s\S]*height:\s*66vh;/)
+  assert.match(detailWxss, /\.customer-product-detail__cover\s*\{[\s\S]*height:\s*100%;/)
 })
