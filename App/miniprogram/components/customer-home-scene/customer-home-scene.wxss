@@ -1,31 +1,35 @@
 .customer-home-scene {
   position: relative;
   min-height: 100%;
-  padding: 12rpx 0 calc(172rpx + env(safe-area-inset-bottom));
+  padding: 0 0 calc(188rpx + env(safe-area-inset-bottom));
 }
 
 .customer-home-scene__hero {
   display: flex;
   flex-direction: column;
   gap: 10rpx;
-  padding: 0 2rpx;
+  padding: 20rpx 22rpx;
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  border-radius: 30rpx;
+  background: rgba(255, 251, 249, 0.78);
+  box-shadow: 0 14rpx 32rpx rgba(184, 111, 95, 0.12);
 }
 
 .customer-home-scene__brand {
-  color: rgba(180, 86, 94, 0.82);
+  color: rgba(158, 70, 74, 0.92);
   font-family: YouYuan, FZYaoti, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   font-size: 58rpx;
   font-weight: 700;
   line-height: 1.1;
-  text-shadow: 0 8rpx 22rpx rgba(255, 147, 127, 0.16);
+  text-shadow: 0 10rpx 18rpx rgba(255, 136, 110, 0.18);
 }
 
 .customer-home-scene__subtitle {
-  color: #8c655f;
+  color: #6e4a44;
   font-size: 24rpx;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.08em;
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
 .customer-home-scene__search {
@@ -60,9 +64,9 @@
 .customer-home-scene__card {
   overflow: hidden;
   border-radius: 30rpx;
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.42);
-  box-shadow: 0 20rpx 44rpx rgba(193, 116, 97, 0.1);
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(245, 212, 203, 0.92);
+  box-shadow: 0 18rpx 34rpx rgba(186, 112, 95, 0.15);
 }
 
 .customer-home-scene__image {
@@ -80,16 +84,16 @@
 }
 
 .customer-home-scene__card-title {
-  color: #68413d;
+  color: #563733;
   font-size: 28rpx;
   font-weight: 700;
   line-height: 1.45;
 }
 
 .customer-home-scene__card-meta {
-  color: #8c6b65;
+  color: #76554f;
   font-size: 22rpx;
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
 .customer-home-scene__card-footer {
@@ -101,12 +105,13 @@
 }
 
 .customer-home-scene__card-price {
-  color: #e26b4b;
+  color: #cc4f2f;
   font-size: 30rpx;
   font-weight: 700;
 }
 
 .customer-home-scene__card-sales {
-  color: #9a746f;
+  color: #7c5a54;
   font-size: 22rpx;
+  font-weight: 600;
 }

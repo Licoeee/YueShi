@@ -1,6 +1,10 @@
 <view class="role-page-scene" wx:if="{{scene}}">
-  <customer-home-scene wx:if="{{renderMode === 'customer-home'}}"></customer-home-scene>
-  <customer-cart-scene wx:elif="{{renderMode === 'customer-cart'}}"></customer-cart-scene>
+  <view class="role-page-scene__customer-shell" wx:if="{{renderMode === 'customer-home'}}">
+    <customer-home-scene></customer-home-scene>
+  </view>
+  <view class="role-page-scene__customer-shell" wx:elif="{{renderMode === 'customer-cart'}}">
+    <customer-cart-scene></customer-cart-scene>
+  </view>
 
   <view class="role-page__content app-shell" wx:else>
     <view class="glass-card role-page__hero">

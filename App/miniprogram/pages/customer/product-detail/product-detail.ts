@@ -8,6 +8,7 @@ import {
   type CustomerProductSelectionState,
 } from '../../../utils/customer-product-selection'
 import { getCakeDetailById } from '../../../utils/customer-cake-catalog'
+import { resolveCakeImageUrl } from '../../../utils/customer-image-fallback'
 import { loadStoredCustomerCart, saveStoredCustomerCart } from '../../../utils/customer-cart-storage'
 
 interface ProductDetailPageData {
@@ -144,7 +145,7 @@ Page<
 
     wx.previewImage({
       current,
-      urls: [cake.coverImage, ...cake.detailImages.map((item) => item.url)],
+      urls: [resolveCakeImageUrl(cake.coverImage), ...cake.detailImages.map((item) => resolveCakeImageUrl(item.url))],
     })
   },
 

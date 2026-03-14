@@ -4,27 +4,44 @@ export interface RoleTabbarItem {
   value: string
   label: string
   path: string
+  iconKey: RoleTabbarIconKey
 }
 
+export type RoleTabbarIconKey =
+  | 'home'
+  | 'cart'
+  | 'orders'
+  | 'profile'
+  | 'products'
+  | 'account-book'
+  | 'inventory'
+  | 'reviews'
+  | 'overview'
+
 const CUSTOMER_TABBAR_ITEMS: RoleTabbarItem[] = [
-  { value: 'customer-home', label: '首页', path: '/pages/customer/home/home' },
-  { value: 'customer-cart', label: '购物车', path: '/pages/customer/cart/cart' },
-  { value: 'customer-orders', label: '订单', path: '/pages/customer/orders/orders' },
-  { value: 'customer-profile', label: '我的', path: '/pages/customer/profile/profile' },
+  { value: 'customer-home', label: '首页', path: '/pages/customer/home/home', iconKey: 'home' },
+  { value: 'customer-cart', label: '购物车', path: '/pages/customer/cart/cart', iconKey: 'cart' },
+  { value: 'customer-orders', label: '订单', path: '/pages/customer/orders/orders', iconKey: 'orders' },
+  { value: 'customer-profile', label: '我的', path: '/pages/customer/profile/profile', iconKey: 'profile' },
 ]
 
 const MERCHANT_TABBAR_ITEMS: RoleTabbarItem[] = [
-  { value: 'merchant-products', label: '商品管理', path: '/pages/merchant/products/products' },
-  { value: 'merchant-orders', label: '订单管理', path: '/pages/merchant/orders/orders' },
-  { value: 'merchant-account-book', label: '账本', path: '/pages/merchant/account-book/account-book' },
-  { value: 'merchant-inventory', label: '商品库存', path: '/pages/merchant/inventory/inventory' },
-  { value: 'merchant-profile', label: '我的', path: '/pages/merchant/profile/profile' },
+  { value: 'merchant-products', label: '商品管理', path: '/pages/merchant/products/products', iconKey: 'products' },
+  { value: 'merchant-orders', label: '订单管理', path: '/pages/merchant/orders/orders', iconKey: 'orders' },
+  {
+    value: 'merchant-account-book',
+    label: '账本',
+    path: '/pages/merchant/account-book/account-book',
+    iconKey: 'account-book',
+  },
+  { value: 'merchant-inventory', label: '商品库存', path: '/pages/merchant/inventory/inventory', iconKey: 'inventory' },
+  { value: 'merchant-profile', label: '我的', path: '/pages/merchant/profile/profile', iconKey: 'profile' },
 ]
 
 const ADMIN_TABBAR_ITEMS: RoleTabbarItem[] = [
-  { value: 'admin-reviews', label: '商家审核', path: '/pages/admin/reviews/reviews' },
-  { value: 'admin-overview', label: '数据概览', path: '/pages/admin/overview/overview' },
-  { value: 'admin-profile', label: '我的', path: '/pages/admin/profile/profile' },
+  { value: 'admin-reviews', label: '商家审核', path: '/pages/admin/reviews/reviews', iconKey: 'reviews' },
+  { value: 'admin-overview', label: '数据概览', path: '/pages/admin/overview/overview', iconKey: 'overview' },
+  { value: 'admin-profile', label: '我的', path: '/pages/admin/profile/profile', iconKey: 'profile' },
 ]
 
 const TABBAR_BY_ROLE: Record<RoleType, RoleTabbarItem[]> = {

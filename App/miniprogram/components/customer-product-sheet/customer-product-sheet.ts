@@ -1,4 +1,5 @@
 import type { CakeDetail } from '../../../types/product'
+import { resolveCakeImageUrl } from '../../utils/customer-image-fallback'
 import { shouldLiftToDetail } from '../../utils/customer-sheet-gesture'
 
 interface CustomerProductSheetData {
@@ -39,7 +40,7 @@ Component({
       }
 
       this.setData({
-        imageUrls: nextCake.detailImages.map((image) => image.url),
+        imageUrls: nextCake.detailImages.map((image) => resolveCakeImageUrl(image.url)),
       })
     },
   },

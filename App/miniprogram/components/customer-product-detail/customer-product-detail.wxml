@@ -2,12 +2,12 @@
   <view class="customer-product-detail__hero">
     <view
       class="customer-product-detail__hero-image"
-      data-image-url="{{cake.coverImage}}"
+      data-image-url="{{cake.coverImage || fallbackImage}}"
       bindtap="handlePreviewImage"
     >
       <t-image
         class="customer-product-detail__cover"
-        src="{{cake.coverImage}}"
+        src="{{cake.coverImage || fallbackImage}}"
         mode="aspectFill"
         shape="round"
         lazy="{{true}}"
@@ -89,12 +89,12 @@
       wx:for="{{cake.detailImages}}"
       wx:key="url"
       class="customer-product-detail__detail-image"
-      data-image-url="{{item.url}}"
+      data-image-url="{{item.url || fallbackImage}}"
       bindtap="handlePreviewImage"
     >
       <t-image
         class="customer-product-detail__detail-media"
-        src="{{item.url}}"
+        src="{{item.url || fallbackImage}}"
         mode="widthFix"
         shape="round"
         lazy="{{true}}"
@@ -103,36 +103,47 @@
   </view>
 
   <view class="customer-product-detail__footer">
-    <t-button
-      class="customer-product-detail__nav-button"
-      theme="default"
-      variant="outline"
-      shape="round"
-      size="small"
-      bindtap="handleGoHome"
-    >
-      {{homeLabel}}
-    </t-button>
-    <t-button
-      class="customer-product-detail__nav-button"
-      theme="default"
-      variant="outline"
-      shape="round"
-      size="small"
-      bindtap="handleGoCart"
-    >
-      {{cartLabel}}
-    </t-button>
-    <t-button
-      class="customer-product-detail__action-button"
-      theme="default"
-      variant="outline"
-      bindtap="handleAddToCart"
-    >
-      {{addCartLabel}}
-    </t-button>
-    <t-button class="customer-product-detail__action-button" theme="primary" bindtap="handleBuyNow">
-      {{buyNowLabel}}
-    </t-button>
+    <view class="customer-product-detail__footer-nav-group">
+      <t-button
+        class="customer-product-detail__nav-button"
+        theme="default"
+        variant="outline"
+        shape="round"
+        size="small"
+        bindtap="handleGoHome"
+      >
+        <view class="customer-product-detail__nav-button-content">
+          <view class="customer-product-detail__nav-icon customer-product-detail__nav-icon--home"></view>
+          <text class="customer-product-detail__nav-label">{{homeLabel}}</text>
+        </view>
+      </t-button>
+      <t-button
+        class="customer-product-detail__nav-button"
+        theme="default"
+        variant="outline"
+        shape="round"
+        size="small"
+        bindtap="handleGoCart"
+      >
+        <view class="customer-product-detail__nav-button-content">
+          <view class="customer-product-detail__nav-icon customer-product-detail__nav-icon--cart"></view>
+          <text class="customer-product-detail__nav-label">{{cartLabel}}</text>
+        </view>
+      </t-button>
+    </view>
+
+    <view class="customer-product-detail__footer-action-group">
+      <t-button
+        class="customer-product-detail__action-button"
+        theme="default"
+        variant="outline"
+        bindtap="handleAddToCart"
+      >
+        {{addCartLabel}}
+      </t-button>
+      <t-button class="customer-product-detail__action-button" theme="primary" bindtap="handleBuyNow">
+        {{buyNowLabel}}
+      </t-button>
+    </view>
   </view>
 </view>

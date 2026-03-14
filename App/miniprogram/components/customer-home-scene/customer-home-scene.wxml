@@ -42,6 +42,8 @@
           mode="aspectFill"
           shape="round"
           lazy="{{true}}"
+          data-product-id="{{item.id}}"
+          bind:error="handleCardImageError"
         ></t-image>
         <view class="customer-home-scene__card-body">
           <text class="customer-home-scene__card-title">{{item.title}}</text>
@@ -68,6 +70,8 @@
           mode="aspectFill"
           shape="round"
           lazy="{{true}}"
+          data-product-id="{{item.id}}"
+          bind:error="handleCardImageError"
         ></t-image>
         <view class="customer-home-scene__card-body">
           <text class="customer-home-scene__card-title">{{item.title}}</text>

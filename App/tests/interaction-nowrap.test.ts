@@ -27,19 +27,28 @@ test('forces tabbar labels into a single line with truncation-safe styles', () =
 })
 
 test('tightens tabbar proportions while keeping labels larger and readable', () => {
+  const wxml = readWorkspaceFile('App/miniprogram/components/custom-tab-bar/custom-tab-bar.wxml')
   const wxss = readWorkspaceFile('App/miniprogram/components/custom-tab-bar/custom-tab-bar.wxss')
 
   assert.match(
-    wxss,
-    /\.custom-tab-bar__panel\s*\{[\s\S]*--td-tab-bar-height:\s*72rpx;/,
+    wxml,
+    /custom-tab-bar__item-content[\s\S]*custom-tab-bar__icon[\s\S]*custom-tab-bar__label/,
   )
   assert.match(
     wxss,
-    /\.custom-tab-bar__item\s*\{[\s\S]*height:\s*72rpx;[\s\S]*margin:\s*10rpx 0;[\s\S]*padding:\s*0 12rpx;/,
+    /\.custom-tab-bar__panel\s*\{[\s\S]*--td-tab-bar-height:\s*116rpx;/,
   )
   assert.match(
     wxss,
-    /\.custom-tab-bar__label\s*\{[\s\S]*font-size:\s*26rpx;[\s\S]*line-height:\s*34rpx;/,
+    /\.custom-tab-bar__item\s*\{[\s\S]*height:\s*116rpx;[\s\S]*margin:\s*6rpx 0;[\s\S]*padding:\s*0 8rpx;/,
+  )
+  assert.match(
+    wxss,
+    /\.custom-tab-bar__item-content\s*\{[\s\S]*flex-direction:\s*column;[\s\S]*align-items:\s*center;/,
+  )
+  assert.match(
+    wxss,
+    /\.custom-tab-bar__label\s*\{[\s\S]*font-size:\s*20rpx;[\s\S]*line-height:\s*28rpx;/,
   )
 })
 

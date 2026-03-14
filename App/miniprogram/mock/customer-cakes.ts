@@ -1,4 +1,5 @@
 import type { CakeDetail } from '../../types/product'
+import { CUSTOMER_IMAGE_PLACEHOLDER } from '../utils/customer-image-fallback'
 
 export const CUSTOMER_CAKES: CakeDetail[] = [
   {
@@ -9,16 +10,16 @@ export const CUSTOMER_CAKES: CakeDetail[] = [
     basePrice: 168,
     monthlySales: 82,
     status: 'active',
-    coverImage: 'https://example.invalid/cake-cloud-cover.jpg',
+    coverImage: CUSTOMER_IMAGE_PLACEHOLDER,
     gallery: [
       {
-        url: 'https://example.invalid/cake-cloud-cover.jpg',
+        url: CUSTOMER_IMAGE_PLACEHOLDER,
         alt: '云朵鲜奶生日蛋糕封面图',
         width: 1080,
         height: 1420,
       },
       {
-        url: 'https://example.invalid/cake-cloud-gallery-2.jpg',
+        url: CUSTOMER_IMAGE_PLACEHOLDER,
         alt: '云朵鲜奶生日蛋糕侧面图',
         width: 1080,
         height: 1240,
@@ -31,19 +32,19 @@ export const CUSTOMER_CAKES: CakeDetail[] = [
     ],
     detailImages: [
       {
-        url: 'https://example.invalid/cake-cloud-detail-1.jpg',
+        url: CUSTOMER_IMAGE_PLACEHOLDER,
         alt: '云朵鲜奶生日蛋糕详情图 1',
         width: 1080,
         height: 1440,
       },
       {
-        url: 'https://example.invalid/cake-cloud-detail-2.jpg',
+        url: CUSTOMER_IMAGE_PLACEHOLDER,
         alt: '云朵鲜奶生日蛋糕详情图 2',
         width: 1080,
         height: 1368,
       },
       {
-        url: 'https://example.invalid/cake-cloud-detail-3.jpg',
+        url: CUSTOMER_IMAGE_PLACEHOLDER,
         alt: '云朵鲜奶生日蛋糕详情图 3',
         width: 1080,
         height: 1200,
@@ -74,10 +75,10 @@ export const CUSTOMER_CAKES: CakeDetail[] = [
     basePrice: 238,
     monthlySales: 37,
     status: 'active',
-    coverImage: 'https://example.invalid/cake-peach-cover.jpg',
+    coverImage: CUSTOMER_IMAGE_PLACEHOLDER,
     gallery: [
       {
-        url: 'https://example.invalid/cake-peach-cover.jpg',
+        url: CUSTOMER_IMAGE_PLACEHOLDER,
         alt: '蜜桃日落双层蛋糕封面图',
         width: 1080,
         height: 1180,
@@ -89,13 +90,13 @@ export const CUSTOMER_CAKES: CakeDetail[] = [
     ],
     detailImages: [
       {
-        url: 'https://example.invalid/cake-peach-detail-1.jpg',
+        url: CUSTOMER_IMAGE_PLACEHOLDER,
         alt: '蜜桃日落双层蛋糕详情图 1',
         width: 1080,
         height: 1280,
       },
       {
-        url: 'https://example.invalid/cake-peach-detail-2.jpg',
+        url: CUSTOMER_IMAGE_PLACEHOLDER,
         alt: '蜜桃日落双层蛋糕详情图 2',
         width: 1080,
         height: 1360,
@@ -123,10 +124,10 @@ export const CUSTOMER_CAKES: CakeDetail[] = [
     basePrice: 158,
     monthlySales: 61,
     status: 'active',
-    coverImage: 'https://example.invalid/cake-mist-cover.jpg',
+    coverImage: CUSTOMER_IMAGE_PLACEHOLDER,
     gallery: [
       {
-        url: 'https://example.invalid/cake-mist-cover.jpg',
+        url: CUSTOMER_IMAGE_PLACEHOLDER,
         alt: '暖雾香草蛋糕封面图',
         width: 1080,
         height: 1100,
@@ -138,7 +139,7 @@ export const CUSTOMER_CAKES: CakeDetail[] = [
     ],
     detailImages: [
       {
-        url: 'https://example.invalid/cake-mist-detail-1.jpg',
+        url: CUSTOMER_IMAGE_PLACEHOLDER,
         alt: '暖雾香草蛋糕详情图 1',
         width: 1080,
         height: 1320,

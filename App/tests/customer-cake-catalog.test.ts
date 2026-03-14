@@ -29,3 +29,17 @@ test('splits cards into two waterfall columns using image height as the balancin
   assert.equal(leftColumn.length > 0, true)
   assert.equal(rightColumn.length > 0, true)
 })
+
+test('keeps customer cake media sources package-local to avoid unstable network loads', () => {
+  const cakes = resolveCakeFeed({ keyword: '', sortMode: 'sales-desc' })
+
+  cakes.forEach((cake) => {
+    assert.match(cake.coverImage, /^\/assets\//)
+    cake.gallery.forEach((image) => {
+      assert.match(image.url, /^\/assets\//)
+    })
+    cake.detailImages.forEach((image) => {
+      assert.match(image.url, /^\/assets\//)
+    })
+  })
+})

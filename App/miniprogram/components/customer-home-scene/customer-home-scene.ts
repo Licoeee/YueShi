@@ -1,4 +1,5 @@
 import type { CakeDetail } from '../../../types/product'
+import { CUSTOMER_IMAGE_PLACEHOLDER, resolveCakeImageUrl } from '../../utils/customer-image-fallback'
 import {
   buildCakeMasonryColumns,
   getCakeDetailById,
@@ -19,6 +20,21 @@ interface CustomerHomeSceneData {
   rightColumn: CakeDetail[]
   selectedCake: CakeDetail | null
   isSheetVisible: boolean
+}
+
+function normalizeCakeMedia(cake: CakeDetail): CakeDetail {
+  return {
+    ...cake,
+    coverImage: resolveCakeImageUrl(cake.coverImage),
+    gallery: cake.gallery.map((image) => ({
+      ...image,
+      url: resolveCakeImageUrl(image.url),
+    })),
+    detailImages: cake.detailImages.map((image) => ({
+      ...image,
+      url: resolveCakeImageUrl(image.url),
+    })),
+  }
 }
 
 function extractSearchKeyword(detail: unknown): string {
@@ -65,7 +81,7 @@ Component({
         keyword: this.data.keyword,
         sortMode: this.data.sortMode,
       })
-      const [leftColumn, rightColumn] = buildCakeMasonryColumns(cakes)
+      const [leftColumn, rightColumn] = buildCakeMasonryColumns(cakes.map(normalizeCakeMedia))
 
       this.setData({
         leftColumn,
@@ -97,8 +113,44 @@ Component({
       }
 
       this.setData({
-        selectedCake: getCakeDetailById(productId),
+        selectedCake: normalizeCakeMedia(getCakeDetailById(productId)),
         isSheetVisible: true,
+      })
+    },
+
+    handleCardImageError(event: WechatMiniprogram.BaseEvent): void {
+      const productId = (event.currentTarget.dataset as { productId?: unknown }).productId
+      if (typeof productId !== 'string' || productId.length === 0) {
+        return
+      }
+
+      let hasChanged = false
+      const patchColumn = (column: CakeDetail[]): CakeDetail[] =>
+        column.map((cake) => {
+          if (cake.id !== productId) {
+            return cake
+          }
+
+          if (cake.coverImage === CUSTOMER_IMAGE_PLACEHOLDER) {
+            return cake
+          }
+
+          hasChanged = true
+          return {
+            ...cake,
+            coverImage: CUSTOMER_IMAGE_PLACEHOLDER,
+          }
+        })
+
+      const nextLeftColumn = patchColumn(this.data.leftColumn)
+      const nextRightColumn = patchColumn(this.data.rightColumn)
+      if (!hasChanged) {
+        return
+      }
+
+      this.setData({
+        leftColumn: nextLeftColumn,
+        rightColumn: nextRightColumn,
       })
     },
 

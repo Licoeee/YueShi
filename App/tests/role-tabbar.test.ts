@@ -31,6 +31,10 @@ test('builds customer tabbar with home / cart / orders / profile items', () => {
       '/pages/customer/profile/profile',
     ],
   )
+  assert.deepEqual(
+    items.map((item) => item.iconKey),
+    ['home', 'cart', 'orders', 'profile'],
+  )
 })
 
 test('builds merchant tabbar with products / orders / account-book / inventory / profile items', () => {
@@ -40,6 +44,10 @@ test('builds merchant tabbar with products / orders / account-book / inventory /
     items.map((item) => item.value),
     ['merchant-products', 'merchant-orders', 'merchant-account-book', 'merchant-inventory', 'merchant-profile'],
   )
+  assert.deepEqual(
+    items.map((item) => item.iconKey),
+    ['products', 'orders', 'account-book', 'inventory', 'profile'],
+  )
 })
 
 test('builds admin tabbar with reviews / overview / profile items', () => {
@@ -48,6 +56,10 @@ test('builds admin tabbar with reviews / overview / profile items', () => {
   assert.deepEqual(
     items.map((item) => item.value),
     ['admin-reviews', 'admin-overview', 'admin-profile'],
+  )
+  assert.deepEqual(
+    items.map((item) => item.iconKey),
+    ['reviews', 'overview', 'profile'],
   )
 })
 

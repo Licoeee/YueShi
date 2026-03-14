@@ -1,4 +1,5 @@
 import type { CakeLayerId } from '../../../types/product'
+import { CUSTOMER_IMAGE_PLACEHOLDER } from '../../utils/customer-image-fallback'
 
 interface StringDetailEvent {
   value?: unknown
@@ -59,6 +60,10 @@ Component({
     buyNowLabel: {
       type: String,
       value: '立即购买',
+    },
+    fallbackImage: {
+      type: String,
+      value: CUSTOMER_IMAGE_PLACEHOLDER,
     },
   },
 

@@ -76,3 +76,11 @@ test('renders customer business scenes instead of placeholder cards for home and
   assert.match(source, /<customer-home-scene/)
   assert.match(source, /<customer-cart-scene/)
 })
+
+test('wraps customer scenes with a top safe-area shell to avoid status-bar overlap', () => {
+  const wxml = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.wxml')
+  const wxss = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.wxss')
+
+  assert.match(wxml, /role-page-scene__customer-shell/)
+  assert.match(wxss, /padding:\s*calc\(14rpx \+ env\(safe-area-inset-top\) \+ 88rpx\)\s*30rpx\s*0;/)
+})

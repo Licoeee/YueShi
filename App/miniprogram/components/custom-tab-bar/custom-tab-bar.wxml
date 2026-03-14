@@ -10,7 +10,15 @@
     bind:change="handleTabChange"
   >
     <t-tab-bar-item wx:for="{{items}}" wx:key="value" value="{{item.value}}" t-class="custom-tab-bar__item">
-      <text class="custom-tab-bar__label">{{item.label}}</text>
+      <view
+        class="custom-tab-bar__item-content {{currentValue === item.value ? 'custom-tab-bar__item-content--active' : 'custom-tab-bar__item-content--inactive'}}"
+      >
+        <view class="custom-tab-bar__icon custom-tab-bar__icon--{{item.iconKey}}">
+          <view class="custom-tab-bar__icon-line custom-tab-bar__icon-line--a"></view>
+          <view class="custom-tab-bar__icon-line custom-tab-bar__icon-line--b"></view>
+        </view>
+        <text class="custom-tab-bar__label">{{item.label}}</text>
+      </view>
     </t-tab-bar-item>
   </t-tab-bar>
 </view>
