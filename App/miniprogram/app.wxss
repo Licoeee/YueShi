@@ -36,3 +36,20 @@ page {
   backdrop-filter: blur(28rpx);
   overflow: hidden;
 }
+
+.app-interactive-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: keep-all;
+  line-break: strict;
+}
+
+.app-interactive-text text {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

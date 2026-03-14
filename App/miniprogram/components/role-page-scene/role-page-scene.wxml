@@ -1,0 +1,81 @@
+<view class="role-page-scene" wx:if="{{scene}}">
+  <view class="role-page__content app-shell">
+    <view class="glass-card role-page__hero">
+      <text class="role-page__eyebrow">{{scene.eyebrow}}</text>
+      <text class="role-page__title">{{scene.title}}</text>
+      <text class="role-page__description">{{scene.description}}</text>
+      <view class="role-page__section role-page-scene__tag-row">
+        <t-tag theme="primary" variant="light">当前角色：{{activeRole}}</t-tag>
+        <t-tag theme="warning" variant="light" wx:if="{{scene.showPreviewModeTag && isPreviewMode}}">预览模式</t-tag>
+      </view>
+    </view>
+
+    <block wx:for="{{scene.sections}}" wx:key="index">
+      <view class="glass-card role-page__section">
+        <block wx:if="{{item.kind === 'cells'}}">
+          <t-cell-group>
+            <t-cell
+              wx:for="{{item.cells}}"
+              wx:for-item="cell"
+              wx:key="title"
+              title="{{cell.title}}"
+              note="{{cell.note}}"
+              description="{{cell.description}}"
+              t-class-title="app-interactive-text"
+              t-class-note="app-interactive-text"
+            ></t-cell>
+          </t-cell-group>
+        </block>
+
+        <block wx:elif="{{item.kind === 'preview-return'}}">
+          <t-cell-group>
+            <t-cell
+              wx:for="{{item.cells}}"
+              wx:for-item="cell"
+              wx:key="title"
+              title="{{cell.title}}"
+              note="{{cell.note}}"
+              description="{{cell.description}}"
+              t-class-title="app-interactive-text"
+              t-class-note="app-interactive-text"
+            ></t-cell>
+          </t-cell-group>
+          <view class="role-page__hero" wx:if="{{canBackToAdmin}}">
+            <view class="role-page__button">
+              <t-button block="{{true}}" theme="primary" variant="outline" bindtap="handlePreviewReturnTap">
+                {{item.buttonLabel}}
+              </t-button>
+              <text class="role-page__description">{{item.note}}</text>
+            </view>
+          </view>
+        </block>
+
+        <block wx:elif="{{item.kind === 'admin-role-switcher'}}">
+          <t-cell-group>
+            <t-cell
+              title="{{item.title}}"
+              note="{{item.note}}"
+              description="{{item.description}}"
+              t-class-title="app-interactive-text"
+              t-class-note="app-interactive-text"
+            ></t-cell>
+          </t-cell-group>
+          <view class="role-page__hero">
+            <view wx:for="{{roleSwitchOptions}}" wx:key="role" class="role-page__button">
+              <t-button
+                block="{{true}}"
+                variant="{{activeRole === item.role ? 'base' : 'outline'}}"
+                theme="primary"
+                data-role="{{item.role}}"
+                bindtap="handleRoleSwitchTap"
+              >
+                {{item.label}}
+              </t-button>
+              <text class="role-page__description">{{item.note}}</text>
+            </view>
+          </view>
+        </block>
+      </view>
+    </block>
+  </view>
+</view>

@@ -37,6 +37,7 @@
     "node_modules",
     "miniprogram_npm",
     "./miniprogram/node_modules",
-    "./miniprogram/miniprogram_npm"
+    "./miniprogram/miniprogram_npm",
+    "./tests"
   ]
 }
