@@ -185,6 +185,6 @@ Page<
     const result = applySelectionToCart(cartSnapshot, cake, selection, 'buy-now')
     saveStoredCustomerCart(result.items)
 
-    wx.redirectTo({ url: '/pages/customer/cart/cart' })
+    wx.redirectTo({ url: '/pages/customer/checkout/checkout' })
   },
 })

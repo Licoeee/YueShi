@@ -1,0 +1,85 @@
+<view class="order-detail-page" wx:if="{{order}}">
+  <view class="order-detail-page__background"></view>
+
+  <view class="order-detail-page__content">
+    <view class="glass-card order-detail-page__hero">
+      <view class="order-detail-page__hero-head">
+        <view class="order-detail-page__hero-copy">
+          <text class="order-detail-page__eyebrow">ORDER DETAIL</text>
+          <text class="order-detail-page__title">订单 {{order.id}}</text>
+        </view>
+        <t-tag theme="{{order.status === 'pending-payment' ? 'warning' : 'primary'}}" variant="light">
+          {{order.status === 'pending-payment' ? '待支付' : (order.status === 'cancelled' ? '已取消' : (order.status === 'ready-for-pickup' ? '待取货' : (order.status === 'completed' ? '已完成' : order.status))) }}
+        </t-tag>
+      </view>
+      <text class="order-detail-page__subtitle">取货时间：{{pickupSummary}}</text>
+      <text class="order-detail-page__subtitle">联系电话：{{order.contact.phone}}</text>
+    </view>
+
+    <view class="glass-card order-detail-page__section">
+      <text class="order-detail-page__section-title">商品清单</text>
+      <view wx:for="{{order.items}}" wx:key="specId" class="order-detail-page__item">
+        <view class="order-detail-page__item-copy">
+          <text class="order-detail-page__item-name">{{item.productName}}</text>
+          <text class="order-detail-page__item-spec">{{item.specLabel}}</text>
+        </view>
+        <text class="order-detail-page__item-price">¥ {{item.unitPrice}} x {{item.quantity}}</text>
+      </view>
+    </view>
+
+    <view class="glass-card order-detail-page__section">
+      <view class="order-detail-page__section-head">
+        <text class="order-detail-page__section-title">订单备注</text>
+        <t-button
+          wx:if="{{!isEditingNote}}"
+          theme="primary"
+          variant="outline"
+          size="small"
+          bindtap="handleEditNote"
+        >编辑备注</t-button>
+      </view>
+
+      <view wx:if="{{isEditingNote}}">
+        <t-textarea
+          value="{{noteDraft}}"
+          maxlength="120"
+          indicator="{{true}}"
+          placeholder="例如：蜡烛数量、生日牌称呼、取货提醒"
+          bind:change="handleNoteInput"
+        ></t-textarea>
+        <view class="order-detail-page__note-actions">
+          <t-button theme="default" variant="outline" size="small" bindtap="handleCancelEdit">取消</t-button>
+          <t-button theme="primary" size="small" bindtap="handleSaveNote">保存备注</t-button>
+        </view>
+      </view>
+
+      <text wx:else class="order-detail-page__note-text">{{order.note || '暂无备注'}}</text>
+    </view>
+
+    <view class="glass-card order-detail-page__section" wx:if="{{order}}">
+      <text class="order-detail-page__section-title">订单操作</text>
+      <t-button
+        wx:if="{{order.status !== 'ready-for-pickup' && order.status !== 'completed' && order.status !== 'cancelled'}}"
+        theme="danger"
+        variant="outline"
+        block="{{true}}"
+        bindtap="handleOpenCancelDialog"
+      >取消订单</t-button>
+      <text
+        wx:else
+        class="order-detail-page__hint"
+      >当前状态已锁定，顾客端不能取消订单。</text>
+    </view>
+  </view>
+
+  <t-dialog
+    visible="{{cancelDialogVisible}}"
+    title="取消订单"
+    content="确认取消这笔订单吗？取消后会同步更新本地订单状态。"
+    confirmBtn="确认取消"
+    cancelBtn="我再想想"
+    bind:confirm="handleConfirmCancel"
+    bind:cancel="handleCloseCancelDialog"
+    bind:close="handleCloseCancelDialog"
+  ></t-dialog>
+</view>

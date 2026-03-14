@@ -9,6 +9,7 @@ import {
 import {
   createCartItem,
   markImmediatePurchase,
+  toggleCartItemChecked,
   upsertCartItem,
 } from '../miniprogram/utils/customer-cart-state'
 
@@ -55,6 +56,31 @@ test('markImmediatePurchase keeps only the active item checked', () => {
 
   assert.equal(marked[0]?.checked, false)
   assert.equal(marked[1]?.checked, true)
+})
+
+test('toggleCartItemChecked turns cart selection back into normal cart mode', () => {
+  const items = markImmediatePurchase([
+    createCartItem({
+      productId: 'cake-cloud',
+      quantity: 1,
+      layerId: 'single',
+      sizePlanId: 'single-6',
+      creamId: 'fresh',
+    }),
+    createCartItem({
+      productId: 'cake-peach',
+      quantity: 1,
+      layerId: 'single',
+      sizePlanId: 'single-8',
+      creamId: 'sea-salt',
+    }),
+  ], 'cake-peach:single:single-8:sea-salt')
+
+  const toggled = toggleCartItemChecked(items, items[0].id)
+
+  assert.equal(toggled[0]?.checked, true)
+  assert.equal(toggled[0]?.entryMode, 'cart')
+  assert.equal(toggled[1]?.entryMode, 'cart')
 })
 
 test('saveCartSnapshot persists and restores the serialized cart payload', () => {

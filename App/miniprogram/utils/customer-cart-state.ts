@@ -66,3 +66,20 @@ export function markImmediatePurchase(items: CartItemRecord[], targetId: string)
     entryMode: item.id === targetId ? 'buy-now' : 'cart',
   }))
 }
+
+export function toggleCartItemChecked(items: CartItemRecord[], targetId: string): CartItemRecord[] {
+  return items.map((item) => {
+    if (item.id === targetId) {
+      return {
+        ...item,
+        checked: !item.checked,
+        entryMode: 'cart',
+      }
+    }
+
+    return {
+      ...item,
+      entryMode: 'cart',
+    }
+  })
+}

@@ -70,11 +70,12 @@ test('binds all role pages to scene-mode tab switching to avoid cross-page route
   })
 })
 
-test('renders customer business scenes instead of placeholder cards for home and cart', () => {
+test('renders customer business scenes instead of placeholder cards for home, cart, and orders', () => {
   const source = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.wxml')
 
   assert.match(source, /<customer-home-scene/)
   assert.match(source, /<customer-cart-scene/)
+  assert.match(source, /<customer-orders-scene/)
 })
 
 test('wraps customer scenes with a top safe-area shell to avoid status-bar overlap', () => {

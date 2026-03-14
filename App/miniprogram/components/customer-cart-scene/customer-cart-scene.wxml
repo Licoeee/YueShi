@@ -10,13 +10,29 @@
 
   <view class="customer-cart-scene__list" wx:else>
     <view wx:for="{{items}}" wx:key="id" class="customer-cart-scene__item">
-      <t-checkbox checked="{{item.checked}}" disabled="{{true}}" label="{{item.productName}}"></t-checkbox>
+      <t-checkbox
+        checked="{{item.checked}}"
+        label="{{item.productName}}"
+        data-item-id="{{item.id}}"
+        bind:change="handleItemCheckChange"
+      ></t-checkbox>
       <view class="customer-cart-scene__meta">
-        <text class="customer-cart-scene__spec">
-          {{item.selection.layerId}} / {{item.selection.sizePlanId}} / {{item.selection.creamId}}
-        </text>
-        <text class="customer-cart-scene__price">¥ {{item.totalPrice}}</text>
+        <text class="customer-cart-scene__spec">{{item.specLabel}}</text>
+        <text class="customer-cart-scene__price">¥ {{item.totalPrice}} x {{item.quantity}}</text>
       </view>
+    </view>
+
+    <view class="customer-cart-scene__summary">
+      <view class="customer-cart-scene__summary-copy">
+        <text class="customer-cart-scene__summary-label">合计</text>
+        <text class="customer-cart-scene__summary-price">¥ {{checkedAmount}}</text>
+      </view>
+      <t-button
+        theme="primary"
+        size="medium"
+        disabled="{{!canCheckout}}"
+        bindtap="handleCheckout"
+      >去结算</t-button>
     </view>
   </view>
 </view>

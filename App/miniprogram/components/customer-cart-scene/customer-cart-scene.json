@@ -2,6 +2,7 @@
   "component": true,
   "styleIsolation": "apply-shared",
   "usingComponents": {
+    "t-button": "tdesign-miniprogram/button/button",
     "t-checkbox": "tdesign-miniprogram/checkbox/checkbox",
     "t-empty": "tdesign-miniprogram/empty/empty"
   }

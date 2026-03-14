@@ -7,7 +7,7 @@ interface RoleSwitchOption {
   note: string
 }
 
-type RolePageSceneRenderMode = 'placeholder' | 'customer-home' | 'customer-cart'
+type RolePageSceneRenderMode = 'placeholder' | 'customer-home' | 'customer-cart' | 'customer-orders'
 
 interface RolePageSceneData {
   scene: RolePageScene | null
@@ -83,6 +83,8 @@ Component({
           ? 'customer-home'
           : nextScene.path === '/pages/customer/cart/cart'
             ? 'customer-cart'
+            : nextScene.path === '/pages/customer/orders/orders'
+              ? 'customer-orders'
             : 'placeholder'
 
       if (this.data.scene?.path === nextScene.path && this.data.renderMode === renderMode) {

@@ -70,3 +70,34 @@
   color: #cc4f2f;
   font-weight: 700;
 }
+
+.customer-cart-scene__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin-top: 8rpx;
+  padding: 24rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
+  border-radius: 30rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18rpx 30rpx rgba(188, 113, 96, 0.14);
+}
+
+.customer-cart-scene__summary-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.customer-cart-scene__summary-label {
+  color: #7a5a54;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.customer-cart-scene__summary-price {
+  color: #cc4f2f;
+  font-size: 36rpx;
+  font-weight: 700;
+}

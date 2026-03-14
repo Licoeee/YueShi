@@ -46,3 +46,9 @@ test('raises detail hero preview area close to two-thirds of viewport', () => {
   assert.match(detailWxss, /\.customer-product-detail__hero-image\s*\{[\s\S]*height:\s*66vh;/)
   assert.match(detailWxss, /\.customer-product-detail__cover\s*\{[\s\S]*height:\s*100%;/)
 })
+
+test('buy-now flow targets checkout instead of redirecting back to cart', () => {
+  const detailPageTs = readWorkspaceFile('App/miniprogram/pages/customer/product-detail/product-detail.ts')
+
+  assert.match(detailPageTs, /pages\/customer\/checkout\/checkout/)
+})

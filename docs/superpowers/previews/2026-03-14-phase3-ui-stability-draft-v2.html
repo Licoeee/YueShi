@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>悦时 · UI 稳定性修复草稿 v2</title>
+    <style>
+      :root {
+        --phone-width: 390px;
+        --phone-height: 844px;
+        --ink-strong: #553934;
+        --ink: #6f4c46;
+        --ink-soft: #8b6660;
+        --line: rgba(182, 117, 101, 0.18);
+        --panel: rgba(255, 251, 248, 0.94);
+        --accent: #f37a57;
+        --accent-strong: #e76545;
+        --bg: linear-gradient(180deg, #fff9f8 0%, #ffece4 52%, #ffd7cb 100%);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 20% 0, rgba(255, 219, 210, 0.66), transparent 35%),
+          linear-gradient(180deg, #fffaf9 0%, #fff3ee 56%, #ffe7df 100%);
+      }
+
+      .page {
+        width: min(1500px, calc(100vw - 48px));
+        margin: 0 auto;
+        padding: 30px 0 48px;
+      }
+
+      .headline {
+        margin-bottom: 22px;
+        padding: 22px 24px;
+        border-radius: 24px;
+        border: 1px solid rgba(193, 127, 111, 0.24);
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 14px 30px rgba(175, 107, 90, 0.1);
+      }
+
+      .headline h1 {
+        margin: 0;
+        color: #9d4f4e;
+        font-family: "YouYuan", "STYuanti-SC-Bold", "PingFang SC", sans-serif;
+        font-size: 30px;
+      }
+
+      .headline p {
+        margin: 12px 0 0;
+        line-height: 1.7;
+        font-size: 14px;
+        color: #7f5d57;
+      }
+
+      .canvas {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 22px;
+      }
+
+      .panel {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .panel__title {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 6px;
+        font-size: 13px;
+      }
+
+      .panel__title strong {
+        color: #5f3f3a;
+        font-size: 18px;
+      }
+
+      .phone {
+        position: relative;
+        width: var(--phone-width);
+        height: var(--phone-height);
+        overflow: hidden;
+        border: 9px solid #2d2120;
+        border-radius: 44px;
+        background: var(--bg);
+        box-shadow: 0 24px 58px rgba(153, 90, 76, 0.2);
+      }
+
+      .phone::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 10px;
+        width: 126px;
+        height: 28px;
+        transform: translateX(-50%);
+        border-radius: 0 0 18px 18px;
+        background: #2d2120;
+        z-index: 40;
+      }
+
+      .status-bar {
+        position: absolute;
+        top: 18px;
+        left: 0;
+        right: 0;
+        z-index: 30;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 22px;
+        font-size: 12px;
+        color: #704c46;
+      }
+
+      .screen {
+        position: absolute;
+        inset: 0;
+        padding: 122px 18px 18px;
+      }
+
+      .safe-top-note {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 46px;
+        z-index: 22;
+        height: 70px;
+        border-bottom: 1px dashed rgba(165, 103, 92, 0.28);
+        background: rgba(255, 255, 255, 0.18);
+        font-size: 11px;
+        color: #986860;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        letter-spacing: 0.04em;
+      }
+
+      .hero-card {
+        margin-bottom: 14px;
+        padding: 18px 18px 16px;
+        border-radius: 26px;
+        border: 1px solid rgba(198, 130, 112, 0.24);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 10px 24px rgba(170, 102, 84, 0.12);
+      }
+
+      .hero-card h2 {
+        margin: 0 0 8px;
+        color: #9a4d4f;
+        font-family: "YouYuan", "STYuanti-SC-Bold", "PingFang SC", sans-serif;
+        font-size: 32px;
+      }
+
+      .hero-card p {
+        margin: 0;
+        color: #6f4d47;
+        font-size: 13px;
+        line-height: 1.65;
+      }
+
+      .card-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        padding-bottom: 122px;
+      }
+
+      .cake-card {
+        overflow: hidden;
+        border-radius: 22px;
+        border: 1px solid rgba(188, 121, 106, 0.22);
+        background: rgba(255, 255, 255, 0.92);
+      }
+
+      .cake-shot {
+        height: 150px;
+        background:
+          radial-gradient(circle at top, #fff7f4 0%, #ffe5d8 56%, #ffc8b4 100%);
+      }
+
+      .cake-body {
+        padding: 12px;
+      }
+
+      .cake-body strong {
+        display: block;
+        color: var(--ink-strong);
+        font-size: 14px;
+      }
+
+      .cake-body span {
+        display: block;
+        margin-top: 6px;
+        color: #7a5851;
+        font-size: 12px;
+      }
+
+      .global-tabbar {
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        bottom: 16px;
+        z-index: 18;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+        padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+        border-radius: 24px;
+        border: 1px solid rgba(190, 122, 106, 0.22);
+        background: rgba(255, 252, 250, 0.95);
+        box-shadow: 0 16px 28px rgba(170, 103, 88, 0.2);
+      }
+
+      .tab-item {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        min-height: 56px;
+        border-radius: 16px;
+        color: #a38b85;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .tab-item svg {
+        width: 20px;
+        height: 20px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+      }
+
+      .tab-item--active {
+        color: #e76545;
+        background: linear-gradient(180deg, #fffaf8 0%, #ffece4 100%);
+      }
+
+      .sheet-mask {
+        position: absolute;
+        inset: 0;
+        background: rgba(74, 44, 41, 0.28);
+        z-index: 20;
+      }
+
+      .preview-sheet {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 24;
+        height: calc(100% * 0.666);
+        padding: 14px 18px calc(18px + env(safe-area-inset-bottom));
+        border-radius: 30px 30px 0 0;
+        background: rgba(255, 250, 247, 0.97);
+        box-shadow: 0 -16px 34px rgba(114, 67, 60, 0.16);
+        display: grid;
+        grid-template-rows: auto auto 1fr auto;
+        gap: 10px;
+      }
+
+      .sheet-handle {
+        width: 64px;
+        height: 6px;
+        margin: 0 auto;
+        border-radius: 999px;
+        background: rgba(158, 100, 90, 0.35);
+      }
+
+      .preview-sheet h3 {
+        margin: 0;
+        color: #603e39;
+        font-size: 23px;
+      }
+
+      .preview-sheet p {
+        margin: 0;
+        color: #7c5a52;
+        line-height: 1.65;
+        font-size: 13px;
+      }
+
+      .sheet-gallery {
+        min-height: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        overflow: auto;
+        padding-right: 2px;
+      }
+
+      .sheet-photo {
+        min-height: 130px;
+        border-radius: 18px;
+        border: 1px solid rgba(192, 126, 110, 0.18);
+        background:
+          linear-gradient(145deg, rgba(255, 188, 165, 0.3), rgba(255, 245, 240, 0.72)),
+          linear-gradient(180deg, #fff9f5 0%, #ffe6da 68%, #ffd2c4 100%);
+        cursor: zoom-in;
+        display: grid;
+        place-items: end start;
+        padding: 10px;
+        color: #8f665d;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .sheet-photo--main {
+        grid-column: span 2;
+        min-height: 176px;
+      }
+
+      .sheet-tip {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(243, 122, 87, 0.13), rgba(255, 209, 189, 0.28));
+        color: #8a5d54;
+        font-size: 12px;
+      }
+
+      .sheet-tip strong {
+        color: #dc5e40;
+      }
+
+      .detail-page {
+        height: 100%;
+        padding-bottom: 148px;
+      }
+
+      .detail-hero {
+        height: 250px;
+        border-radius: 24px;
+        border: 1px solid rgba(194, 126, 108, 0.24);
+        background:
+          radial-gradient(circle at top, #fffaf7 0%, #ffe5d8 58%, #ffc9b7 100%);
+      }
+
+      .detail-section {
+        margin-top: 12px;
+        padding: 14px 14px 12px;
+        border-radius: 18px;
+        border: 1px solid rgba(192, 126, 108, 0.18);
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .detail-section strong {
+        color: var(--ink-strong);
+        font-size: 14px;
+      }
+
+      .detail-section p {
+        margin: 8px 0 0;
+        color: #7d5b53;
+        font-size: 12px;
+      }
+
+      .detail-bar {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        z-index: 26;
+        display: grid;
+        grid-template-columns: 136px minmax(0, 1fr);
+        gap: 10px;
+        padding: 10px;
+        border-radius: 20px;
+        border: 1px solid rgba(195, 127, 109, 0.24);
+        background: rgba(255, 251, 248, 0.97);
+        box-shadow: 0 12px 26px rgba(163, 98, 84, 0.2);
+      }
+
+      .detail-bar__nav,
+      .detail-bar__actions {
+        min-width: 0;
+        display: grid;
+        gap: 8px;
+      }
+
+      .detail-bar__nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .detail-bar__actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mini-btn {
+        min-width: 0;
+        min-height: 64px;
+        border-radius: 14px;
+        border: 1px solid rgba(185, 119, 103, 0.24);
+        background: #fffdfc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        color: #7a5951;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .mini-btn svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+      }
+
+      .act-btn {
+        min-width: 0;
+        min-height: 64px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .act-btn--ghost {
+        border: 1px solid rgba(189, 122, 106, 0.24);
+        background: #fff5ef;
+        color: #bf5e46;
+      }
+
+      .act-btn--primary {
+        border: 1px solid transparent;
+        background: linear-gradient(135deg, #f37a57 0%, #f8a26e 100%);
+        color: #fffdfa;
+      }
+
+      .role-icons {
+        width: 100%;
+        padding: 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(190, 123, 106, 0.22);
+        background: rgba(255, 255, 255, 0.85);
+      }
+
+      .role-icons h4 {
+        margin: 0 0 10px;
+        color: #6a4640;
+        font-size: 14px;
+      }
+
+      .role-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .role-chip {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(190, 124, 108, 0.2);
+        background: #fff;
+        color: #7d5a53;
+        font-size: 12px;
+      }
+
+      .role-chip svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+      }
+
+      .img-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(25, 20, 19, 0.78);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 120;
+        padding: 20px;
+      }
+
+      .img-modal--open {
+        display: flex;
+      }
+
+      .img-modal__card {
+        width: min(520px, calc(100vw - 36px));
+        border-radius: 20px;
+        padding: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .img-modal__mock {
+        width: 100%;
+        aspect-ratio: 4 / 5;
+        border-radius: 14px;
+        background:
+          radial-gradient(circle at 40% 22%, rgba(255, 246, 243, 0.92), rgba(255, 213, 190, 0.68) 54%, rgba(247, 146, 114, 0.74) 100%);
+      }
+
+      .img-modal__title {
+        margin-top: 10px;
+        color: #ffece6;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute">
+      <symbol id="i-home" viewBox="0 0 24 24">
+        <path d="M3 10.5 12 3l9 7.5"></path>
+        <path d="M5.5 9.5V20h13V9.5"></path>
+        <path d="M10 20v-5h4v5"></path>
+      </symbol>
+      <symbol id="i-cart" viewBox="0 0 24 24">
+        <circle cx="9" cy="19" r="1.8"></circle>
+        <circle cx="17" cy="19" r="1.8"></circle>
+        <path d="M3 4h2.5l1.8 9h10l2-7H7.2"></path>
+      </symbol>
+      <symbol id="i-orders" viewBox="0 0 24 24">
+        <rect x="5" y="4" width="14" height="16" rx="2"></rect>
+        <path d="M8 8h8M8 12h8M8 16h5"></path>
+      </symbol>
+      <symbol id="i-user" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="3.2"></circle>
+        <path d="M5 19c1.8-3.2 4.1-4.8 7-4.8s5.2 1.6 7 4.8"></path>
+      </symbol>
+      <symbol id="i-box" viewBox="0 0 24 24">
+        <path d="M12 3 3.5 7.8 12 12.5l8.5-4.7L12 3Z"></path>
+        <path d="M3.5 7.8V16.2L12 21l8.5-4.8V7.8"></path>
+      </symbol>
+      <symbol id="i-inventory" viewBox="0 0 24 24">
+        <rect x="4" y="5" width="16" height="5" rx="1.4"></rect>
+        <rect x="4" y="11" width="16" height="4" rx="1.4"></rect>
+        <rect x="4" y="16" width="16" height="3" rx="1.4"></rect>
+        <path d="M8 7.5h3M8 13h3M8 17.5h3"></path>
+      </symbol>
+      <symbol id="i-book" viewBox="0 0 24 24">
+        <path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v17H7.5A2.5 2.5 0 0 0 5 22V5.5Z"></path>
+        <path d="M9 7h6M9 11h6"></path>
+      </symbol>
+      <symbol id="i-chart" viewBox="0 0 24 24">
+        <path d="M4 20h16"></path>
+        <rect x="6" y="11" width="2.8" height="7" rx="1"></rect>
+        <rect x="10.6" y="8" width="2.8" height="10" rx="1"></rect>
+        <rect x="15.2" y="5" width="2.8" height="13" rx="1"></rect>
+      </symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24">
+        <path d="M12 3 5 6v5.8c0 4.3 2.9 7.3 7 9.2 4.1-1.9 7-4.9 7-9.2V6l-7-3Z"></path>
+        <path d="m9 12.2 2.1 2.1 4.1-4.1"></path>
+      </symbol>
+    </svg>
+
+    <main class="page">
+      <section class="headline">
+        <h1>UI 修复草稿 v2（仅浏览器预览，不改小程序代码）</h1>
+        <p>
+          本版只调整你指出的排版和信息表达：1) 详情页底栏改为两组布局避免重叠；2) 半屏预览提升为 2/3 屏幕高度；3) 预览层支持详情图点击查看；
+          4) TabBar 图标重绘为高辨识度图形（首页/购物车/订单/我的等一眼可区分）。
+        </p>
+      </section>
+
+      <section class="canvas">
+        <article class="panel">
+          <div class="panel__title"><strong>状态 A：首页安全区 + 新 TabBar</strong><span>390 x 844</span></div>
+          <div class="phone">
+            <div class="status-bar"><span>17:03</span><span>5G · 94%</span></div>
+            <div class="safe-top-note">顶部系统区域（状态栏/灵动岛/胶囊）不放业务内容</div>
+            <div class="screen">
+              <div class="hero-card">
+                <h2>悦时</h2>
+                <p>标题和内容从安全区下方开始，不再侵入顶部系统区域。</p>
+              </div>
+              <div class="card-list">
+                <div class="cake-card"><div class="cake-shot"></div><div class="cake-body"><strong>暖雾香草蛋糕</strong><span>¥ 158</span></div></div>
+                <div class="cake-card"><div class="cake-shot"></div><div class="cake-body"><strong>云朵鲜奶蛋糕</strong><span>¥ 168</span></div></div>
+                <div class="cake-card"><div class="cake-shot"></div><div class="cake-body"><strong>蜜桃日落蛋糕</strong><span>¥ 238</span></div></div>
+                <div class="cake-card"><div class="cake-shot"></div><div class="cake-body"><strong>奶白星野蛋糕</strong><span>¥ 198</span></div></div>
+              </div>
+            </div>
+            <nav class="global-tabbar">
+              <div class="tab-item tab-item--active"><svg><use href="#i-home"></use></svg><span>首页</span></div>
+              <div class="tab-item"><svg><use href="#i-cart"></use></svg><span>购物车</span></div>
+              <div class="tab-item"><svg><use href="#i-orders"></use></svg><span>订单</span></div>
+              <div class="tab-item"><svg><use href="#i-user"></use></svg><span>我的</span></div>
+            </nav>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel__title"><strong>状态 B：2/3 高度预览层 + 图像查看</strong><span>390 x 844</span></div>
+          <div class="phone">
+            <div class="status-bar"><span>17:03</span><span>5G · 94%</span></div>
+            <div class="safe-top-note">上方保留 1/3 可见主页，且背景变暗</div>
+            <div class="screen">
+              <div class="hero-card"><h2>悦时</h2><p>点商品后弹出预览层，当前层高度约为整屏 2/3。</p></div>
+              <div class="card-list">
+                <div class="cake-card"><div class="cake-shot"></div><div class="cake-body"><strong>云朵鲜奶蛋糕</strong><span>月售 82</span></div></div>
+              </div>
+            </div>
+            <div class="sheet-mask"></div>
+            <section class="preview-sheet">
+              <div class="sheet-handle"></div>
+              <h3>暖雾香草蛋糕</h3>
+              <p>预览层只负责展示，支持详情图点击查看；规格选择与购买动作仍在独立详情页。</p>
+              <div class="sheet-gallery">
+                <div class="sheet-photo sheet-photo--main zoomable" data-title="详情图 1（主图）">点击查看大图</div>
+                <div class="sheet-photo zoomable" data-title="详情图 2">点击查看</div>
+                <div class="sheet-photo zoomable" data-title="详情图 3">点击查看</div>
+                <div class="sheet-photo zoomable" data-title="详情图 4">点击查看</div>
+              </div>
+              <div class="sheet-tip"><span>预览层不放底部四操作位</span><strong>在详情区域继续上滑进入完整详情页</strong></div>
+            </section>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel__title"><strong>状态 C：详情页底栏防重叠排版</strong><span>390 x 844</span></div>
+          <div class="phone">
+            <div class="status-bar"><span>17:03</span><span>5G · 94%</span></div>
+            <div class="screen">
+              <section class="detail-page">
+                <div class="detail-hero"></div>
+                <div class="detail-section"><strong>层数</strong><p>单层 / 双层 / 三层</p></div>
+                <div class="detail-section"><strong>尺寸</strong><p>6 英寸 / 8 英寸 / 10 英寸</p></div>
+                <div class="detail-section"><strong>奶油类型</strong><p>轻乳脂 / 海盐 / 桃乌龙</p></div>
+              </section>
+            </div>
+
+            <section class="detail-bar">
+              <div class="detail-bar__nav">
+                <div class="mini-btn"><svg><use href="#i-home"></use></svg><span>首页</span></div>
+                <div class="mini-btn"><svg><use href="#i-cart"></use></svg><span>购物车</span></div>
+              </div>
+              <div class="detail-bar__actions">
+                <div class="act-btn act-btn--ghost">加入购物车</div>
+                <div class="act-btn act-btn--primary">立即购买</div>
+              </div>
+            </section>
+          </div>
+
+          <div class="role-icons">
+            <h4>统一图标风格样板（纯色线性，高辨识度）</h4>
+            <div class="role-row">
+              <div class="role-chip"><svg><use href="#i-home"></use></svg><span>首页</span></div>
+              <div class="role-chip"><svg><use href="#i-cart"></use></svg><span>购物车</span></div>
+              <div class="role-chip"><svg><use href="#i-orders"></use></svg><span>订单</span></div>
+              <div class="role-chip"><svg><use href="#i-user"></use></svg><span>我的</span></div>
+              <div class="role-chip"><svg><use href="#i-box"></use></svg><span>商品管理</span></div>
+              <div class="role-chip"><svg><use href="#i-inventory"></use></svg><span>商品库存</span></div>
+              <div class="role-chip"><svg><use href="#i-book"></use></svg><span>账本</span></div>
+              <div class="role-chip"><svg><use href="#i-chart"></use></svg><span>数据概览</span></div>
+              <div class="role-chip"><svg><use href="#i-shield"></use></svg><span>商家审核</span></div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <div class="img-modal" id="img-modal">
+      <div class="img-modal__card">
+        <div class="img-modal__mock"></div>
+        <div class="img-modal__title" id="img-modal-title">详情图</div>
+      </div>
+    </div>
+
+    <script>
+      const modal = document.getElementById('img-modal')
+      const modalTitle = document.getElementById('img-modal-title')
+      const zoomables = document.querySelectorAll('.zoomable')
+
+      zoomables.forEach((node) => {
+        node.addEventListener('click', () => {
+          modalTitle.textContent = node.dataset.title || '详情图'
+          modal.classList.add('img-modal--open')
+        })
+      })
+
+      modal.addEventListener('click', () => {
+        modal.classList.remove('img-modal--open')
+      })
+    </script>
+  </body>
+</html>
