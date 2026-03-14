@@ -1,5 +1,15 @@
 import type { RoleType } from '../../../../types/role'
-import { createRolePreviewSession, getRoleEntryPath } from '../../../utils/role-routing'
+import {
+  parseRoleType,
+  type RoleSceneActionDetail,
+  switchPreviewRole,
+} from '../../../utils/role-page-scene-actions'
+import {
+  buildRolePageSceneSwitchPatch,
+  type RolePageSceneSwitchState,
+  type RolePageSceneTabChangeDetail,
+} from '../../../utils/role-page-scene-switch'
+import { buildRolePageDataPatch, buildRolePageState } from '../../../utils/role-page-runtime-state'
 
 interface RoleSwitchOption {
   role: RoleType
@@ -7,47 +17,26 @@ interface RoleSwitchOption {
   note: string
 }
 
-interface SceneActionDetail {
-  action?: unknown
-  role?: unknown
-}
-
-interface AdminProfilePageData {
+interface AdminProfilePageData extends RolePageSceneSwitchState {
   activeRole: RoleType
   roleSwitchOptions: RoleSwitchOption[]
   isPreviewMode: boolean
-}
-
-function parseRoleType(rawValue: unknown): RoleType | null {
-  if (rawValue === 'admin' || rawValue === 'merchant' || rawValue === 'customer') {
-    return rawValue
-  }
-
-  return null
-}
-
-function getRoleLabel(roleType: RoleType): string {
-  if (roleType === 'admin') {
-    return '管理员'
-  }
-
-  if (roleType === 'merchant') {
-    return '商家'
-  }
-
-  return '顾客'
 }
 
 Page<
   AdminProfilePageData,
   {
     onShow(): void
-    handleSceneAction(event: WechatMiniprogram.CustomEvent<SceneActionDetail>): void
+    handleTabChange(event: WechatMiniprogram.CustomEvent<RolePageSceneTabChangeDetail>): void
+    handleSceneAction(event: WechatMiniprogram.CustomEvent<RoleSceneActionDetail>): void
     switchToRole(targetRole: RoleType): void
   }
 >({
   data: {
     activeRole: 'admin',
+    scenePath: '/pages/admin/profile/profile',
+    sceneDirection: 'none',
+    sceneMotionTick: 0,
     isPreviewMode: false,
     roleSwitchOptions: [
       { role: 'admin', label: '管理员视角', note: '审核与巡检入口' },
@@ -57,13 +46,17 @@ Page<
   },
 
   onShow() {
-    const roleSession = getApp<IAppOption>().globalData.roleSession
-    const currentRole = parseRoleType(roleSession?.currentRole)
-    if (currentRole !== null) {
-      this.setData({
-        activeRole: currentRole,
-        isPreviewMode: roleSession?.isPreviewMode ?? false,
-      })
+    const nextState = buildRolePageState(getApp<IAppOption>().globalData.roleSession, 'admin')
+    const patch = buildRolePageDataPatch(this.data, nextState)
+    if (patch !== null) {
+      this.setData(patch)
+    }
+  },
+
+  handleTabChange(event) {
+    const patch = buildRolePageSceneSwitchPatch(this.data, event.detail)
+    if (patch !== null) {
+      this.setData(patch)
     }
   },
 
@@ -81,19 +74,6 @@ Page<
   },
 
   switchToRole(targetRole) {
-    const app = getApp<IAppOption>()
-    app.globalData.roleSession = createRolePreviewSession(targetRole, app.globalData.roleSession?.merchantName)
-
-    wx.showToast({
-      title: `已切换为${getRoleLabel(targetRole)}预览`,
-      icon: 'none',
-      duration: 980,
-    })
-
-    setTimeout((): void => {
-      wx.reLaunch({
-        url: getRoleEntryPath(targetRole),
-      })
-    }, 1000)
+    switchPreviewRole(targetRole)
   },
 })

@@ -1,10 +1,21 @@
 <view class="role-page">
   <view class="role-page__background"></view>
-  <role-page-scene
-    scenePath="/pages/admin/overview/overview"
-    activeRole="{{activeRole}}"
-    isPreviewMode="{{isPreviewMode}}"
-  ></role-page-scene>
+  <view
+    class="role-page__scene-host role-page__scene-host--{{sceneDirection}} role-page__scene-host--tick-{{sceneMotionTick % 2}}"
+  >
+    <role-page-scene
+      scenePath="{{scenePath}}"
+      activeRole="{{activeRole}}"
+      isPreviewMode="{{isPreviewMode}}"
+      roleSwitchOptions="{{roleSwitchOptions}}"
+      bind:sceneaction="handleSceneAction"
+    ></role-page-scene>
+  </view>
 
-  <custom-tab-bar role="{{activeRole}}" currentPath="/pages/admin/overview/overview"></custom-tab-bar>
+  <custom-tab-bar
+    role="{{activeRole}}"
+    mode="scene"
+    currentPath="{{scenePath}}"
+    bind:tabchange="handleTabChange"
+  ></custom-tab-bar>
 </view>

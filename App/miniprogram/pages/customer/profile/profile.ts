@@ -1,11 +1,13 @@
 import type { RoleType } from '../../../../types/role'
-import { getRoleEntryPath } from '../../../utils/role-routing'
+import { type RoleSceneActionDetail, returnToAdminPreview } from '../../../utils/role-page-scene-actions'
+import {
+  buildRolePageSceneSwitchPatch,
+  type RolePageSceneSwitchState,
+  type RolePageSceneTabChangeDetail,
+} from '../../../utils/role-page-scene-switch'
+import { buildPreviewableRolePageState, buildRolePageDataPatch } from '../../../utils/role-page-runtime-state'
 
-interface SceneActionDetail {
-  action?: unknown
-}
-
-interface CustomerProfilePageData {
+interface CustomerProfilePageData extends RolePageSceneSwitchState {
   activeRole: RoleType
   canBackToAdmin: boolean
   isPreviewMode: boolean
@@ -15,25 +17,32 @@ Page<
   CustomerProfilePageData,
   {
     onShow(): void
+    handleTabChange(event: WechatMiniprogram.CustomEvent<RolePageSceneTabChangeDetail>): void
     handleBackToAdmin(): void
-    handleSceneAction(event: WechatMiniprogram.CustomEvent<SceneActionDetail>): void
+    handleSceneAction(event: WechatMiniprogram.CustomEvent<RoleSceneActionDetail>): void
   }
 >({
   data: {
     activeRole: 'customer',
+    scenePath: '/pages/customer/profile/profile',
+    sceneDirection: 'none',
+    sceneMotionTick: 0,
     canBackToAdmin: false,
     isPreviewMode: false,
   },
 
   onShow() {
-    const roleSession = getApp<IAppOption>().globalData.roleSession
-    const roleFromGlobal = roleSession?.currentRole
-    if (roleFromGlobal === 'admin' || roleFromGlobal === 'merchant' || roleFromGlobal === 'customer') {
-      this.setData({
-        activeRole: roleFromGlobal,
-        isPreviewMode: roleSession?.isPreviewMode ?? false,
-        canBackToAdmin: (roleSession?.isPreviewMode ?? false) && (roleSession?.availableRoles ?? []).includes('admin'),
-      })
+    const nextState = buildPreviewableRolePageState(getApp<IAppOption>().globalData.roleSession, 'customer')
+    const patch = buildRolePageDataPatch(this.data, nextState)
+    if (patch !== null) {
+      this.setData(patch)
+    }
+  },
+
+  handleTabChange(event) {
+    const patch = buildRolePageSceneSwitchPatch(this.data, event.detail)
+    if (patch !== null) {
+      this.setData(patch)
     }
   },
 
@@ -44,17 +53,6 @@ Page<
   },
 
   handleBackToAdmin() {
-    const app = getApp<IAppOption>()
-    const currentSession = app.globalData.roleSession
-    app.globalData.roleSession = {
-      currentRole: 'admin',
-      availableRoles: ['admin', 'merchant', 'customer'],
-      isPreviewMode: true,
-      merchantName: currentSession?.merchantName,
-    }
-
-    wx.reLaunch({
-      url: getRoleEntryPath('admin'),
-    })
+    returnToAdminPreview()
   },
 })

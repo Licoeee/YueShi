@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import path from 'node:path'
 import test from 'node:test'
 
 import {
@@ -7,6 +9,12 @@ import {
   getRoleTabbarPreloadPaths,
   getRoleTabbarValueByPath,
 } from '../miniprogram/utils/role-tabbar'
+
+const workspaceRoot = process.cwd()
+
+function readWorkspaceFile(relativePath: string): string {
+  return fs.readFileSync(path.join(workspaceRoot, relativePath), 'utf8')
+}
 
 test('builds customer tabbar with home / cart / orders / profile items', () => {
   const items = getRoleTabbarItems('customer')
@@ -70,4 +78,17 @@ test('resolves role tabbar list by path and falls back to customer tabbar', () =
   assert.equal(getRoleTabbarItemsByPath('/pages/admin/reviews/reviews')[0]?.value, 'admin-reviews')
   assert.equal(getRoleTabbarItemsByPath('/pages/merchant/orders/orders')[0]?.value, 'merchant-products')
   assert.equal(getRoleTabbarItemsByPath('/pages/unknown/path')[0]?.value, 'customer-home')
+})
+
+test('syncs tabbar highlight on page show to avoid stale active tab after returning cached pages', () => {
+  const source = readWorkspaceFile('App/miniprogram/components/custom-tab-bar/custom-tab-bar.ts')
+
+  assert.match(source, /pageLifetimes\s*:\s*\{\s*show\(\)\s*:\s*void\s*\{\s*this\.syncTabBarState\(\)/)
+})
+
+test('supports scene mode tab switching without triggering route jumps', () => {
+  const source = readWorkspaceFile('App/miniprogram/components/custom-tab-bar/custom-tab-bar.ts')
+
+  assert.match(source, /mode:\s*\{\s*type:\s*String,\s*value:\s*'route'/)
+  assert.match(source, /if\s*\(\s*mode\s*===\s*'scene'\s*\)\s*\{[\s\S]*this\.triggerEvent\('tabchange'/)
 })

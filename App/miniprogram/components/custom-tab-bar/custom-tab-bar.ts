@@ -1,11 +1,7 @@
 import type { RoleType } from '../../../types/role'
+import { buildCustomTabBarSyncResult } from '../../utils/custom-tab-bar-state'
+import { type RoleTabbarItem } from '../../utils/role-tabbar'
 import {
-  getRoleTabbarItems,
-  getRoleTabbarValueByPath,
-  type RoleTabbarItem,
-} from '../../utils/role-tabbar'
-import {
-  normalizePagePath,
   resolveTabRouteAction,
   type RouteStackPage,
   type TabRouteAction,
@@ -21,15 +17,17 @@ interface TabBarChangeEventDetail {
   value?: unknown
 }
 
-let isRouteSwitching = false
+type TabSwitchMode = 'route' | 'scene'
+type TabSwitchDirection = 'forward' | 'backward' | 'none'
 
-function parseRoleType(rawValue: unknown): RoleType | null {
-  if (rawValue === 'admin' || rawValue === 'merchant' || rawValue === 'customer') {
-    return rawValue
-  }
-
-  return null
+interface SceneTabChangeEventDetail {
+  path: string
+  value: string
+  direction: TabSwitchDirection
 }
+
+let isRouteSwitching = false
+const LAST_WARM_STATE_BY_INSTANCE = new WeakMap<object, { roleType: RoleType; currentPath: string }>()
 
 function finishRouteSwitching(): void {
   isRouteSwitching = false
@@ -48,6 +46,29 @@ function getRouteStackPages(): RouteStackPage[] {
   return getCurrentPages().map((page) => ({
     route: page.route,
   }))
+}
+
+function parseTabSwitchMode(rawValue: unknown): TabSwitchMode {
+  if (rawValue === 'scene') {
+    return rawValue
+  }
+
+  return 'route'
+}
+
+function getTabSwitchDirection(
+  items: readonly RoleTabbarItem[],
+  currentPath: string,
+  targetPath: string,
+): TabSwitchDirection {
+  const currentIndex = items.findIndex((item) => item.path === currentPath)
+  const targetIndex = items.findIndex((item) => item.path === targetPath)
+
+  if (currentIndex < 0 || targetIndex < 0 || targetIndex === currentIndex) {
+    return 'none'
+  }
+
+  return targetIndex > currentIndex ? 'forward' : 'backward'
 }
 
 function executeTabRouteAction(action: TabRouteAction, targetPath: string): void {
@@ -96,6 +117,41 @@ function executeTabRouteAction(action: TabRouteAction, targetPath: string): void
     return
   }
 
+  if (action.type === 'navigateToChain') {
+    const executeStep = (stepIndex: number): void => {
+      const stepUrl = action.urls[stepIndex]
+      if (typeof stepUrl !== 'string' || stepUrl.length === 0) {
+        finishRouteSwitching()
+        return
+      }
+
+      let isFallbackTriggered = false
+      wx.navigateTo({
+        url: stepUrl,
+        fail(error): void {
+          isFallbackTriggered = true
+          console.warn('[tabbar] navigateTo chain failed, fallback to reLaunch', error)
+          reLaunchTargetPath(targetPath)
+        },
+        complete(): void {
+          if (isFallbackTriggered) {
+            return
+          }
+
+          if (stepIndex >= action.urls.length - 1) {
+            finishRouteSwitching()
+            return
+          }
+
+          executeStep(stepIndex + 1)
+        },
+      })
+    }
+
+    executeStep(0)
+    return
+  }
+
   reLaunchTargetPath(action.url)
 }
 
@@ -108,6 +164,10 @@ Component({
     role: {
       type: String,
       value: '',
+    },
+    mode: {
+      type: String,
+      value: 'route',
     },
     currentPath: {
       type: String,
@@ -132,45 +192,40 @@ Component({
     },
   },
 
-  methods: {
-    resolveRoleType(): RoleType {
-      const roleFromProperty = parseRoleType(this.properties.role)
-      if (roleFromProperty !== null) {
-        return roleFromProperty
-      }
-
-      const app = getApp<IAppOption>()
-      const roleFromGlobal = parseRoleType(app.globalData.roleSession?.currentRole)
-
-      return roleFromGlobal ?? 'customer'
+  pageLifetimes: {
+    show(): void {
+      this.syncTabBarState()
     },
+  },
 
+  methods: {
     syncTabBarState(): void {
-      const roleType = this.resolveRoleType()
-      const items = getRoleTabbarItems(roleType)
-      const roleCurrentValue = getRoleTabbarValueByPath(normalizePagePath(this.properties.currentPath))
-      const currentValue =
-        roleCurrentValue !== null && items.some((item) => item.value === roleCurrentValue)
-          ? roleCurrentValue
-          : (items[0]?.value ?? '')
-
-      this.setData({
-        items,
-        currentValue,
+      const lastWarmState = LAST_WARM_STATE_BY_INSTANCE.get(this)
+      const syncResult = buildCustomTabBarSyncResult({
+        roleFromProperty: this.properties.role,
+        roleFromGlobal: getApp<IAppOption>().globalData.roleSession?.currentRole,
+        currentPath: this.properties.currentPath,
+        currentItems: this.data.items,
+        currentValue: this.data.currentValue,
+        lastWarmRoleType: lastWarmState?.roleType,
+        lastWarmPath: lastWarmState?.currentPath,
       })
 
-      warmRoleTabbarPages(
-        roleType,
-        normalizePagePath(this.properties.currentPath),
-        wx as Partial<PagePreloadAdapter>,
-      )
+      if (syncResult.dataPatch !== null) {
+        this.setData(syncResult.dataPatch)
+      }
+
+      LAST_WARM_STATE_BY_INSTANCE.set(this, {
+        roleType: syncResult.roleType,
+        currentPath: syncResult.currentPath,
+      })
+
+      if (syncResult.shouldWarm) {
+        warmRoleTabbarPages(syncResult.roleType, syncResult.currentPath, wx as Partial<PagePreloadAdapter>)
+      }
     },
 
     handleTabChange(event: WechatMiniprogram.CustomEvent<TabBarChangeEventDetail>): void {
-      if (isRouteSwitching) {
-        return
-      }
-
       const rawValue = event.detail.value
       const selectedValue = typeof rawValue === 'string' ? rawValue : null
       if (selectedValue === null) {
@@ -182,7 +237,33 @@ Component({
         return
       }
 
-      if (normalizePagePath(this.properties.currentPath) === targetPath) {
+      const currentPath = LAST_WARM_STATE_BY_INSTANCE.get(this)?.currentPath ?? this.properties.currentPath
+      if (currentPath === targetPath) {
+        return
+      }
+
+      const mode = parseTabSwitchMode(this.properties.mode)
+      if (mode === 'scene') {
+        this.setData({
+          currentValue: selectedValue,
+        })
+
+        const lastWarmState = LAST_WARM_STATE_BY_INSTANCE.get(this)
+        LAST_WARM_STATE_BY_INSTANCE.set(this, {
+          roleType: lastWarmState?.roleType ?? 'customer',
+          currentPath: targetPath,
+        })
+
+        const direction = getTabSwitchDirection(this.data.items, currentPath, targetPath)
+        this.triggerEvent('tabchange', {
+          path: targetPath,
+          value: selectedValue,
+          direction,
+        } as SceneTabChangeEventDetail)
+        return
+      }
+
+      if (isRouteSwitching) {
         return
       }
 
@@ -192,7 +273,13 @@ Component({
       })
 
       warmPagePaths([targetPath], wx as Partial<PagePreloadAdapter>)
-      executeTabRouteAction(resolveTabRouteAction(getRouteStackPages(), targetPath), targetPath)
+      executeTabRouteAction(
+        resolveTabRouteAction(getRouteStackPages(), targetPath, {
+          currentPath,
+          orderedTabPaths: this.data.items.map((item) => item.path),
+        }),
+        targetPath,
+      )
     },
   },
 })

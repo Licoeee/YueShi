@@ -1,24 +1,58 @@
 import type { RoleType } from '../../../../types/role'
+import { type RoleSceneActionDetail, returnToAdminPreview } from '../../../utils/role-page-scene-actions'
+import {
+  buildRolePageSceneSwitchPatch,
+  type RolePageSceneSwitchState,
+  type RolePageSceneTabChangeDetail,
+} from '../../../utils/role-page-scene-switch'
+import { buildPreviewableRolePageState, buildRolePageDataPatch } from '../../../utils/role-page-runtime-state'
 
-interface CustomerHomePageData {
+interface CustomerHomePageData extends RolePageSceneSwitchState {
   activeRole: RoleType
+  canBackToAdmin: boolean
   isPreviewMode: boolean
 }
 
-Page<CustomerHomePageData, { onShow(): void }>({
+Page<
+  CustomerHomePageData,
+  {
+    onShow(): void
+    handleTabChange(event: WechatMiniprogram.CustomEvent<RolePageSceneTabChangeDetail>): void
+    handleSceneAction(event: WechatMiniprogram.CustomEvent<RoleSceneActionDetail>): void
+    handleBackToAdmin(): void
+  }
+>({
   data: {
     activeRole: 'customer',
+    scenePath: '/pages/customer/home/home',
+    sceneDirection: 'none',
+    sceneMotionTick: 0,
+    canBackToAdmin: false,
     isPreviewMode: false,
   },
 
   onShow() {
-    const roleSession = getApp<IAppOption>().globalData.roleSession
-    const roleFromGlobal = roleSession?.currentRole
-    if (roleFromGlobal === 'admin' || roleFromGlobal === 'merchant' || roleFromGlobal === 'customer') {
-      this.setData({
-        activeRole: roleFromGlobal,
-        isPreviewMode: roleSession?.isPreviewMode ?? false,
-      })
+    const nextState = buildPreviewableRolePageState(getApp<IAppOption>().globalData.roleSession, 'customer')
+    const patch = buildRolePageDataPatch(this.data, nextState)
+    if (patch !== null) {
+      this.setData(patch)
     }
+  },
+
+  handleTabChange(event) {
+    const patch = buildRolePageSceneSwitchPatch(this.data, event.detail)
+    if (patch !== null) {
+      this.setData(patch)
+    }
+  },
+
+  handleSceneAction(event) {
+    if (event.detail.action === 'preview-return') {
+      this.handleBackToAdmin()
+    }
+  },
+
+  handleBackToAdmin() {
+    returnToAdminPreview()
   },
 })

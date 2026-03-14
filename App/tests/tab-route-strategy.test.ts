@@ -41,6 +41,78 @@ test('opens a tab page with navigateTo when the target is not in the current sta
   })
 })
 
+test('keeps forward navigation semantics when the target tab is on the right even if it already exists in stack', () => {
+  const action = resolveTabRouteAction(
+    [
+      { route: 'pages/customer/home/home' },
+      { route: 'pages/customer/orders/orders' },
+      { route: 'pages/customer/cart/cart' },
+    ],
+    '/pages/customer/orders/orders',
+    {
+      currentPath: '/pages/customer/cart/cart',
+      orderedTabPaths: [
+        '/pages/customer/home/home',
+        '/pages/customer/cart/cart',
+        '/pages/customer/orders/orders',
+        '/pages/customer/profile/profile',
+      ],
+    },
+  )
+
+  assert.deepEqual(action, {
+    type: 'navigateTo',
+    url: '/pages/customer/orders/orders',
+  })
+})
+
+test('navigates through intermediate tabs when jumping forward across multiple tab positions', () => {
+  const action = resolveTabRouteAction(
+    [
+      { route: 'pages/customer/home/home' },
+    ],
+    '/pages/customer/orders/orders',
+    {
+      currentPath: '/pages/customer/home/home',
+      orderedTabPaths: [
+        '/pages/customer/home/home',
+        '/pages/customer/cart/cart',
+        '/pages/customer/orders/orders',
+        '/pages/customer/profile/profile',
+      ],
+    },
+  )
+
+  assert.deepEqual(action, {
+    type: 'navigateToChain',
+    urls: ['/pages/customer/cart/cart', '/pages/customer/orders/orders'],
+  })
+})
+
+test('falls back to reLaunch when moving left but target tab is missing from stack', () => {
+  const action = resolveTabRouteAction(
+    [
+      { route: 'pages/customer/home/home' },
+      { route: 'pages/customer/orders/orders' },
+    ],
+    '/pages/customer/cart/cart',
+    {
+      currentPath: '/pages/customer/orders/orders',
+      orderedTabPaths: [
+        '/pages/customer/home/home',
+        '/pages/customer/cart/cart',
+        '/pages/customer/orders/orders',
+        '/pages/customer/profile/profile',
+      ],
+    },
+  )
+
+  assert.deepEqual(action, {
+    type: 'reLaunch',
+    url: '/pages/customer/cart/cart',
+  })
+})
+
 test('falls back to reLaunch when the page stack is full and target is not reusable', () => {
   const action = resolveTabRouteAction(
     [
