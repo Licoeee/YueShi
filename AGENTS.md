@@ -19,6 +19,8 @@
 - **字体图标约束**：当前稳定基线不依赖 TDesign 字体图标。后续页面若使用 `t-icon` 或带默认 icon 的 TDesign 组件，必须先验证真机调试兼容性；不需要 icon 时要显式关闭对应属性。
 - **长页面背景实现**：长滚动页面禁止把复杂渐变直接挂在全局 `page` 上，必须采用“固定背景层 + 内容层”结构，避免滚动断层。
 - **第三方包补丁同步**：凡修补 `node_modules` 内的 TDesign 样式或资源，必须同步修改 `miniprogram_npm` 对应产物，否则执行“构建 npm”后运行时行为会回退。
+- **TDesign Button 变体变量隔离**：`<t-button>` 的每种 `variant` 拥有**独立的 CSS 变量前缀**。修改按钮颜色/边框/背景时，必须先到 `miniprogram_npm/tdesign-miniprogram/button/button.wxss` 中确认目标 variant 读取的实际变量名。常见映射：`theme="default"` → `--td-button-default-*`；`variant="outline"` → `--td-button-default-outline-*`；`theme="primary"` → `--td-button-primary-*`；`variant="outline" + theme="primary"` → `--td-button-primary-outline-*`。**严禁凭记忆猜测变量名**，用错前缀样式不会报错但完全不生效。
+- **非按钮语义元素禁用 t-button**：底栏导航入口（如"首页""购物车"图标格子）只起跳转作用、不需要按钮语义时，必须用纯 `<view>` 实现，禁止套用 `<t-button>`。`t-button` 的 `shape`/`size`/`variant` 组合会产生不可预期的圆角和高度计算（如 `shape="round"` 强制 `border-radius = height/2`），导致布局对齐失控。
 
 ## 4. 第二阶段高频问题防复发红线 (2.1~2.4)
 - **欢迎页比例基线**：以 `390x844` 为必测比例；改排版时必须同时检查“标题-蛋糕”“蛋糕-按钮”两段间距，禁止出现贴顶、贴底、过量留白和元素重叠。
