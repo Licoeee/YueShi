@@ -32,15 +32,15 @@ test('tightens tabbar proportions while keeping labels larger and readable', () 
 
   assert.match(
     wxml,
-    /custom-tab-bar__item-content[\s\S]*custom-tab-bar__icon[\s\S]*custom-tab-bar__label/,
+    /custom-tab-bar__item-content[\s\S]*custom-tab-bar__icon-image[\s\S]*custom-tab-bar__label/,
   )
   assert.match(
     wxss,
-    /\.custom-tab-bar__panel\s*\{[\s\S]*--td-tab-bar-height:\s*116rpx;/,
+    /\.custom-tab-bar__panel\s*\{[\s\S]*--td-tab-bar-height:\s*118rpx;/,
   )
   assert.match(
     wxss,
-    /\.custom-tab-bar__item\s*\{[\s\S]*height:\s*116rpx;[\s\S]*margin:\s*6rpx 0;[\s\S]*padding:\s*0 8rpx;/,
+    /\.custom-tab-bar__item\s*\{[\s\S]*height:\s*118rpx;[\s\S]*margin:\s*5rpx 0;[\s\S]*padding:\s*0 6rpx;/,
   )
   assert.match(
     wxss,
@@ -48,7 +48,11 @@ test('tightens tabbar proportions while keeping labels larger and readable', () 
   )
   assert.match(
     wxss,
-    /\.custom-tab-bar__label\s*\{[\s\S]*font-size:\s*20rpx;[\s\S]*line-height:\s*28rpx;/,
+    /\.custom-tab-bar__icon-image\s*\{[\s\S]*width:\s*36rpx;[\s\S]*height:\s*36rpx;/,
+  )
+  assert.match(
+    wxss,
+    /\.custom-tab-bar__label\s*\{[\s\S]*font-size:\s*22rpx;[\s\S]*line-height:\s*30rpx;/,
   )
 })
 

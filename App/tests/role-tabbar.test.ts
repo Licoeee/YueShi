@@ -35,6 +35,24 @@ test('builds customer tabbar with home / cart / orders / profile items', () => {
     items.map((item) => item.iconKey),
     ['home', 'cart', 'orders', 'profile'],
   )
+  assert.deepEqual(
+    items.map((item) => item.iconInactive),
+    [
+      '/assets/icons/tab/home-inactive.svg',
+      '/assets/icons/tab/cart-inactive.svg',
+      '/assets/icons/tab/orders-inactive.svg',
+      '/assets/icons/tab/profile-inactive.svg',
+    ],
+  )
+  assert.deepEqual(
+    items.map((item) => item.iconActive),
+    [
+      '/assets/icons/tab/home-active.svg',
+      '/assets/icons/tab/cart-active.svg',
+      '/assets/icons/tab/orders-active.svg',
+      '/assets/icons/tab/profile-active.svg',
+    ],
+  )
 })
 
 test('builds merchant tabbar with products / orders / account-book / inventory / profile items', () => {
@@ -48,6 +66,8 @@ test('builds merchant tabbar with products / orders / account-book / inventory /
     items.map((item) => item.iconKey),
     ['products', 'orders', 'account-book', 'inventory', 'profile'],
   )
+  assert.equal(items[3]?.iconInactive, '/assets/icons/tab/inventory-inactive.svg')
+  assert.equal(items[3]?.iconActive, '/assets/icons/tab/inventory-active.svg')
 })
 
 test('builds admin tabbar with reviews / overview / profile items', () => {
@@ -60,6 +80,10 @@ test('builds admin tabbar with reviews / overview / profile items', () => {
   assert.deepEqual(
     items.map((item) => item.iconKey),
     ['reviews', 'overview', 'profile'],
+  )
+  assert.deepEqual(
+    items.map((item) => item.iconInactive),
+    ['/assets/icons/tab/reviews-inactive.svg', '/assets/icons/tab/overview-inactive.svg', '/assets/icons/tab/profile-inactive.svg'],
   )
 })
 

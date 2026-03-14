@@ -62,5 +62,17 @@ Component({
     handleMaskTap(): void {
       this.triggerEvent('close')
     },
+
+    handlePreviewImage(event: WechatMiniprogram.BaseEvent): void {
+      const imageUrl = (event.currentTarget.dataset as { imageUrl?: unknown }).imageUrl
+      if (typeof imageUrl !== 'string' || imageUrl.length === 0 || this.data.imageUrls.length === 0) {
+        return
+      }
+
+      wx.previewImage({
+        current: imageUrl,
+        urls: this.data.imageUrls,
+      })
+    },
   },
 })

@@ -113,7 +113,13 @@
         bindtap="handleGoHome"
       >
         <view class="customer-product-detail__nav-button-content">
-          <view class="customer-product-detail__nav-icon customer-product-detail__nav-icon--home"></view>
+          <t-image
+            class="customer-product-detail__nav-icon-image"
+            src="/assets/icons/tab/home-inactive.svg"
+            mode="aspectFit"
+            shape="square"
+            lazy="{{false}}"
+          ></t-image>
           <text class="customer-product-detail__nav-label">{{homeLabel}}</text>
         </view>
       </t-button>
@@ -126,7 +132,13 @@
         bindtap="handleGoCart"
       >
         <view class="customer-product-detail__nav-button-content">
-          <view class="customer-product-detail__nav-icon customer-product-detail__nav-icon--cart"></view>
+          <t-image
+            class="customer-product-detail__nav-icon-image"
+            src="/assets/icons/tab/cart-inactive.svg"
+            mode="aspectFit"
+            shape="square"
+            lazy="{{false}}"
+          ></t-image>
           <text class="customer-product-detail__nav-label">{{cartLabel}}</text>
         </view>
       </t-button>

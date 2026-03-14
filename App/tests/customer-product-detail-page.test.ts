@@ -23,3 +23,12 @@ test('registers the dedicated product detail route in app.json', () => {
 
   assert.match(appJson, /pages\/customer\/product-detail\/product-detail/)
 })
+
+test('uses grouped footer layout in detail component to prevent action overlap', () => {
+  const detailWxml = readWorkspaceFile('App/miniprogram/components/customer-product-detail/customer-product-detail.wxml')
+  const detailWxss = readWorkspaceFile('App/miniprogram/components/customer-product-detail/customer-product-detail.wxss')
+
+  assert.match(detailWxml, /customer-product-detail__footer-nav-group/)
+  assert.match(detailWxml, /customer-product-detail__footer-action-group/)
+  assert.match(detailWxss, /grid-template-columns:\s*272rpx\s*minmax\(0,\s*1fr\);/)
+})
