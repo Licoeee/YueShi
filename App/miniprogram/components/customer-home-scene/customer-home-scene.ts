@@ -73,7 +73,7 @@ Component({
       })
     },
 
-    handleSearchChange(event: WechatMiniprogram.CustomEvent<unknown>): void {
+    handleSearchChange(event: WechatMiniprogram.CustomEvent<{ value?: string }>): void {
       this.setData({
         keyword: extractSearchKeyword(event.detail),
       })

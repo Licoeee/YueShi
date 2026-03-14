@@ -22,7 +22,7 @@ Component({
     },
     cake: {
       type: Object,
-      value: null,
+      value: undefined,
     },
   },
 
