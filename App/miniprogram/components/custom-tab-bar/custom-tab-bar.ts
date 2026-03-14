@@ -7,6 +7,12 @@ import {
   type TabRouteAction,
 } from '../../utils/tab-route-strategy'
 import { warmPagePaths, warmRoleTabbarPages, type PagePreloadAdapter } from '../../utils/role-page-preload'
+import {
+  releaseSceneSwitchLock,
+  requestSceneSwitch,
+  type SceneSwitchLimiterState,
+  type SceneSwitchRequest,
+} from '../../utils/scene-switch-rate-limit'
 
 interface CustomTabBarData {
   items: RoleTabbarItem[]
@@ -26,8 +32,16 @@ interface SceneTabChangeEventDetail {
   direction: TabSwitchDirection
 }
 
+interface SceneSwitchRuntimeState {
+  limiter: SceneSwitchLimiterState
+  releaseTimer: number | null
+}
+
+const SCENE_SWITCH_LOCK_MS = 220
+
 let isRouteSwitching = false
 const LAST_WARM_STATE_BY_INSTANCE = new WeakMap<object, { roleType: RoleType; currentPath: string }>()
+const SCENE_SWITCH_RUNTIME_BY_INSTANCE = new WeakMap<object, SceneSwitchRuntimeState>()
 
 function finishRouteSwitching(): void {
   isRouteSwitching = false
@@ -46,6 +60,33 @@ function getRouteStackPages(): RouteStackPage[] {
   return getCurrentPages().map((page) => ({
     route: page.route,
   }))
+}
+
+function getSceneSwitchRuntime(instance: object): SceneSwitchRuntimeState {
+  const existingState = SCENE_SWITCH_RUNTIME_BY_INSTANCE.get(instance)
+  if (existingState !== undefined) {
+    return existingState
+  }
+
+  const initialState: SceneSwitchRuntimeState = {
+    limiter: {
+      isLocked: false,
+      pendingRequest: null,
+    },
+    releaseTimer: null,
+  }
+  SCENE_SWITCH_RUNTIME_BY_INSTANCE.set(instance, initialState)
+  return initialState
+}
+
+function clearSceneSwitchReleaseTimer(instance: object): void {
+  const runtimeState = SCENE_SWITCH_RUNTIME_BY_INSTANCE.get(instance)
+  if (runtimeState === undefined || runtimeState.releaseTimer === null) {
+    return
+  }
+
+  clearTimeout(runtimeState.releaseTimer)
+  runtimeState.releaseTimer = null
 }
 
 function parseTabSwitchMode(rawValue: unknown): TabSwitchMode {
@@ -190,6 +231,10 @@ Component({
     attached(): void {
       this.syncTabBarState()
     },
+    detached(): void {
+      clearSceneSwitchReleaseTimer(this)
+      SCENE_SWITCH_RUNTIME_BY_INSTANCE.delete(this)
+    },
   },
 
   pageLifetimes: {
@@ -200,6 +245,7 @@ Component({
 
   methods: {
     syncTabBarState(): void {
+      const mode = parseTabSwitchMode(this.properties.mode)
       const lastWarmState = LAST_WARM_STATE_BY_INSTANCE.get(this)
       const syncResult = buildCustomTabBarSyncResult({
         roleFromProperty: this.properties.role,
@@ -220,9 +266,47 @@ Component({
         currentPath: syncResult.currentPath,
       })
 
-      if (syncResult.shouldWarm) {
+      if (syncResult.shouldWarm && mode === 'route') {
         warmRoleTabbarPages(syncResult.roleType, syncResult.currentPath, wx as Partial<PagePreloadAdapter>)
       }
+    },
+
+    dispatchSceneSwitch(request: SceneSwitchRequest, currentPath: string): void {
+      this.setData({
+        currentValue: request.targetValue,
+      })
+
+      const lastWarmState = LAST_WARM_STATE_BY_INSTANCE.get(this)
+      LAST_WARM_STATE_BY_INSTANCE.set(this, {
+        roleType: lastWarmState?.roleType ?? 'customer',
+        currentPath: request.targetPath,
+      })
+
+      const direction = getTabSwitchDirection(this.data.items, currentPath, request.targetPath)
+      this.triggerEvent('tabchange', {
+        path: request.targetPath,
+        value: request.targetValue,
+        direction,
+      } as SceneTabChangeEventDetail)
+
+      this.scheduleSceneSwitchRelease()
+    },
+
+    scheduleSceneSwitchRelease(): void {
+      clearSceneSwitchReleaseTimer(this)
+      const runtimeState = getSceneSwitchRuntime(this)
+
+      runtimeState.releaseTimer = setTimeout((): void => {
+        runtimeState.releaseTimer = null
+
+        const currentPath = LAST_WARM_STATE_BY_INSTANCE.get(this)?.currentPath ?? this.properties.currentPath
+        const releaseDecision = releaseSceneSwitchLock(runtimeState.limiter, currentPath)
+        runtimeState.limiter = releaseDecision.nextState
+
+        if (releaseDecision.immediateRequest !== null) {
+          this.dispatchSceneSwitch(releaseDecision.immediateRequest, currentPath)
+        }
+      }, SCENE_SWITCH_LOCK_MS)
     },
 
     handleTabChange(event: WechatMiniprogram.CustomEvent<TabBarChangeEventDetail>): void {
@@ -244,22 +328,16 @@ Component({
 
       const mode = parseTabSwitchMode(this.properties.mode)
       if (mode === 'scene') {
-        this.setData({
-          currentValue: selectedValue,
+        const runtimeState = getSceneSwitchRuntime(this)
+        const switchDecision = requestSceneSwitch(runtimeState.limiter, {
+          targetPath,
+          targetValue: selectedValue,
         })
+        runtimeState.limiter = switchDecision.nextState
 
-        const lastWarmState = LAST_WARM_STATE_BY_INSTANCE.get(this)
-        LAST_WARM_STATE_BY_INSTANCE.set(this, {
-          roleType: lastWarmState?.roleType ?? 'customer',
-          currentPath: targetPath,
-        })
-
-        const direction = getTabSwitchDirection(this.data.items, currentPath, targetPath)
-        this.triggerEvent('tabchange', {
-          path: targetPath,
-          value: selectedValue,
-          direction,
-        } as SceneTabChangeEventDetail)
+        if (switchDecision.immediateRequest !== null) {
+          this.dispatchSceneSwitch(switchDecision.immediateRequest, currentPath)
+        }
         return
       }
 

@@ -90,5 +90,14 @@ test('supports scene mode tab switching without triggering route jumps', () => {
   const source = readWorkspaceFile('App/miniprogram/components/custom-tab-bar/custom-tab-bar.ts')
 
   assert.match(source, /mode:\s*\{\s*type:\s*String,\s*value:\s*'route'/)
-  assert.match(source, /if\s*\(\s*mode\s*===\s*'scene'\s*\)\s*\{[\s\S]*this\.triggerEvent\('tabchange'/)
+  assert.match(source, /if\s*\(\s*mode\s*===\s*'scene'\s*\)\s*\{[\s\S]*requestSceneSwitch\(/)
+  assert.match(source, /dispatchSceneSwitch\([\s\S]*this\.triggerEvent\('tabchange'/)
+})
+
+test('applies a recoverable scene-switch limiter to prevent rapid-tap lockups', () => {
+  const source = readWorkspaceFile('App/miniprogram/components/custom-tab-bar/custom-tab-bar.ts')
+
+  assert.match(source, /SCENE_SWITCH_LOCK_MS/)
+  assert.match(source, /requestSceneSwitch\(/)
+  assert.match(source, /releaseSceneSwitchLock\(/)
 })

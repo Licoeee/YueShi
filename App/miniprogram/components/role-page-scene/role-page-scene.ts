@@ -67,13 +67,18 @@ Component({
     syncScene(): void {
       const scenePath = this.properties.scenePath
       if (typeof scenePath !== 'string' || scenePath.length === 0) {
-        this.setData({ scene: null })
+        if (this.data.scene !== null) {
+          this.setData({ scene: null })
+        }
         return
       }
 
-      this.setData({
-        scene: getRolePageScene(scenePath),
-      })
+      const nextScene = getRolePageScene(scenePath)
+      if (this.data.scene?.path === nextScene.path) {
+        return
+      }
+
+      this.setData({ scene: nextScene })
     },
 
     getRoleSwitchOptions(): RoleSwitchOption[] {
