@@ -1,0 +1,16 @@
+<view class="custom-tab-bar">
+  <t-tab-bar
+    t-class="custom-tab-bar__panel"
+    value="{{currentValue}}"
+    fixed="{{false}}"
+    bordered="{{false}}"
+    safeAreaInsetBottom="{{false}}"
+    split="{{false}}"
+    shape="round"
+    bind:change="handleTabChange"
+  >
+    <t-tab-bar-item wx:for="{{items}}" wx:key="value" value="{{item.value}}" t-class="custom-tab-bar__item">
+      <text class="custom-tab-bar__label">{{item.label}}</text>
+    </t-tab-bar-item>
+  </t-tab-bar>
+</view>

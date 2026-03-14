@@ -1,0 +1,52 @@
+.custom-tab-bar {
+  position: fixed;
+  left: 28rpx;
+  right: 28rpx;
+  bottom: calc(12rpx + env(safe-area-inset-bottom));
+  z-index: 98;
+}
+
+.custom-tab-bar__panel {
+  border: 1px solid rgba(255, 255, 255, 0.66);
+  border-radius: 999rpx;
+  background: rgba(255, 248, 246, 0.8);
+  box-shadow: 0 18rpx 36rpx -18rpx rgba(255, 126, 95, 0.5);
+  backdrop-filter: blur(24rpx);
+  overflow: hidden;
+  --td-tab-bar-height: 72rpx;
+  --td-font-body-large: 26rpx/34rpx "PingFang SC", "Microsoft YaHei", sans-serif;
+  --td-font-body-extraSmall: 24rpx/34rpx "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.custom-tab-bar__item {
+  height: 72rpx;
+  margin: 10rpx 0;
+  padding: 0 12rpx;
+}
+
+.custom-tab-bar__item.t-tab-bar-item--crowded {
+  padding: 0 10rpx;
+}
+
+.custom-tab-bar__item .t-tab-bar-item__content {
+  border-radius: 999rpx;
+}
+
+.custom-tab-bar__item .t-tab-bar-item__text {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.custom-tab-bar__label {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+  line-break: strict;
+  text-align: center;
+  font-size: 26rpx;
+  line-height: 34rpx;
+}

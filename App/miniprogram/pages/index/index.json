@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "悦时 · 项目基座"
+  "navigationBarTitleText": "悦时 · 项目基座",
+  "usingComponents": {
+    "foundation-home-shell": "/components/foundation-home-shell/foundation-home-shell"
+  }
 }

@@ -1,0 +1,70 @@
+<view class="foundation-shell foundation-shell--{{mode}}">
+  <view class="foundation-shell__background"></view>
+
+  <view class="app-shell foundation-shell__content">
+    <view class="glass-card hero-panel">
+      <text class="hero-panel__eyebrow">PHASE 1 / PROJECT FOUNDATION</text>
+      <view class="hero-panel__heading">
+        <text class="hero-panel__title">悦时</text>
+        <t-tag theme="primary" variant="light" shape="round">项目基座</t-tag>
+      </view>
+      <text class="hero-panel__slogan">悦时 · 预见你的专属甜品时刻</text>
+      <view class="hero-panel__meta">
+        <view class="hero-panel__meta-dot"></view>
+        <text class="hero-panel__meta-text">先校准组件、类型和品牌主题，后续三端页面才能稳定扩展。</text>
+      </view>
+      <t-search
+        value="{{keyword}}"
+        placeholder="搜索商品 / 订单 ID / 商家"
+        action="规划中"
+        center="{{true}}"
+        disabled="{{true}}"
+        leftIcon=""
+      ></t-search>
+      <view class="hero-panel__tags">
+        <view wx:for="{{stageTags}}" wx:key="*this" class="hero-panel__tag-item">
+          <t-tag theme="primary" variant="light">{{item}}</t-tag>
+        </view>
+      </view>
+    </view>
+
+    <t-divider content="第一阶段目标"></t-divider>
+
+    <view class="glass-card checklist-panel">
+      <t-cell-group>
+        <t-cell
+          wx:for="{{foundationChecks}}"
+          wx:key="key"
+          title="{{item.title}}"
+          note="{{item.note}}"
+          description="{{item.description}}"
+          t-class-title="app-interactive-text"
+          t-class-note="app-interactive-text"
+        ></t-cell>
+      </t-cell-group>
+    </view>
+
+    <t-divider content="三端角色隔离预览"></t-divider>
+
+    <view class="role-grid">
+      <view wx:for="{{roleCards}}" wx:key="role" class="glass-card role-card">
+        <t-tag theme="primary" variant="light" shape="round">{{item.title}}</t-tag>
+        <text class="role-card__role">{{item.role}}</text>
+        <text class="role-card__description">{{item.description}}</text>
+      </view>
+    </view>
+
+    <view class="glass-card action-panel">
+      <text class="action-panel__title">下一步准备</text>
+      <text class="action-panel__description">
+        第一阶段收口后，欢迎页、身份分流和角色专属 TabBar 可以直接沿用这套颜色、阴影和类型边界继续扩展。
+      </text>
+      <view class="action-panel__button-item">
+        <t-button theme="primary" variant="base" block="{{true}}">继续构建项目基座</t-button>
+      </view>
+      <view class="action-panel__button-item">
+        <t-button theme="default" variant="outline" block="{{true}}">等待 DevTools 2.01.2510280 校验</t-button>
+      </view>
+    </view>
+  </view>
+</view>

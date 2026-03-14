@@ -1,0 +1,114 @@
+<view class="welcome-page {{isHomeActive ? 'welcome-page--home' : ''}}">
+  <view class="welcome-page__background"></view>
+  <view class="welcome-page__ambient welcome-page__ambient--top"></view>
+  <view class="welcome-page__ambient welcome-page__ambient--bottom"></view>
+
+  <view
+    class="welcome-page__destination {{isPreviewVisible ? 'welcome-page__destination--visible' : ''}} {{isHomeActive ? 'welcome-page__destination--home' : ''}}"
+  >
+    <view
+      class="welcome-page__destination-window {{isRevealing || isHomeActive ? 'welcome-page__destination-window--active' : ''}} {{isHomeActive ? 'welcome-page__destination-window--home' : ''}}"
+      style="--reveal-diameter: {{revealDiameterPx}}px;"
+    >
+      <view class="welcome-page__destination-content">
+        <view class="welcome-page__role-loading">
+          <text class="welcome-page__role-loading-title">{{loadingRoleTitle}}</text>
+          <text class="welcome-page__role-loading-subtitle">{{loadingRoleSubtitle}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view
+    class="welcome-page__content {{isRevealing ? 'welcome-page__content--leaving' : ''}} {{isHomeActive ? 'welcome-page__content--hidden' : ''}}"
+  >
+    <view class="welcome-page__brand">
+      <view class="welcome-page__title-stack">
+        <text class="welcome-page__title-shadow">悦时</text>
+        <text class="welcome-page__title">悦时</text>
+      </view>
+
+      <text class="welcome-page__subtitle">遇见你的专属甜蜜时刻</text>
+    </view>
+
+    <view class="welcome-page__hero">
+      <view class="welcome-page__hero-stage">
+        <view class="cake">
+          <view class="cake__shadow"></view>
+
+          <view class="cake__candles">
+            <view class="cake__candle cake__candle--left">
+              <view class="cake__flame"></view>
+            </view>
+            <view class="cake__candle cake__candle--center">
+              <view class="cake__flame"></view>
+            </view>
+            <view class="cake__candle cake__candle--right">
+              <view class="cake__flame"></view>
+            </view>
+          </view>
+
+          <view class="cake__layer cake__layer--top">
+            <view class="cake__cream-ribbon cake__cream-ribbon--top"></view>
+            <view class="cake__puff cake__puff--top-1"></view>
+            <view class="cake__puff cake__puff--top-2"></view>
+            <view class="cake__puff cake__puff--top-3"></view>
+            <view class="cake__puff cake__puff--top-4"></view>
+            <view class="cake__puff cake__puff--top-5"></view>
+            <view class="cake__sponge cake__sponge--top"></view>
+            <view class="cake__candy cake__candy--sky"></view>
+            <view class="cake__candy cake__candy--lemon"></view>
+            <view class="cake__candy cake__candy--rose"></view>
+            <view class="cake__candy cake__candy--mint"></view>
+          </view>
+
+          <view class="cake__layer cake__layer--bottom">
+            <view class="cake__cream-ribbon cake__cream-ribbon--bottom"></view>
+            <view class="cake__puff cake__puff--bottom-1"></view>
+            <view class="cake__puff cake__puff--bottom-2"></view>
+            <view class="cake__puff cake__puff--bottom-3"></view>
+            <view class="cake__puff cake__puff--bottom-4"></view>
+            <view class="cake__puff cake__puff--bottom-5"></view>
+            <view class="cake__puff cake__puff--bottom-6"></view>
+            <view class="cake__sponge cake__sponge--bottom"></view>
+            <view class="cake__candy cake__candy--apricot"></view>
+            <view class="cake__candy cake__candy--violet"></view>
+            <view class="cake__candy cake__candy--blue"></view>
+            <view class="cake__candy cake__candy--gold"></view>
+            <view class="cake__candy cake__candy--pink"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="welcome-page__footer">
+      <view class="welcome-page__cta-track">
+        <view
+          class="welcome-page__cta-shell {{isButtonVisible ? 'welcome-page__cta-shell--visible' : ''}} {{isButtonReady ? 'welcome-page__cta-shell--ready' : ''}}"
+        >
+          <t-button
+            class="welcome-page__cta-button"
+            theme="primary"
+            variant="base"
+            size="large"
+            shape="round"
+            block="{{true}}"
+            disabled="{{!isButtonReady || isRevealing || isHomeActive}}"
+            bindtap="handleEnterTap"
+          >
+            进入主页
+          </t-button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="welcome-page__particles {{isRevealing ? 'welcome-page__particles--active' : ''}}">
+    <view
+      wx:for="{{particles}}"
+      wx:key="id"
+      class="welcome-page__particle"
+      style="--particle-size: {{item.sizeRpx}}rpx; --particle-x: {{item.offsetX}}rpx; --particle-y: {{item.offsetY}}rpx; --particle-delay: {{item.delayMs}}ms; --particle-duration: {{item.durationMs}}ms; --particle-color: {{item.color}};"
+    ></view>
+  </view>
+</view>
