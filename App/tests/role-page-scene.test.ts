@@ -2,11 +2,10 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 import test from 'node:test'
+import { workspaceRoot } from './test-workspace-root'
 
 import { getRoleTabbarItems } from '../miniprogram/utils/role-tabbar'
 import { getRolePageScene } from '../miniprogram/utils/role-page-scenes'
-
-const workspaceRoot = process.cwd()
 
 function readWorkspaceFile(relativePath: string): string {
   return fs.readFileSync(path.join(workspaceRoot, relativePath), 'utf8')

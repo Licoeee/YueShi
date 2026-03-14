@@ -1,0 +1,12 @@
+{
+  "name": "yueshi-phase-tests",
+  "private": true,
+  "scripts": {
+    "test": "tsx --test tests/*.test.ts",
+    "test:file": "tsx --test"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.2"
+  }
+}

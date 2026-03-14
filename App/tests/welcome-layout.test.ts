@@ -2,9 +2,10 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 import test from 'node:test'
+import { workspaceRoot } from './test-workspace-root'
 
-const welcomeWxmlPath = path.join(process.cwd(), 'App/miniprogram/pages/welcome/welcome.wxml')
-const welcomeWxssPath = path.join(process.cwd(), 'App/miniprogram/pages/welcome/welcome.wxss')
+const welcomeWxmlPath = path.join(workspaceRoot, 'App/miniprogram/pages/welcome/welcome.wxml')
+const welcomeWxssPath = path.join(workspaceRoot, 'App/miniprogram/pages/welcome/welcome.wxss')
 
 function readWelcomeWxml(): string {
   return fs.readFileSync(welcomeWxmlPath, 'utf8')
