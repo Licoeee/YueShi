@@ -4,6 +4,8 @@ import {
   buildCheckoutState,
   removeSubmittedCartItems,
 } from '../../../utils/customer-checkout-state'
+import { runCustomerAuthorizedAction } from '../../../utils/customer-action-gate'
+import { resolveCakeImageUrl } from '../../../utils/customer-image-fallback'
 import {
   buildPickupPickerState,
   formatPickupSlot,
@@ -11,10 +13,18 @@ import {
   type PickupPickerIndexes,
   type PickupPickerState,
 } from '../../../utils/customer-pickup-slot'
+import {
+  loadStoredPhoneHistory,
+  savePhoneToHistory,
+} from '../../../utils/customer-phone-history-storage'
 import { createLocalCustomerOrderRepository } from '../../../utils/customer-order-repository'
 import { loadStoredCustomerCart, saveStoredCustomerCart } from '../../../utils/customer-cart-storage'
 
 const PAYMENT_GUIDE_TEXT = '请在付款时备注手机号后四位，以便商家对账'
+
+interface CheckoutDisplayItem extends CheckoutItemRecord {
+  coverImageUrl: string
+}
 
 interface PickerColumnDetail {
   column?: unknown
@@ -34,13 +44,25 @@ interface InputDetail {
   value?: unknown
 }
 
+interface ActionSheetItem {
+  label: string
+}
+
+interface ActionSheetSelectedDetail {
+  selected?: {
+    label?: unknown
+  }
+}
+
 interface CheckoutPageData {
   checkoutSource: CheckoutSource
-  checkoutItems: CheckoutItemRecord[]
+  checkoutItems: CheckoutDisplayItem[]
   totalAmount: number
   totalQuantity: number
   phone: string
   phoneError: string
+  phoneHistoryVisible: boolean
+  phoneHistoryItems: ActionSheetItem[]
   pickupError: string
   pickupSummary: string
   pickupPickerVisible: boolean
@@ -86,6 +108,13 @@ function extractPhone(detail: unknown): string {
   return ''
 }
 
+function buildCheckoutDisplayItems(items: CheckoutItemRecord[]): CheckoutDisplayItem[] {
+  return items.map((item) => ({
+    ...item,
+    coverImageUrl: resolveCakeImageUrl(item.coverImage),
+  }))
+}
+
 function isValidPhone(phone: string): boolean {
   return /^1[3-9]\d{9}$/.test(phone)
 }
@@ -128,6 +157,9 @@ Page<
     onShow(): void
     syncCheckout(): void
     handlePhoneChange(event: WechatMiniprogram.CustomEvent<InputDetail>): void
+    handleOpenPhoneHistory(): void
+    handleSelectPhoneHistory(event: WechatMiniprogram.CustomEvent<ActionSheetSelectedDetail>): void
+    handleClosePhoneHistory(): void
     handleOpenPickupPicker(): void
     handlePickupPick(event: WechatMiniprogram.CustomEvent<PickerColumnDetail>): void
     handlePickupConfirm(event: WechatMiniprogram.CustomEvent<PickerConfirmDetail>): void
@@ -143,6 +175,8 @@ Page<
     totalQuantity: 0,
     phone: '',
     phoneError: '',
+    phoneHistoryVisible: false,
+    phoneHistoryItems: [],
     pickupError: '',
     pickupSummary: '请选择取货时间',
     pickupPickerVisible: false,
@@ -158,12 +192,16 @@ Page<
 
   syncCheckout() {
     const checkoutState = buildCheckoutState(loadStoredCustomerCart())
+    const phoneHistory = loadStoredPhoneHistory()
+    const currentPhone = this.data.phone.trim()
 
     this.setData({
       checkoutSource: checkoutState.source,
-      checkoutItems: checkoutState.items,
+      checkoutItems: buildCheckoutDisplayItems(checkoutState.items),
       totalAmount: checkoutState.totalAmount,
       totalQuantity: checkoutState.totalQuantity,
+      phone: currentPhone.length > 0 ? currentPhone : (phoneHistory[0] ?? ''),
+      phoneHistoryItems: phoneHistory.map((phone) => ({ label: phone })),
       ...buildPickupPatch(this.data.pickupPickerState.indexes),
     })
   },
@@ -172,6 +210,35 @@ Page<
     this.setData({
       phone: extractPhone(event.detail).trim(),
       phoneError: '',
+    })
+  },
+
+  handleOpenPhoneHistory() {
+    if (this.data.phoneHistoryItems.length === 0) {
+      return
+    }
+
+    this.setData({
+      phoneHistoryVisible: true,
+    })
+  },
+
+  handleSelectPhoneHistory(event) {
+    const selectedPhone = event.detail.selected?.label
+    if (typeof selectedPhone !== 'string') {
+      return
+    }
+
+    this.setData({
+      phone: selectedPhone,
+      phoneError: '',
+      phoneHistoryVisible: false,
+    })
+  },
+
+  handleClosePhoneHistory() {
+    this.setData({
+      phoneHistoryVisible: false,
     })
   },
 
@@ -243,25 +310,37 @@ Page<
       return
     }
 
-    const repository = createLocalCustomerOrderRepository(wx)
-    await repository.createDraftOrder({
-      source: this.data.checkoutSource,
-      items: this.data.checkoutItems,
-      contact: {
-        phone,
-      },
-      pickupSlot,
-      totalAmount: this.data.totalAmount,
+    const allowed = await runCustomerAuthorizedAction(async () => {
+      const repository = createLocalCustomerOrderRepository(wx)
+      await repository.createDraftOrder({
+        source: this.data.checkoutSource,
+        items: this.data.checkoutItems,
+        contact: {
+          phone,
+        },
+        pickupSlot,
+        totalAmount: this.data.totalAmount,
+      })
+
+      savePhoneToHistory(wx, phone)
+
+      const nextCartItems = removeSubmittedCartItems(loadStoredCustomerCart(), this.data.checkoutItems)
+      saveStoredCustomerCart(nextCartItems)
+
+      this.setData({
+        paymentGuideVisible: true,
+        phoneError: '',
+        pickupError: '',
+        phoneHistoryItems: loadStoredPhoneHistory().map((historyPhone) => ({ label: historyPhone })),
+      })
     })
 
-    const nextCartItems = removeSubmittedCartItems(loadStoredCustomerCart(), this.data.checkoutItems)
-    saveStoredCustomerCart(nextCartItems)
-
-    this.setData({
-      paymentGuideVisible: true,
-      phoneError: '',
-      pickupError: '',
-    })
+    if (!allowed) {
+      wx.showToast({
+        title: '请先完成微信登录',
+        icon: 'none',
+      })
+    }
   },
 
   handlePaymentGuideConfirm() {

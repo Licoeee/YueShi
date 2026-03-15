@@ -25,7 +25,6 @@ interface PickupDayOption extends PickupPickerOption {
 }
 
 const HALF_HOUR_IN_MS = 30 * 60 * 1000
-const PICKUP_WINDOW_DAYS = 14
 
 function clampIndex(index: number | undefined, length: number, fallback: number): number {
   if (!Number.isInteger(index)) {
@@ -39,48 +38,36 @@ function clampIndex(index: number | undefined, length: number, fallback: number)
   return Math.min(Math.max(index as number, 0), length - 1)
 }
 
-function buildWindowDays(now: Date): PickupDayOption[] {
-  const start = new Date(now)
-  start.setHours(0, 0, 0, 0)
+function getDaysInMonth(year: number, month: number): number {
+  return new Date(year, month, 0).getDate()
+}
 
-  const days: PickupDayOption[] = []
-  for (let dayOffset = 0; dayOffset < PICKUP_WINDOW_DAYS; dayOffset += 1) {
-    const nextDate = new Date(start)
-    nextDate.setDate(start.getDate() + dayOffset)
+function buildMonthOptions(): PickupPickerOption[] {
+  return Array.from({ length: 12 }, (_, index) => {
+    const month = index + 1
+    return {
+      value: String(month),
+      label: `${month} 月`,
+    }
+  })
+}
 
-    const year = nextDate.getFullYear()
-    const month = nextDate.getMonth() + 1
-    const day = nextDate.getDate()
+function buildDayOptions(year: number, month: number): PickupDayOption[] {
+  const dayCount = getDaysInMonth(year, month)
+
+  return Array.from({ length: dayCount }, (_, index) => {
+    const day = index + 1
     const monthText = String(month).padStart(2, '0')
     const dayText = String(day).padStart(2, '0')
 
-    days.push({
+    return {
       value: `${year}-${monthText}-${dayText}`,
       label: `${day} 日`,
       year,
       month,
       day,
-    })
-  }
-
-  return days
-}
-
-function buildMonthOptions(days: PickupDayOption[]): PickupPickerOption[] {
-  return days.reduce<PickupPickerOption[]>((options, day) => {
-    const monthValue = `${day.year}-${String(day.month).padStart(2, '0')}`
-    if (options.some((item) => item.value === monthValue)) {
-      return options
     }
-
-    return [
-      ...options,
-      {
-        value: monthValue,
-        label: `${day.month} 月`,
-      },
-    ]
-  }, [])
+  })
 }
 
 function buildTimeOptions(): PickupPickerOption[] {
@@ -104,7 +91,7 @@ function resolveNextValidPickupDate(now: Date): Date {
 }
 
 function resolveMonthIndex(monthOptions: PickupPickerOption[], targetDate: Date): number {
-  const targetMonthValue = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}`
+  const targetMonthValue = String(targetDate.getMonth() + 1)
   const matchedIndex = monthOptions.findIndex((item) => item.value === targetMonthValue)
   return matchedIndex >= 0 ? matchedIndex : 0
 }
@@ -122,14 +109,14 @@ function resolveTimeIndex(targetDate: Date): number {
 }
 
 export function buildPickupPickerState(now: Date, nextIndexes?: Partial<PickupPickerIndexes>): PickupPickerState {
-  const days = buildWindowDays(now)
-  const monthOptions = buildMonthOptions(days)
+  const year = now.getFullYear()
+  const monthOptions = buildMonthOptions()
   const timeOptions = buildTimeOptions()
   const defaultDate = resolveNextValidPickupDate(now)
   const defaultMonthIndex = resolveMonthIndex(monthOptions, defaultDate)
   const selectedMonthIndex = clampIndex(nextIndexes?.monthIndex, monthOptions.length, defaultMonthIndex)
-  const selectedMonthValue = monthOptions[selectedMonthIndex]?.value ?? monthOptions[0]?.value ?? ''
-  const dayOptions = days.filter((item) => item.value.startsWith(selectedMonthValue))
+  const selectedMonth = Number(monthOptions[selectedMonthIndex]?.value ?? defaultDate.getMonth() + 1)
+  const dayOptions = buildDayOptions(year, selectedMonth)
   const defaultDayIndex = resolveDayIndex(dayOptions, defaultDate)
   const selectedDayIndex = clampIndex(nextIndexes?.dayIndex, dayOptions.length, defaultDayIndex)
   const selectedDay = dayOptions[selectedDayIndex]

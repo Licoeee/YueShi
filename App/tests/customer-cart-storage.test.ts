@@ -49,7 +49,7 @@ test('markImmediatePurchase keeps only the active item checked', () => {
       quantity: 1,
       layerId: 'single',
       sizePlanId: 'single-8',
-      creamId: 'sea-salt',
+      creamId: 'animal',
     }),
   ]
   const marked = markImmediatePurchase(items, items[1].id)
@@ -72,9 +72,9 @@ test('toggleCartItemChecked turns cart selection back into normal cart mode', ()
       quantity: 1,
       layerId: 'single',
       sizePlanId: 'single-8',
-      creamId: 'sea-salt',
+      creamId: 'animal',
     }),
-  ], 'cake-peach:single:single-8:sea-salt')
+  ], 'cake-peach:single:single-8:animal')
 
   const toggled = toggleCartItemChecked(items, items[0].id)
 

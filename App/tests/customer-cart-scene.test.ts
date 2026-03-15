@@ -15,14 +15,17 @@ function readCartSceneWxml(): string {
 test('renders checked cart items and an empty-state fallback', () => {
   const wxml = readCartSceneWxml()
 
-  assert.match(wxml, /checked="{{item.checked}}"/)
+  assert.match(wxml, /customer-cart-scene__cover/)
+  assert.match(wxml, /t-swipe-cell/)
   assert.match(wxml, /空购物车|暂无蛋糕/)
 })
 
 test('cart scene exposes a checkout summary and action button', () => {
   const wxml = readCartSceneWxml()
 
+  assert.match(wxml, /handleToggleAll/)
+  assert.match(wxml, /handleSwipeAction/)
   assert.match(wxml, /合计/)
   assert.match(wxml, /去结算/)
-  assert.match(wxml, /bind:change="handleItemCheckChange"/)
+  assert.match(wxml, /customer-cart-scene__summary-price/)
 })

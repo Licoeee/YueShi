@@ -51,4 +51,5 @@ test('buy-now flow targets checkout instead of redirecting back to cart', () => 
   const detailPageTs = readWorkspaceFile('App/miniprogram/pages/customer/product-detail/product-detail.ts')
 
   assert.match(detailPageTs, /pages\/customer\/checkout\/checkout/)
+  assert.match(detailPageTs, /runCustomerAuthorizedAction/)
 })

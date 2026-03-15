@@ -21,10 +21,21 @@ test('checkout page contains contact, pickup, and submit sections', () => {
   assert.match(wxml, /手机号/)
   assert.match(wxml, /取货时间/)
   assert.match(wxml, /提交订单/)
+  assert.match(wxml, /checkout-page__item-cover/)
+  assert.match(wxml, /历史手机号/)
 })
 
 test('checkout page carries the PRD payment guidance copy', () => {
   const source = readWorkspaceFile('App/miniprogram/pages/customer/checkout/checkout.ts')
 
   assert.match(source, /请在付款时备注手机号后四位，以便商家对账/)
+  assert.match(source, /savePhoneToHistory/)
+  assert.match(source, /runCustomerAuthorizedAction/)
+})
+
+test('checkout footer keeps a dedicated right-aligned action area', () => {
+  const wxss = readWorkspaceFile('App/miniprogram/pages/customer/checkout/checkout.wxss')
+
+  assert.match(wxss, /checkout-page__footer-main/)
+  assert.match(wxss, /checkout-page__submit-button/)
 })

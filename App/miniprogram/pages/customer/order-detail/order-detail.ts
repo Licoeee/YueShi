@@ -6,6 +6,8 @@ import { formatPickupSlot } from '../../../utils/customer-pickup-slot'
 
 interface OrderDetailPageData {
   order: OrderRecord | null
+  statusLabel: string
+  statusTheme: 'default' | 'primary' | 'warning' | 'danger'
   pickupSummary: string
   noteDraft: string
   isEditingNote: boolean
@@ -14,6 +16,35 @@ interface OrderDetailPageData {
 
 function resolveOrderId(query: Record<string, string | undefined>): string {
   return typeof query.orderId === 'string' ? query.orderId : ''
+}
+
+function formatOrderStatus(status: OrderRecord['status']): string {
+  const statusMap: Record<OrderRecord['status'], string> = {
+    'pending-payment': '待确认',
+    paid: '待确认',
+    'in-production': '待制作',
+    'ready-for-pickup': '待取货',
+    completed: '已完成',
+    cancelled: '已取消',
+  }
+
+  return statusMap[status]
+}
+
+function resolveOrderStatusTheme(status: OrderRecord['status']): 'default' | 'primary' | 'warning' | 'danger' {
+  if (status === 'cancelled') {
+    return 'danger'
+  }
+
+  if (status === 'completed') {
+    return 'default'
+  }
+
+  if (status === 'pending-payment' || status === 'paid') {
+    return 'warning'
+  }
+
+  return 'primary'
 }
 
 Page<
@@ -32,6 +63,8 @@ Page<
 >({
   data: {
     order: null,
+    statusLabel: '',
+    statusTheme: 'default',
     pickupSummary: '',
     noteDraft: '',
     isEditingNote: false,
@@ -61,6 +94,8 @@ Page<
     wx.setNavigationBarTitle({ title: `订单 ${order.id}` })
     this.setData({
       order,
+      statusLabel: formatOrderStatus(order.status),
+      statusTheme: resolveOrderStatusTheme(order.status),
       pickupSummary: formatPickupSlot(order.pickupSlot),
       noteDraft: order.note,
       isEditingNote: false,

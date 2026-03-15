@@ -18,6 +18,7 @@ test('order detail page contains note editing and cancel-order sections', () => 
 
   assert.match(wxml, /订单备注/)
   assert.match(wxml, /取消订单/)
+  assert.match(wxml, /order-detail-page__item-cover/)
 })
 
 test('order detail page uses cancellation guard logic for locked statuses', () => {
@@ -28,6 +29,9 @@ test('order detail page uses cancellation guard logic for locked statuses', () =
 
 test('order detail page keeps a dedicated save-note action', () => {
   const wxml = readWorkspaceFile('App/miniprogram/pages/customer/order-detail/order-detail.wxml')
+  const wxss = readWorkspaceFile('App/miniprogram/pages/customer/order-detail/order-detail.wxss')
 
   assert.match(wxml, /保存备注/)
+  assert.match(wxml, /编辑备注/)
+  assert.match(wxss, /white-space:\s*nowrap/)
 })

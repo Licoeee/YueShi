@@ -14,6 +14,7 @@ export interface CheckoutItemRecord {
   sizePlanId: string
   creamId: string
   specLabel: string
+  creamLabel: string
 }
 
 export interface CheckoutContactDraft {

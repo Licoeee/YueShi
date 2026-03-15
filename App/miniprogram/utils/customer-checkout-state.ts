@@ -31,16 +31,32 @@ function resolveCreamLabel(creamOptions: CakeCreamOption[], creamId: string): st
 }
 
 function buildCheckoutSpecLabel(item: CartItemRecord): string {
+  if (item.specLabel.trim().length > 0) {
+    return item.specLabel
+  }
+
   const cake = resolveCakeDetail(item)
   if (cake === null) {
-    return [item.selection.layerId, item.selection.sizePlanId, item.selection.creamId].join(' / ')
+    return [item.selection.layerId, item.selection.sizePlanId].join(' / ')
   }
 
   return [
     resolveLayerLabel(cake.layerOptions, item.selection.layerId),
     resolveSizePlanLabel(cake.sizePlans, item.selection.sizePlanId),
-    resolveCreamLabel(cake.creamOptions, item.selection.creamId),
   ].join(' / ')
+}
+
+function buildCheckoutCreamLabel(item: CartItemRecord): string {
+  if (item.creamLabel.trim().length > 0) {
+    return item.creamLabel
+  }
+
+  const cake = resolveCakeDetail(item)
+  if (cake === null) {
+    return item.selection.creamId
+  }
+
+  return resolveCreamLabel(cake.creamOptions, item.selection.creamId)
 }
 
 export function buildCheckoutItemFromCartItem(item: CartItemRecord): CheckoutItemRecord {
@@ -56,6 +72,7 @@ export function buildCheckoutItemFromCartItem(item: CartItemRecord): CheckoutIte
     sizePlanId: item.selection.sizePlanId,
     creamId: item.selection.creamId,
     specLabel: buildCheckoutSpecLabel(item),
+    creamLabel: buildCheckoutCreamLabel(item),
   }
 }
 

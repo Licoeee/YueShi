@@ -8,6 +8,7 @@
     "pages/customer/orders/orders",
     "pages/customer/order-detail/order-detail",
     "pages/customer/profile/profile",
+    "pages/customer/settings/settings",
     "pages/merchant/products/products",
     "pages/merchant/orders/orders",
     "pages/merchant/account-book/account-book",

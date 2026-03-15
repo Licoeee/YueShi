@@ -35,6 +35,7 @@ function toOrderItem(item: CheckoutItemRecord): OrderItem {
     layerId: item.layerId,
     sizePlanId: item.sizePlanId,
     creamId: item.creamId,
+    creamLabel: item.creamLabel,
     size: resolvePrimarySize(item),
     quantity: item.quantity,
     unitPrice: item.unitPrice,

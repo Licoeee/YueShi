@@ -8,6 +8,8 @@ export interface CreateCartItemInput {
   creamId: string
   productName?: string
   coverImage?: string
+  specLabel?: string
+  creamLabel?: string
   unitPrice?: number
   checked?: boolean
   entryMode?: CartEntryMode
@@ -25,6 +27,8 @@ export function createCartItem(input: CreateCartItemInput): CartItemRecord {
     productId: input.productId,
     productName: input.productName ?? input.productId,
     coverImage: input.coverImage ?? '',
+    specLabel: input.specLabel ?? '',
+    creamLabel: input.creamLabel ?? '',
     quantity: input.quantity,
     unitPrice,
     totalPrice: unitPrice * input.quantity,
@@ -82,4 +86,20 @@ export function toggleCartItemChecked(items: CartItemRecord[], targetId: string)
       entryMode: 'cart',
     }
   })
+}
+
+export function toggleAllCartItemsChecked(items: CartItemRecord[], checked: boolean): CartItemRecord[] {
+  return items.map((item) => ({
+    ...item,
+    checked,
+    entryMode: 'cart',
+  }))
+}
+
+export function areAllCartItemsChecked(items: CartItemRecord[]): boolean {
+  return items.length > 0 && items.every((item) => item.checked)
+}
+
+export function removeCartItem(items: CartItemRecord[], targetId: string): CartItemRecord[] {
+  return items.filter((item) => item.id !== targetId)
 }

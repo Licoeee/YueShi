@@ -49,6 +49,14 @@ function resolveSelectedCreamOption(cake: CakeDetail, creamId: string): CakeCrea
   return creamOption
 }
 
+function resolveLayerLabel(cake: CakeDetail, layerId: CakeLayerId): string {
+  return cake.layerOptions.find((item) => item.id === layerId)?.label ?? layerId
+}
+
+function resolveSizePlanLabel(sizePlan: CakeSizePlan): string {
+  return sizePlan.label
+}
+
 function normalizeQuantity(quantity: number): number {
   if (!Number.isFinite(quantity) || quantity <= 0) {
     return 1
@@ -109,6 +117,8 @@ export function buildCartItemFromSelection(cake: CakeDetail, selection: Customer
     productId: cake.id,
     productName: cake.title,
     coverImage: cake.coverImage,
+    specLabel: [resolveLayerLabel(cake, selection.layerId), resolveSizePlanLabel(sizePlan)].join(' / '),
+    creamLabel: creamOption.label,
     quantity,
     layerId: selection.layerId,
     sizePlanId: sizePlan.id,

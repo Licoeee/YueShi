@@ -6,11 +6,13 @@
       <view class="order-detail-page__hero-head">
         <view class="order-detail-page__hero-copy">
           <text class="order-detail-page__eyebrow">ORDER DETAIL</text>
-          <text class="order-detail-page__title">订单 {{order.id}}</text>
+          <text class="order-detail-page__title">订单详情</text>
+          <view class="order-detail-page__order-id-row">
+            <text class="order-detail-page__order-id-label">订单号</text>
+            <text class="order-detail-page__order-id-value">{{order.id}}</text>
+          </view>
         </view>
-        <t-tag theme="{{order.status === 'pending-payment' ? 'warning' : 'primary'}}" variant="light">
-          {{order.status === 'pending-payment' ? '待支付' : (order.status === 'cancelled' ? '已取消' : (order.status === 'ready-for-pickup' ? '待取货' : (order.status === 'completed' ? '已完成' : order.status))) }}
-        </t-tag>
+        <t-tag theme="{{statusTheme}}" variant="light">{{statusLabel}}</t-tag>
       </view>
       <text class="order-detail-page__subtitle">取货时间：{{pickupSummary}}</text>
       <text class="order-detail-page__subtitle">联系电话：{{order.contact.phone}}</text>
@@ -19,24 +21,28 @@
     <view class="glass-card order-detail-page__section">
       <text class="order-detail-page__section-title">商品清单</text>
       <view wx:for="{{order.items}}" wx:key="specId" class="order-detail-page__item">
+        <t-image
+          class="order-detail-page__item-cover"
+          src="{{item.coverImage}}"
+          mode="aspectFill"
+          shape="round"
+          lazy="{{true}}"
+        ></t-image>
         <view class="order-detail-page__item-copy">
           <text class="order-detail-page__item-name">{{item.productName}}</text>
           <text class="order-detail-page__item-spec">{{item.specLabel}}</text>
+          <text class="order-detail-page__item-cream">{{item.creamLabel}}</text>
         </view>
-        <text class="order-detail-page__item-price">¥ {{item.unitPrice}} x {{item.quantity}}</text>
+        <view class="order-detail-page__item-side">
+          <t-tag theme="primary" variant="light">x{{item.quantity}}</t-tag>
+          <text class="order-detail-page__item-price">¥ {{item.unitPrice}}</text>
+        </view>
       </view>
     </view>
 
     <view class="glass-card order-detail-page__section">
       <view class="order-detail-page__section-head">
         <text class="order-detail-page__section-title">订单备注</text>
-        <t-button
-          wx:if="{{!isEditingNote}}"
-          theme="primary"
-          variant="outline"
-          size="small"
-          bindtap="handleEditNote"
-        >编辑备注</t-button>
       </view>
 
       <view wx:if="{{isEditingNote}}">
@@ -57,16 +63,29 @@
     </view>
 
     <view class="glass-card order-detail-page__section" wx:if="{{order}}">
-      <text class="order-detail-page__section-title">订单操作</text>
-      <t-button
-        wx:if="{{order.status !== 'ready-for-pickup' && order.status !== 'completed' && order.status !== 'cancelled'}}"
-        theme="danger"
-        variant="outline"
-        block="{{true}}"
-        bindtap="handleOpenCancelDialog"
-      >取消订单</t-button>
+      <view class="order-detail-page__section-head">
+        <text class="order-detail-page__section-title">订单操作</text>
+        <t-tag theme="{{order.hasNote ? 'primary' : 'default'}}" variant="light">
+          {{order.hasNote ? '已记录备注' : '可继续补充备注'}}
+        </t-tag>
+      </view>
+      <view class="order-detail-page__action-row">
+        <t-button
+          theme="primary"
+          variant="outline"
+          size="small"
+          bindtap="handleEditNote"
+        >编辑备注</t-button>
+        <t-button
+          wx:if="{{order.status !== 'ready-for-pickup' && order.status !== 'completed' && order.status !== 'cancelled'}}"
+          theme="danger"
+          variant="outline"
+          size="small"
+          bindtap="handleOpenCancelDialog"
+        >取消订单</t-button>
+      </view>
       <text
-        wx:else
+        wx:if="{{order.status === 'ready-for-pickup' || order.status === 'completed' || order.status === 'cancelled'}}"
         class="order-detail-page__hint"
       >当前状态已锁定，顾客端不能取消订单。</text>
     </view>

@@ -3,7 +3,8 @@
   "styleIsolation": "apply-shared",
   "usingComponents": {
     "t-button": "tdesign-miniprogram/button/button",
-    "t-checkbox": "tdesign-miniprogram/checkbox/checkbox",
-    "t-empty": "tdesign-miniprogram/empty/empty"
+    "t-empty": "tdesign-miniprogram/empty/empty",
+    "t-image": "tdesign-miniprogram/image/image",
+    "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell"
   }
 }

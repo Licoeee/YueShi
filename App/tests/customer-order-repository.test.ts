@@ -28,7 +28,8 @@ function createCheckoutDraft(): CheckoutDraftRecord {
         layerId: 'single',
         sizePlanId: 'cake-cloud-single-6',
         creamId: 'fresh',
-        specLabel: '单层 / 6 英寸 / 轻乳脂鲜奶油',
+        specLabel: '单层 / 6 英寸',
+        creamLabel: '乳脂奶油',
       },
     ],
     contact: {
@@ -60,10 +61,11 @@ function createStoredOrder(input: {
         productId: 'cake-cloud',
         productName: '云朵鲜奶生日蛋糕',
         specId: 'cake-cloud-single-6',
-        specLabel: '单层 / 6 英寸 / 轻乳脂鲜奶油',
+        specLabel: '单层 / 6 英寸',
         layerId: 'single',
         sizePlanId: 'cake-cloud-single-6',
         creamId: 'fresh',
+        creamLabel: '乳脂奶油',
         size: '6-inch',
         quantity: 1,
         unitPrice: 168,
@@ -97,7 +99,8 @@ test('createDraftOrder prepends the new order and derives phone tail and selecti
 
   assert.equal(order.status, 'pending-payment')
   assert.equal(order.contact.phoneTail, '5678')
-  assert.equal(order.items[0]?.specLabel, '单层 / 6 英寸 / 轻乳脂鲜奶油')
+  assert.equal(order.items[0]?.specLabel, '单层 / 6 英寸')
+  assert.equal(order.items[0]?.creamLabel, '乳脂奶油')
   assert.equal(storedOrders[0]?.id, order.id)
   assert.equal(storedOrders[0]?.items[0]?.creamId, 'fresh')
 })

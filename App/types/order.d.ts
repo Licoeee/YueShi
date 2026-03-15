@@ -29,6 +29,7 @@ export interface OrderItem {
   layerId: string
   sizePlanId: string
   creamId: string
+  creamLabel: string
   size: ProductSpecSize
   quantity: number
   unitPrice: number

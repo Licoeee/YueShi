@@ -65,12 +65,14 @@ test('customer orders scene exposes tappable cards that route to detail', () => 
   const wxml = readOrdersSceneFile('wxml')
 
   assert.match(wxml, /bindtap="handleOrderTap"/)
+  assert.match(wxml, /customer-orders-scene__cover/)
 })
 
 test('customer orders scene keeps a dedicated note-highlight card modifier', () => {
   const wxss = readOrdersSceneFile('wxss')
 
   assert.match(wxss, /customer-orders-scene__card--noted/)
+  assert.match(wxss, /customer-orders-scene__tab-item--active/)
 })
 
 test('customer orders scene stretches the four status filters into equal-width columns', () => {

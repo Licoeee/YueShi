@@ -1,0 +1,113 @@
+.settings-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fff5f7 0%, #ffe5d6 100%);
+}
+
+.settings-page__background {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 14% 10%, rgba(255, 255, 255, 0.56) 0%, rgba(255, 255, 255, 0) 40%),
+    radial-gradient(circle at 82% 8%, rgba(255, 230, 223, 0.58) 0%, rgba(255, 230, 223, 0) 42%),
+    linear-gradient(180deg, #fff5f7 0%, #ffe5d6 100%);
+}
+
+.settings-page__content {
+  position: relative;
+  z-index: 1;
+  padding: calc(30rpx + env(safe-area-inset-top)) 30rpx calc(60rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.settings-page__hero,
+.settings-page__section {
+  padding: 24rpx;
+}
+
+.settings-page__section {
+  margin-top: 22rpx;
+}
+
+.settings-page__eyebrow {
+  color: rgba(122, 74, 67, 0.68);
+  font-size: 22rpx;
+  letter-spacing: 0.16em;
+}
+
+.settings-page__title {
+  display: block;
+  margin-top: 14rpx;
+  color: #573733;
+  font-size: 48rpx;
+  font-weight: 700;
+}
+
+.settings-page__subtitle {
+  display: block;
+  margin-top: 14rpx;
+  color: #6f4f49;
+  font-size: 24rpx;
+  line-height: 1.7;
+  font-weight: 600;
+}
+
+.settings-page__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-bottom: 18rpx;
+}
+
+.settings-page__section-title {
+  color: #5b3934;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.settings-page__action-card,
+.settings-page__history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  padding: 20rpx 0;
+}
+
+.settings-page__action-card + .settings-page__action-card,
+.settings-page__history-item + .settings-page__history-item {
+  border-top: 1px solid rgba(233, 205, 197, 0.72);
+}
+
+.settings-page__action-copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.settings-page__action-title,
+.settings-page__history-phone {
+  color: #593934;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.settings-page__action-desc,
+.settings-page__empty-text {
+  color: #76554f;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.settings-page__history-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-page__empty {
+  padding: 16rpx 0 6rpx;
+}

@@ -25,6 +25,8 @@ test('buildCartItemFromSelection creates a cart-ready payload with the chosen pr
 
   assert.equal(item.productId, cake.id)
   assert.equal(item.totalPrice > 0, true)
+  assert.equal(item.specLabel, '单层 / 6 英寸')
+  assert.equal(item.creamLabel, '乳脂奶油')
 })
 
 test('changing the selected layer rebinds the size plan to a matching layer option', () => {

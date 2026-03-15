@@ -8,6 +8,13 @@
   <view class="role-page-scene__customer-shell" wx:elif="{{renderMode === 'customer-orders'}}">
     <customer-orders-scene></customer-orders-scene>
   </view>
+  <view class="role-page-scene__customer-shell" wx:elif="{{renderMode === 'customer-profile'}}">
+    <customer-profile-scene
+      is-preview-mode="{{isPreviewMode}}"
+      can-back-to-admin="{{canBackToAdmin}}"
+      bind:sceneaction="handlePreviewReturnTap"
+    ></customer-profile-scene>
+  </view>
 
   <view class="role-page__content app-shell" wx:else>
     <view class="glass-card role-page__hero">

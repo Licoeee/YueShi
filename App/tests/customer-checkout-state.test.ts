@@ -23,7 +23,7 @@ test('buildCheckoutState keeps only checked cart items when normal cart checkout
       quantity: 1,
       layerId: 'single',
       sizePlanId: 'cake-peach-single-6',
-      creamId: 'peach',
+      creamId: 'fresh',
       unitPrice: 238,
       checked: false,
       entryMode: 'cart',
@@ -33,7 +33,8 @@ test('buildCheckoutState keeps only checked cart items when normal cart checkout
   assert.equal(state.source, 'cart')
   assert.equal(state.items.length, 1)
   assert.equal(state.items[0]?.quantity, 2)
-  assert.equal(state.items[0]?.specLabel, '单层 / 6 英寸 / 轻乳脂鲜奶油')
+  assert.equal(state.items[0]?.specLabel, '单层 / 6 英寸')
+  assert.equal(state.items[0]?.creamLabel, '乳脂奶油')
   assert.equal(state.totalAmount, 336)
 })
 
@@ -45,7 +46,7 @@ test('buildCheckoutState falls back to the active buy-now item when cart items a
       quantity: 1,
       layerId: 'double',
       sizePlanId: 'cake-peach-double-84',
-      creamId: 'peach',
+      creamId: 'fresh',
       unitPrice: 358,
       checked: true,
       entryMode: 'buy-now',
@@ -54,7 +55,8 @@ test('buildCheckoutState falls back to the active buy-now item when cart items a
 
   assert.equal(state.source, 'buy-now')
   assert.equal(state.items.length, 1)
-  assert.equal(state.items[0]?.specLabel, '双层 / 8 + 4 英寸 / 桃乌龙奶油')
+  assert.equal(state.items[0]?.specLabel, '双层 / 8 + 4 英寸')
+  assert.equal(state.items[0]?.creamLabel, '乳脂奶油')
   assert.equal(state.totalAmount, 358)
 })
 
@@ -77,7 +79,7 @@ test('removeSubmittedCartItems drops the submitted items from the local cart sna
       quantity: 1,
       layerId: 'single',
       sizePlanId: 'cake-mist-single-6',
-      creamId: 'vanilla',
+      creamId: 'fresh',
       unitPrice: 158,
       checked: false,
       entryMode: 'cart',

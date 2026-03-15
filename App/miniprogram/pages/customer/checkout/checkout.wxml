@@ -17,9 +17,17 @@
         <text class="checkout-page__section-title">本次商品</text>
 
         <view wx:for="{{checkoutItems}}" wx:key="id" class="checkout-page__item">
+          <t-image
+            class="checkout-page__item-cover"
+            src="{{item.coverImageUrl}}"
+            mode="aspectFill"
+            shape="round"
+            lazy="{{true}}"
+          ></t-image>
           <view class="checkout-page__item-copy">
             <text class="checkout-page__item-name">{{item.productName}}</text>
             <text class="checkout-page__item-spec">{{item.specLabel}}</text>
+            <text class="checkout-page__item-cream">{{item.creamLabel}}</text>
           </view>
           <view class="checkout-page__item-side">
             <t-tag theme="primary" variant="light">x{{item.quantity}}</t-tag>
@@ -30,15 +38,25 @@
 
       <view class="glass-card checkout-page__section">
         <text class="checkout-page__section-title">联系信息</text>
-        <t-input
-          label="手机号"
-          type="number"
-          maxlength="11"
-          placeholder="请手动输入联系电话"
-          value="{{phone}}"
-          borderless="{{true}}"
-          bind:change="handlePhoneChange"
-        ></t-input>
+        <view class="checkout-page__contact-row">
+          <t-input
+            label="手机号"
+            type="number"
+            maxlength="11"
+            placeholder="请手动输入联系电话"
+            value="{{phone}}"
+            borderless="{{true}}"
+            bind:change="handlePhoneChange"
+          ></t-input>
+          <t-button
+            wx:if="{{phoneHistoryItems.length > 0}}"
+            t-class="checkout-page__history-button"
+            theme="primary"
+            variant="outline"
+            size="small"
+            bindtap="handleOpenPhoneHistory"
+          >历史手机号</t-button>
+        </view>
         <text class="checkout-page__error" wx:if="{{phoneError.length > 0}}">{{phoneError}}</text>
       </view>
 
@@ -51,11 +69,14 @@
   </view>
 
   <view class="checkout-page__footer">
-    <view class="checkout-page__footer-copy">
-      <text class="checkout-page__footer-label">合计</text>
-      <text class="checkout-page__footer-price">¥ {{totalAmount}}</text>
+    <view class="checkout-page__footer-main">
+      <view class="checkout-page__footer-copy">
+        <text class="checkout-page__footer-label">合计</text>
+        <text class="checkout-page__footer-price">¥ {{totalAmount}}</text>
+      </view>
     </view>
     <t-button
+      t-class="checkout-page__submit-button"
       theme="primary"
       size="large"
       disabled="{{checkoutItems.length === 0}}"
@@ -83,4 +104,13 @@
     confirmBtn="我知道了"
     bind:confirm="handlePaymentGuideConfirm"
   ></t-dialog>
+
+  <t-action-sheet
+    visible="{{phoneHistoryVisible}}"
+    items="{{phoneHistoryItems}}"
+    description="选择历史手机号"
+    bind:selected="handleSelectPhoneHistory"
+    bind:cancel="handleClosePhoneHistory"
+    bind:close="handleClosePhoneHistory"
+  ></t-action-sheet>
 </view>

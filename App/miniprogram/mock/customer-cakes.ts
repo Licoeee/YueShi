@@ -62,9 +62,9 @@ export const CUSTOMER_CAKES: CakeDetail[] = [
       { id: 'cake-cloud-triple-864', label: '8 + 6 + 4 英寸', layers: 3, sizes: ['8-inch', '6-inch', '6-inch'], price: 388, isDefault: true },
     ],
     creamOptions: [
-      { id: 'fresh', label: '轻乳脂鲜奶油', priceDelta: 0, isDefault: true },
-      { id: 'sea-salt', label: '海盐奶油', priceDelta: 18, isDefault: false },
-      { id: 'peach', label: '桃乌龙奶油', priceDelta: 22, isDefault: false },
+      { id: 'fresh', label: '乳脂奶油', priceDelta: 0, isDefault: true },
+      { id: 'animal', label: '动物奶油', priceDelta: 18, isDefault: false },
+      { id: 'naked', label: '裸蛋糕', priceDelta: -12, isDefault: false },
     ],
   },
   {
@@ -112,8 +112,9 @@ export const CUSTOMER_CAKES: CakeDetail[] = [
       { id: 'cake-peach-double-84', label: '8 + 4 英寸', layers: 2, sizes: ['8-inch', '6-inch'], price: 358, isDefault: true },
     ],
     creamOptions: [
-      { id: 'peach', label: '桃乌龙奶油', priceDelta: 0, isDefault: true },
-      { id: 'fresh', label: '轻乳脂鲜奶油', priceDelta: 12, isDefault: false },
+      { id: 'fresh', label: '乳脂奶油', priceDelta: 0, isDefault: true },
+      { id: 'animal', label: '动物奶油', priceDelta: 18, isDefault: false },
+      { id: 'naked', label: '裸蛋糕', priceDelta: -12, isDefault: false },
     ],
   },
   {
@@ -153,8 +154,9 @@ export const CUSTOMER_CAKES: CakeDetail[] = [
       { id: 'cake-mist-single-8', label: '8 英寸', layers: 1, sizes: ['8-inch'], price: 188, isDefault: false },
     ],
     creamOptions: [
-      { id: 'vanilla', label: '香草奶油', priceDelta: 0, isDefault: true },
-      { id: 'fresh', label: '轻乳脂鲜奶油', priceDelta: 10, isDefault: false },
+      { id: 'fresh', label: '乳脂奶油', priceDelta: 0, isDefault: true },
+      { id: 'animal', label: '动物奶油', priceDelta: 18, isDefault: false },
+      { id: 'naked', label: '裸蛋糕', priceDelta: -12, isDefault: false },
     ],
   },
 ]
