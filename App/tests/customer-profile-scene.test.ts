@@ -21,7 +21,7 @@ test('customer profile scene contains avatar, login actions, and settings entry'
   const wxml = readWorkspaceFile('App/miniprogram/components/customer-profile-scene/customer-profile-scene.wxml')
 
   assert.match(wxml, /头像|avatar/i)
-  assert.match(wxml, /登录/)
+  assert.match(wxml, /微信登录/)
   assert.match(wxml, /退出登录/)
   assert.match(wxml, /设置/)
 })

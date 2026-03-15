@@ -111,14 +111,14 @@ export async function requestCustomerLoginSession(
   now: Date = new Date(),
 ): Promise<CustomerLocalSession | null> {
   try {
-    const [profileResult, loginResult] = await Promise.all([
-      requestUserProfile(wechat),
+    const [loginResult, profileResult] = await Promise.all([
       requestLoginCode(wechat),
+      requestUserProfile(wechat).catch((): UserProfileResultLike | null => null),
     ])
 
     const openIdLikeId = resolveAppIdentity() || loginResult.code || `local-customer-${now.getTime()}`
-    const nickname = profileResult.userInfo?.nickName?.trim() || '微信用户'
-    const avatarUrl = profileResult.userInfo?.avatarUrl ?? ''
+    const nickname = profileResult?.userInfo?.nickName?.trim() || '微信用户'
+    const avatarUrl = profileResult?.userInfo?.avatarUrl ?? ''
 
     return {
       isLoggedIn: true,
