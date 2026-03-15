@@ -38,7 +38,7 @@
 
       <view class="glass-card checkout-page__section">
         <text class="checkout-page__section-title">联系信息</text>
-        <view class="checkout-page__contact-row">
+        <view class="checkout-page__contact-input">
           <t-input
             label="手机号"
             type="number"
@@ -48,14 +48,19 @@
             borderless="{{true}}"
             bind:change="handlePhoneChange"
           ></t-input>
-          <t-button
-            wx:if="{{phoneHistoryItems.length > 0}}"
-            t-class="checkout-page__history-button"
-            theme="primary"
-            variant="outline"
-            size="small"
+        </view>
+        <view
+          wx:if="{{phoneHistoryItems.length > 0}}"
+          class="checkout-page__history-entry"
+        >
+          <view class="checkout-page__history-copy">
+            <text class="checkout-page__history-title">历史手机号</text>
+            <text class="checkout-page__history-desc">单独打开选择层，不再压缩输入框显示空间。</text>
+          </view>
+          <view
+            class="checkout-page__history-button checkout-page__history-button--outline"
             bindtap="handleOpenPhoneHistory"
-          >历史手机号</t-button>
+          >选择历史手机号</view>
         </view>
         <text class="checkout-page__error" wx:if="{{phoneError.length > 0}}">{{phoneError}}</text>
       </view>
@@ -63,6 +68,9 @@
       <view class="glass-card checkout-page__section">
         <text class="checkout-page__section-title">取货时间</text>
         <t-cell title="取货时间" note="{{pickupSummary}}" bindtap="handleOpenPickupPicker"></t-cell>
+        <view class="checkout-page__pickup-warning" wx:if="{{pickupWarning.length > 0}}">
+          <text class="checkout-page__pickup-warning-text">{{pickupWarning}}</text>
+        </view>
         <text class="checkout-page__error" wx:if="{{pickupError.length > 0}}">{{pickupError}}</text>
       </view>
     </block>
@@ -75,13 +83,10 @@
         <text class="checkout-page__footer-price">¥ {{totalAmount}}</text>
       </view>
     </view>
-    <t-button
-      t-class="checkout-page__submit-button"
-      theme="primary"
-      size="large"
-      disabled="{{checkoutItems.length === 0}}"
+    <view
+      class="checkout-page__submit-button checkout-page__submit-button--{{submitDisabled ? 'disabled' : 'primary'}}"
       bindtap="handleSubmit"
-    >提交订单</t-button>
+    >提交订单</view>
   </view>
 
   <t-picker

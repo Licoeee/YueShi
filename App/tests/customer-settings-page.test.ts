@@ -23,3 +23,13 @@ test('customer settings page exposes login status and local cleanup sections', (
   assert.match(wxml, /手机号历史/)
   assert.match(wxml, /本地订单|订单缓存/)
 })
+
+test('customer settings page renders current account in a dedicated info block', () => {
+  const wxml = readWorkspaceFile('App/miniprogram/pages/customer/settings/settings.wxml')
+  const wxss = readWorkspaceFile('App/miniprogram/pages/customer/settings/settings.wxss')
+
+  assert.match(wxml, /settings-page__account-card/)
+  assert.match(wxml, /settings-page__account-name/)
+  assert.doesNotMatch(wxml, /note=\"\{\{session\.nickname\}\}\"/)
+  assert.match(wxss, /settings-page__account-card/)
+})

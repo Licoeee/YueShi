@@ -15,19 +15,32 @@ interface CustomerCartDisplayItem extends CartItemRecord {
   coverImageUrl: string
 }
 
-interface SwipeActionRecord {
-  text: string
-  className: string
-  style: string
-}
-
 interface CustomerCartSceneData {
   items: CustomerCartDisplayItem[]
   checkedCount: number
   checkedAmount: number
+  checkedAmountText: string
+  checkedAmountSizeClass: string
   canCheckout: boolean
   allChecked: boolean
-  deleteActions: SwipeActionRecord[]
+}
+
+function formatCheckedAmount(amount: number): string {
+  return String(amount)
+}
+
+function resolveCheckedAmountSizeClass(amountText: string): string {
+  const digitCount = amountText.replace(/\D/g, '').length
+
+  if (digitCount >= 5) {
+    return 'customer-cart-scene__summary-price-value--compact'
+  }
+
+  if (digitCount >= 4) {
+    return 'customer-cart-scene__summary-price-value--tight'
+  }
+
+  return ''
 }
 
 Component({
@@ -39,16 +52,10 @@ Component({
     items: [],
     checkedCount: 0,
     checkedAmount: 0,
+    checkedAmountText: '0',
+    checkedAmountSizeClass: '',
     canCheckout: false,
     allChecked: false,
-    deleteActions: [
-      {
-        text: '删除',
-        className: 'customer-cart-scene__swipe-action',
-        style:
-          'background: linear-gradient(135deg, #ff8c6b 0%, #ff6b57 100%); color: #ffffff; border-radius: 24rpx 0 0 24rpx;',
-      },
-    ],
   } as CustomerCartSceneData,
 
   lifetimes: {
@@ -67,6 +74,7 @@ Component({
     syncCart(): void {
       const cartItems = loadStoredCustomerCart()
       const checkoutState = buildCheckoutState(cartItems)
+      const checkedAmountText = formatCheckedAmount(checkoutState.totalAmount)
 
       this.setData({
         items: cartItems.map((item) => ({
@@ -77,6 +85,8 @@ Component({
         })),
         checkedCount: checkoutState.items.length,
         checkedAmount: checkoutState.totalAmount,
+        checkedAmountText,
+        checkedAmountSizeClass: resolveCheckedAmountSizeClass(checkedAmountText),
         canCheckout: checkoutState.items.length > 0,
         allChecked: areAllCartItemsChecked(cartItems),
       })

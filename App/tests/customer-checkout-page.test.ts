@@ -39,3 +39,23 @@ test('checkout footer keeps a dedicated right-aligned action area', () => {
   assert.match(wxss, /checkout-page__footer-main/)
   assert.match(wxss, /checkout-page__submit-button/)
 })
+
+test('checkout page separates phone history entry from the input row', () => {
+  const wxml = readWorkspaceFile('App/miniprogram/pages/customer/checkout/checkout.wxml')
+  const wxss = readWorkspaceFile('App/miniprogram/pages/customer/checkout/checkout.wxss')
+
+  assert.match(wxml, /checkout-page__contact-input/)
+  assert.match(wxml, /checkout-page__history-entry/)
+  assert.match(wxss, /checkout-page__history-entry/)
+  assert.match(wxss, /checkout-page__history-copy/)
+})
+
+test('checkout page exposes invalid pickup hints and disables submit when pickup is invalid', () => {
+  const wxml = readWorkspaceFile('App/miniprogram/pages/customer/checkout/checkout.wxml')
+  const source = readWorkspaceFile('App/miniprogram/pages/customer/checkout/checkout.ts')
+
+  assert.match(wxml, /checkout-page__pickup-warning/)
+  assert.match(wxml, /checkout-page__submit-button--\{\{submitDisabled \? 'disabled' : 'primary'\}\}/)
+  assert.match(source, /submitDisabled/)
+  assert.match(source, /pickupWarning/)
+})

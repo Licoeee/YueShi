@@ -25,3 +25,13 @@ test('customer profile scene contains avatar, login actions, and settings entry'
   assert.match(wxml, /退出登录/)
   assert.match(wxml, /设置/)
 })
+
+test('customer profile action buttons use dedicated warm-theme classes', () => {
+  const wxml = readWorkspaceFile('App/miniprogram/components/customer-profile-scene/customer-profile-scene.wxml')
+  const wxss = readWorkspaceFile('App/miniprogram/components/customer-profile-scene/customer-profile-scene.wxss')
+
+  assert.match(wxml, /customer-profile-scene__action-button/)
+  assert.match(wxml, /customer-profile-scene__action-button--outline/)
+  assert.match(wxml, /customer-profile-scene__action-button--\{\{session\.isLoggedIn \? 'disabled' : 'primary'\}\}/)
+  assert.match(wxss, /customer-profile-scene__action-button/)
+})

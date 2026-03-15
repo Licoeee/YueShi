@@ -27,25 +27,18 @@
     </view>
 
     <view class="customer-profile-scene__actions">
-      <t-button
-        theme="primary"
-        size="small"
+      <view
+        class="customer-profile-scene__action-button customer-profile-scene__action-button--{{session.isLoggedIn ? 'disabled' : 'primary'}}"
         bindtap="handleLoginTap"
-        disabled="{{session.isLoggedIn}}"
-      >微信登录</t-button>
-      <t-button
-        theme="default"
-        variant="outline"
-        size="small"
+      >微信登录</view>
+      <view
+        class="customer-profile-scene__action-button customer-profile-scene__action-button--{{session.isLoggedIn ? 'default' : 'disabled'}}"
         bindtap="handleLogoutTap"
-        disabled="{{!session.isLoggedIn}}"
-      >退出登录</t-button>
-      <t-button
-        theme="primary"
-        variant="outline"
-        size="small"
+      >退出登录</view>
+      <view
+        class="customer-profile-scene__action-button customer-profile-scene__action-button--outline"
         bindtap="handleSettingsTap"
-      >设置</t-button>
+      >设置</view>
     </view>
   </view>
 
@@ -71,11 +64,10 @@
 
   <view class="glass-card customer-profile-scene__section" wx:if="{{canBackToAdmin}}">
     <text class="customer-profile-scene__section-title">预览切换</text>
-    <t-button
-      block="{{true}}"
-      theme="primary"
-      variant="outline"
+    <view
+      class="customer-profile-scene__action-button customer-profile-scene__action-button--outline"
+      style="width: 100%;"
       bindtap="handlePreviewReturnTap"
-    >返回管理员视角</t-button>
+    >返回管理员视角</view>
   </view>
 </view>

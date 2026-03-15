@@ -29,3 +29,19 @@ test('cart scene exposes a checkout summary and action button', () => {
   assert.match(wxml, /去结算/)
   assert.match(wxml, /customer-cart-scene__summary-price/)
 })
+
+test('cart scene keeps a fixed-width toggle action and stable summary regions', () => {
+  const wxml = readCartSceneWxml()
+  const wxss = fs.readFileSync(
+    path.join(workspaceRoot, 'App/miniprogram/components/customer-cart-scene/customer-cart-scene.wxss'),
+    'utf8',
+  )
+
+  assert.match(wxml, /customer-cart-scene__summary-toggle/)
+  assert.doesNotMatch(wxml, /取消全选/)
+  assert.match(wxml, /customer-cart-scene__summary-main/)
+  assert.match(wxml, /customer-cart-scene__summary-copy/)
+  assert.match(wxss, /customer-cart-scene__summary-toggle/)
+  assert.match(wxss, /customer-cart-scene__summary-price-value/)
+  assert.match(wxss, /customer-cart-scene__summary-cta/)
+})

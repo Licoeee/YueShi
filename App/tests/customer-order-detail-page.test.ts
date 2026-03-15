@@ -35,3 +35,12 @@ test('order detail page keeps a dedicated save-note action', () => {
   assert.match(wxml, /编辑备注/)
   assert.match(wxss, /white-space:\s*nowrap/)
 })
+
+test('order detail action buttons use dedicated TDesign style classes', () => {
+  const wxml = readWorkspaceFile('App/miniprogram/pages/customer/order-detail/order-detail.wxml')
+  const wxss = readWorkspaceFile('App/miniprogram/pages/customer/order-detail/order-detail.wxss')
+
+  assert.match(wxml, /order-detail-page__action-button/)
+  assert.match(wxml, /order-detail-page__action-button--danger/)
+  assert.match(wxss, /order-detail-page__action-button/)
+})

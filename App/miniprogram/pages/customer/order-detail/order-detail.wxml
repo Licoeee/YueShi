@@ -54,8 +54,14 @@
           bind:change="handleNoteInput"
         ></t-textarea>
         <view class="order-detail-page__note-actions">
-          <t-button theme="default" variant="outline" size="small" bindtap="handleCancelEdit">取消</t-button>
-          <t-button theme="primary" size="small" bindtap="handleSaveNote">保存备注</t-button>
+          <view
+            class="order-detail-page__action-button order-detail-page__action-button--ghost"
+            bindtap="handleCancelEdit"
+          >取消</view>
+          <view
+            class="order-detail-page__action-button order-detail-page__action-button--primary"
+            bindtap="handleSaveNote"
+          >保存备注</view>
         </view>
       </view>
 
@@ -70,19 +76,15 @@
         </t-tag>
       </view>
       <view class="order-detail-page__action-row">
-        <t-button
-          theme="primary"
-          variant="outline"
-          size="small"
+        <view
+          class="order-detail-page__action-button order-detail-page__action-button--outline"
           bindtap="handleEditNote"
-        >编辑备注</t-button>
-        <t-button
+        >编辑备注</view>
+        <view
           wx:if="{{order.status !== 'ready-for-pickup' && order.status !== 'completed' && order.status !== 'cancelled'}}"
-          theme="danger"
-          variant="outline"
-          size="small"
+          class="order-detail-page__action-button order-detail-page__action-button--danger"
           bindtap="handleOpenCancelDialog"
-        >取消订单</t-button>
+        >取消订单</view>
       </view>
       <text
         wx:if="{{order.status === 'ready-for-pickup' || order.status === 'completed' || order.status === 'cancelled'}}"
