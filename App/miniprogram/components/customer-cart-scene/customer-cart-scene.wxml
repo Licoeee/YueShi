@@ -9,20 +9,28 @@
   </view>
 
   <view class="customer-cart-scene__list" wx:else>
-    <t-swipe-cell
-      wx:for="{{items}}"
-      wx:key="id"
-      data-item-id="{{item.id}}"
-    >
-      <view slot="right" class="customer-cart-scene__swipe-delete" catchtap="handleSwipeAction" data-item-id="{{item.id}}">
-        <view class="customer-cart-scene__swipe-delete-button">删除</view>
+    <view wx:for="{{items}}" wx:key="id" class="customer-cart-scene__swipe-shell">
+      <view class="customer-cart-scene__swipe-action">
+        <view class="customer-cart-scene__swipe-delete" catchtap="handleSwipeAction" data-item-id="{{item.id}}">
+          <view class="customer-cart-scene__swipe-delete-button">删除</view>
+        </view>
       </view>
-      <view class="customer-cart-scene__item {{item.checked ? 'customer-cart-scene__item--checked' : ''}}">
+      <view
+        class="customer-cart-scene__swipe-track"
+        data-item-id="{{item.id}}"
+        style="{{item.swipeStyle}}"
+        bindtouchstart="handleItemTouchStart"
+        bindtouchmove="handleItemTouchMove"
+        bindtouchend="handleItemTouchEnd"
+        bindtouchcancel="handleItemTouchCancel"
+        bindtap="handleSwipeContentTap"
+      >
+        <view class="customer-cart-scene__item {{item.checked ? 'customer-cart-scene__item--checked' : ''}}">
         <view class="customer-cart-scene__select">
           <view
             class="customer-cart-scene__select-pill customer-cart-scene__select-pill--{{item.checked ? 'checked' : 'idle'}}"
             data-item-id="{{item.id}}"
-            bindtap="handleItemCheckChange"
+            catchtap="handleItemCheckChange"
           >{{item.checked ? '已选' : '未选'}}</view>
         </view>
 
@@ -45,7 +53,8 @@
           <text class="customer-cart-scene__quantity">x{{item.quantity}}</text>
         </view>
       </view>
-    </t-swipe-cell>
+      </view>
+    </view>
 
     <view class="customer-cart-scene__summary">
       <view class="customer-cart-scene__summary-main">
@@ -66,7 +75,7 @@
         </view>
       </view>
 
-      <view
+    <view
         class="customer-cart-scene__summary-cta customer-cart-scene__summary-cta--{{canCheckout ? 'primary' : 'disabled'}}"
         bindtap="handleCheckout"
       >去结算</view>

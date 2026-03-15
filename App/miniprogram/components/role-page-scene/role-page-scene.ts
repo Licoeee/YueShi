@@ -1,4 +1,5 @@
 import type { RoleType } from '../../../types/role'
+import type { RoleSceneActionDetail } from '../../utils/role-page-scene-actions'
 import { getRolePageScene, type RolePageScene } from '../../utils/role-page-scenes'
 
 interface RoleSwitchOption {
@@ -43,6 +44,10 @@ Component({
     canBackToAdmin: {
       type: Boolean,
       value: false,
+    },
+    cartRefreshTick: {
+      type: Number,
+      value: 0,
     },
     roleSwitchOptions: {
       type: Array,
@@ -120,6 +125,13 @@ Component({
     handlePreviewReturnTap(): void {
       this.triggerEvent('sceneaction', {
         action: 'preview-return',
+      })
+    },
+
+    handleChildSceneAction(event: WechatMiniprogram.CustomEvent<RoleSceneActionDetail>): void {
+      this.triggerEvent('sceneaction', event.detail, {
+        bubbles: true,
+        composed: true,
       })
     },
   },

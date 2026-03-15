@@ -85,3 +85,12 @@ test('wraps customer scenes with a top safe-area shell to avoid status-bar overl
   assert.match(wxml, /role-page-scene__customer-shell/)
   assert.match(wxss, /padding:\s*calc\(14rpx \+ env\(safe-area-inset-top\) \+ 88rpx\)\s*30rpx\s*0;/)
 })
+
+test('forwards cart delete requests to the page with a bubbling composed sceneaction event', () => {
+  const source = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.ts')
+
+  assert.match(
+    source,
+    /handleChildSceneAction[\s\S]*this\.triggerEvent\(\s*'sceneaction',\s*event\.detail,\s*\{\s*bubbles:\s*true,\s*composed:\s*true,\s*\}\s*\)/,
+  )
+})

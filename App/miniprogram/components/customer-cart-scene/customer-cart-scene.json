@@ -4,7 +4,6 @@
   "usingComponents": {
     "t-button": "tdesign-miniprogram/button/button",
     "t-empty": "tdesign-miniprogram/empty/empty",
-    "t-image": "tdesign-miniprogram/image/image",
-    "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell"
+    "t-image": "tdesign-miniprogram/image/image"
   }
 }

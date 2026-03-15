@@ -3,7 +3,7 @@
     <customer-home-scene></customer-home-scene>
   </view>
   <view class="role-page-scene__customer-shell" wx:elif="{{renderMode === 'customer-cart'}}">
-    <customer-cart-scene></customer-cart-scene>
+    <customer-cart-scene refreshTick="{{cartRefreshTick}}" bind:sceneaction="handleChildSceneAction"></customer-cart-scene>
   </view>
   <view class="role-page-scene__customer-shell" wx:elif="{{renderMode === 'customer-orders'}}">
     <customer-orders-scene></customer-orders-scene>
