@@ -35,3 +35,10 @@ test('customer profile action buttons use dedicated warm-theme classes', () => {
   assert.match(wxml, /customer-profile-scene__action-button--\{\{session\.isLoggedIn \? 'disabled' : 'primary'\}\}/)
   assert.match(wxss, /customer-profile-scene__action-button/)
 })
+
+test('customer profile note cells use dedicated non-truncating note class', () => {
+  const wxml = readWorkspaceFile('App/miniprogram/components/customer-profile-scene/customer-profile-scene.wxml')
+
+  assert.match(wxml, /t-class-note="customer-profile-scene__cell-note"/)
+  assert.doesNotMatch(wxml, /t-class-note="app-interactive-text"/)
+})

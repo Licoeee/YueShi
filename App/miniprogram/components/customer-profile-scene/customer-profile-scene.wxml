@@ -50,14 +50,14 @@
         note="{{session.isLoggedIn ? '已开启' : '未登录'}}"
         description="浏览首页、订单与详情可免登录；加购、立即购买、去结算和提交订单会先校验微信登录。"
         t-class-title="app-interactive-text"
-        t-class-note="app-interactive-text"
+        t-class-note="customer-profile-scene__cell-note"
       ></t-cell>
       <t-cell
         title="本地闭环"
         note="当前轮次"
         description="购物车、订单、手机号历史均保存在本机缓存，云端联动后置。"
         t-class-title="app-interactive-text"
-        t-class-note="app-interactive-text"
+        t-class-note="customer-profile-scene__cell-note"
       ></t-cell>
     </t-cell-group>
   </view>

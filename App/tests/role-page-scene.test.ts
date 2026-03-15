@@ -94,3 +94,22 @@ test('forwards cart delete requests to the page with a bubbling composed sceneac
     /handleChildSceneAction[\s\S]*this\.triggerEvent\(\s*'sceneaction',\s*event\.detail,\s*\{\s*bubbles:\s*true,\s*composed:\s*true,\s*\}\s*\)/,
   )
 })
+
+test('customer scene host pages keep cart delete dialog handling in scene mode', () => {
+  const homeWxml = readWorkspaceFile('App/miniprogram/pages/customer/home/home.wxml')
+  const ordersWxml = readWorkspaceFile('App/miniprogram/pages/customer/orders/orders.wxml')
+  const profileWxml = readWorkspaceFile('App/miniprogram/pages/customer/profile/profile.wxml')
+  const homeTs = readWorkspaceFile('App/miniprogram/pages/customer/home/home.ts')
+  const ordersTs = readWorkspaceFile('App/miniprogram/pages/customer/orders/orders.ts')
+  const profileTs = readWorkspaceFile('App/miniprogram/pages/customer/profile/profile.ts')
+
+  assert.match(homeWxml, /cartRefreshTick="\{\{cartRefreshTick\}\}"/)
+  assert.match(ordersWxml, /cartRefreshTick="\{\{cartRefreshTick\}\}"/)
+  assert.match(profileWxml, /cartRefreshTick="\{\{cartRefreshTick\}\}"/)
+  assert.match(homeWxml, /<t-dialog/)
+  assert.match(ordersWxml, /<t-dialog/)
+  assert.match(profileWxml, /<t-dialog/)
+  assert.match(homeTs, /request-cart-delete/)
+  assert.match(ordersTs, /request-cart-delete/)
+  assert.match(profileTs, /request-cart-delete/)
+})

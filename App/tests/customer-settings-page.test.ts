@@ -33,3 +33,10 @@ test('customer settings page renders current account in a dedicated info block',
   assert.doesNotMatch(wxml, /note=\"\{\{session\.nickname\}\}\"/)
   assert.match(wxss, /settings-page__account-card/)
 })
+
+test('customer settings note cells use dedicated non-truncating note class', () => {
+  const wxml = readWorkspaceFile('App/miniprogram/pages/customer/settings/settings.wxml')
+
+  assert.match(wxml, /t-class-note="settings-page__cell-note"/)
+  assert.doesNotMatch(wxml, /t-class-note="app-interactive-text"/)
+})

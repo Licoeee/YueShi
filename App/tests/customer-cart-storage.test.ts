@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import {
+  CUSTOMER_CART_STORAGE_KEY,
   createMemoryCartStorage,
   loadCartSnapshot,
   saveCartSnapshot,
@@ -98,4 +99,38 @@ test('saveCartSnapshot persists and restores the serialized cart payload', () =>
   saveCartSnapshot(storage, items)
 
   assert.deepEqual(loadCartSnapshot(storage), items)
+})
+
+test('loadCartSnapshot normalizes legacy numeric cart ids into strings', () => {
+  const storage = createMemoryCartStorage()
+
+  storage.setStorageSync(
+    CUSTOMER_CART_STORAGE_KEY,
+    JSON.stringify([
+      {
+        id: 1001,
+        productId: 'cake-cloud',
+        productName: '云朵蛋糕',
+        coverImage: '',
+        specLabel: '单层 / 6寸',
+        creamLabel: '乳脂奶油',
+        quantity: 1,
+        unitPrice: 168,
+        totalPrice: 168,
+        checked: true,
+        entryMode: 'cart',
+        selection: {
+          layerId: 'single',
+          sizePlanId: 'single-6',
+          creamId: 'fresh',
+        },
+      },
+    ]),
+  )
+
+  const snapshot = loadCartSnapshot(storage)
+
+  assert.equal(snapshot.length, 1)
+  assert.equal(typeof snapshot[0]?.id, 'string')
+  assert.equal(snapshot[0]?.id, '1001')
 })

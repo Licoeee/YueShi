@@ -26,7 +26,7 @@
           note="{{session.isLoggedIn ? '已登录' : '未登录'}}"
           description="{{session.lastLoginAt || '暂无登录时间'}}"
           t-class-title="app-interactive-text"
-          t-class-note="app-interactive-text"
+          t-class-note="settings-page__cell-note"
         ></t-cell>
       </t-cell-group>
     </view>
@@ -91,14 +91,14 @@
           note="本轮"
           description="顾客端当前只保证本机可用，不直接接入多端云端联动。"
           t-class-title="app-interactive-text"
-          t-class-note="app-interactive-text"
+          t-class-note="settings-page__cell-note"
         ></t-cell>
         <t-cell
           title="搜索 ID"
           note="待后置"
           description="依赖多端商品 ID 统一，本轮只保留文档与 TODO，不提前实现。"
           t-class-title="app-interactive-text"
-          t-class-note="app-interactive-text"
+          t-class-note="settings-page__cell-note"
         ></t-cell>
       </t-cell-group>
     </view>
