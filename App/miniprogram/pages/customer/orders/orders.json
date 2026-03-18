@@ -6,6 +6,7 @@
     "role-page-scene": "/components/role-page-scene/role-page-scene",
     "t-cell": "tdesign-miniprogram/cell/cell",
     "t-cell-group": "tdesign-miniprogram/cell-group/cell-group",
+    "t-dialog": "tdesign-miniprogram/dialog/dialog",
     "t-tag": "tdesign-miniprogram/tag/tag"
   }
 }

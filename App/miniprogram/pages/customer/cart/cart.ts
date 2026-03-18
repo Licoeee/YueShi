@@ -46,6 +46,7 @@ Page<
     const patch = buildRolePageDataPatch(this.data, nextState)
     if (patch !== null) {
       this.setData(patch)
+      return
     }
   },
 
@@ -83,12 +84,15 @@ Page<
 
   handleConfirmDelete() {
     const itemId = this.data.pendingDeleteItemId
+    const cartBefore = loadStoredCustomerCart()
+
     if (itemId.length === 0) {
       this.handleCloseDeleteDialog()
       return
     }
 
-    saveStoredCustomerCart(removeCartItem(loadStoredCustomerCart(), itemId))
+    const cartAfter = removeCartItem(cartBefore, itemId)
+    saveStoredCustomerCart(cartAfter)
     this.setData({
       deleteDialogVisible: false,
       pendingDeleteItemId: '',

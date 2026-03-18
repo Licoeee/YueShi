@@ -7,6 +7,7 @@
 - **文档同步**：操作前必读 `AGENTS.md`、`docs/STYLE_GUIDE.md`、`docs/PRD.md`、`docs/TODO.md`。
 - **TODO 更新**：仅在功能完成且**大帅确认**后更新。
 - **Git/测试**：Git 合并必请示并说明影响；测试指引需适配微信工具 2.01.2510280；凡需大帅在微信开发者工具补测，必须同时给出“操作步骤 + 预期效果”。
+- **验收闭环红线**：`测试通过` 不等于 `功能已实现`。涉及用户可感知关键路径（删除、加购、下单、登录门禁、状态流转）时，必须同时满足“自动化测试通过 + 微信开发者工具 2.01.2510280 人工回归通过 + 记录步骤/预期/实际”。任一不满足，禁止宣称“已修复”、禁止提测或合并。
 
 ## 2. 技术标准 (TS & TDesign)
 - **TS 严格模式**：禁止 `any`，必须有明确类型标注与返回类型。
@@ -20,6 +21,7 @@
 - **长页面背景实现**：长滚动页面禁止把复杂渐变直接挂在全局 `page` 上，必须采用“固定背景层 + 内容层”结构，避免滚动断层。
 - **第三方包补丁同步**：凡修补 `node_modules` 内的 TDesign 样式或资源，必须同步修改 `miniprogram_npm` 对应产物，否则执行“构建 npm”后运行时行为会回退。
 - **TDesign Button 变体变量隔离**：`<t-button>` 的每种 `variant` 拥有**独立的 CSS 变量前缀**。修改按钮颜色/边框/背景时，必须先到 `miniprogram_npm/tdesign-miniprogram/button/button.wxss` 中确认目标 variant 读取的实际变量名。常见映射：`theme="default"` → `--td-button-default-*`；`variant="outline"` → `--td-button-default-outline-*`；`theme="primary"` → `--td-button-primary-*`；`variant="outline" + theme="primary"` → `--td-button-primary-outline-*`。**严禁凭记忆猜测变量名**，用错前缀样式不会报错但完全不生效。
+- **TDesign 组件注册一致性**：凡在页面/组件 WXML 中使用了 `t-dialog`、`t-swipe-cell` 等 `t-*` 组件，必须在对应页面/组件 `.json` 的 `usingComponents` 中完成注册。未注册时常见症状是“事件已触发、状态已 setData，但界面无任何响应”（如删除弹窗不显示）。
 - **非按钮语义元素禁用 t-button**：底栏导航入口（如"首页""购物车"图标格子）只起跳转作用、不需要按钮语义时，必须用纯 `<view>` 实现，禁止套用 `<t-button>`。`t-button` 的 `shape`/`size`/`variant` 组合会产生不可预期的圆角和高度计算（如 `shape="round"` 强制 `border-radius = height/2`），导致布局对齐失控。
 - **复盘事实源**：复盘、设计结论和规则回写必须以当前分支最新代码状态为准，禁止拿中间态截图、半成品预览稿或已失效 diff 反推最终结论。
 - **界面修复禁止只做表层微调**：连续两轮仍未解决的 UI 问题，必须先把布局拆成“固定区 / 弹性区 / 内容区”，明确 `flex: none`、`flex: 1`、`min-width: 0`、换行策略，再决定是否改尺寸、字号或组件选型。禁止继续只调颜色、padding、gap 碰运气。

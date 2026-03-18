@@ -186,7 +186,8 @@ Component({
         return
       }
 
-      const targetItem = this.data.items.find((item) => item.id === itemId)
+      const targetIndex = this.data.items.findIndex((item) => item.id === itemId)
+      const targetItem = targetIndex >= 0 ? this.data.items[targetIndex] : undefined
       if (targetItem === undefined) {
         return
       }
@@ -308,7 +309,8 @@ Component({
         return
       }
 
-      if (!this.data.items.some((item) => item.id === itemId)) {
+      const matched = this.data.items.some((item) => item.id === itemId)
+      if (!matched) {
         return
       }
 
