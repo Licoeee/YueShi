@@ -34,7 +34,7 @@ function withMockedGetApp<T>(factory: (() => IAppOption) | undefined, run: () =>
   })
 }
 
-test('requestCustomerLoginSession falls back to a basic logged-in session when profile authorization is unavailable', async () => {
+test('requestCustomerLoginSession returns null when profile authorization is unavailable', async () => {
   const wechat: MockWechatLoginLike = {
     login(options) {
       options.success({ code: 'login-code-001' })
@@ -48,12 +48,26 @@ test('requestCustomerLoginSession falls back to a basic logged-in session when p
     requestCustomerLoginSession(wechat, new Date('2026-03-15T08:00:00.000Z')),
   )
 
+  assert.equal(session, null)
+})
+
+test('requestCustomerLoginSession keeps basic login when getUserProfile is unavailable', async () => {
+  const wechat = {
+    login(options: { success(result: { code?: string }): void; fail(error: unknown): void }) {
+      options.success({ code: 'login-code-fallback' })
+    },
+  } as unknown as MockWechatLoginLike
+
+  const session = await withMockedGetApp(undefined, () =>
+    requestCustomerLoginSession(wechat, new Date('2026-03-15T08:30:00.000Z')),
+  )
+
   assert.notEqual(session, null)
   assert.equal(session?.isLoggedIn, true)
-  assert.equal(session?.openIdLikeId, 'login-code-001')
+  assert.equal(session?.openIdLikeId, 'login-code-fallback')
   assert.equal(session?.nickname, '微信用户')
   assert.equal(session?.avatarUrl, '')
-  assert.equal(session?.lastLoginAt, '2026-03-15T08:00:00.000Z')
+  assert.equal(session?.lastLoginAt, '2026-03-15T08:30:00.000Z')
 })
 
 test('requestCustomerLoginSession prefers app identity and profile payload when both are available', async () => {

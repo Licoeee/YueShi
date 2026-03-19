@@ -18,7 +18,7 @@ interface WechatLoginLike {
     success(result: LoginResultLike): void
     fail(error: unknown): void
   }): void
-  getUserProfile(options: {
+  getUserProfile?(options: {
     desc: string
     success(result: UserProfileResultLike): void
     fail(error: unknown): void
@@ -84,12 +84,69 @@ function requestLoginCode(wechat: WechatLoginLike): Promise<LoginResultLike> {
 
 function requestUserProfile(wechat: WechatLoginLike): Promise<UserProfileResultLike> {
   return new Promise<UserProfileResultLike>((resolve, reject) => {
+    if (typeof wechat.getUserProfile !== 'function') {
+      reject(new Error('getUserProfile unavailable'))
+      return
+    }
+
     wechat.getUserProfile({
       desc: '用于完成顾客端关键动作前的登录确认',
       success: resolve,
       fail: reject,
     })
   })
+}
+
+function resolveErrorMessage(error: unknown): string {
+  if (typeof error === 'string') {
+    return error
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const errMsg = (error as { errMsg?: unknown }).errMsg
+    if (typeof errMsg === 'string') {
+      return errMsg
+    }
+  }
+
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  return ''
+}
+
+function isUserProfileAuthorizationRejected(error: unknown): boolean {
+  const message = resolveErrorMessage(error).toLowerCase()
+  if (message.length === 0) {
+    return false
+  }
+
+  return (
+    message.includes('deny') ||
+    message.includes('denied') ||
+    message.includes('auth deny') ||
+    message.includes('auth denied') ||
+    message.includes('denied by user') ||
+    message.includes('user deny') ||
+    message.includes('cancel')
+  )
+}
+
+async function requestOptionalUserProfile(wechat: WechatLoginLike): Promise<UserProfileResultLike | null> {
+  if (typeof wechat.getUserProfile !== 'function') {
+    return null
+  }
+
+  try {
+    return await requestUserProfile(wechat)
+  } catch (error) {
+    if (isUserProfileAuthorizationRejected(error)) {
+      throw error
+    }
+
+    return null
+  }
 }
 
 function resolveAppIdentity(): string {
@@ -111,10 +168,8 @@ export async function requestCustomerLoginSession(
   now: Date = new Date(),
 ): Promise<CustomerLocalSession | null> {
   try {
-    const [loginResult, profileResult] = await Promise.all([
-      requestLoginCode(wechat),
-      requestUserProfile(wechat).catch((): UserProfileResultLike | null => null),
-    ])
+    const loginResult = await requestLoginCode(wechat)
+    const profileResult = await requestOptionalUserProfile(wechat)
 
     const openIdLikeId = resolveAppIdentity() || loginResult.code || `local-customer-${now.getTime()}`
     const nickname = profileResult?.userInfo?.nickName?.trim() || '微信用户'

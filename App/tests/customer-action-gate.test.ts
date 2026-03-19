@@ -17,6 +17,7 @@ function createLoggedInSession(): CustomerLocalSession {
 test('runCustomerAuthorizedAction executes immediately when session is already logged in', async () => {
   let executed = 0
   let requested = 0
+  let confirmed = 0
 
   const result = await runCustomerAuthorizedAction(
     async () => {
@@ -28,6 +29,10 @@ test('runCustomerAuthorizedAction executes immediately when session is already l
         requested += 1
         return createLoggedInSession()
       },
+      confirmLoginIntent: async () => {
+        confirmed += 1
+        return true
+      },
       saveSession: () => {
         return
       },
@@ -37,11 +42,14 @@ test('runCustomerAuthorizedAction executes immediately when session is already l
   assert.equal(result, true)
   assert.equal(executed, 1)
   assert.equal(requested, 0)
+  assert.equal(confirmed, 0)
 })
 
 test('runCustomerAuthorizedAction performs login before executing when session is logged out', async () => {
   let executed = 0
   let savedSession: CustomerLocalSession | null = null
+  let requested = 0
+  let confirmed = 0
 
   const result = await runCustomerAuthorizedAction(
     async () => {
@@ -55,7 +63,14 @@ test('runCustomerAuthorizedAction performs login before executing when session i
         avatarUrl: '',
         lastLoginAt: '',
       }),
-      requestLogin: async () => createLoggedInSession(),
+      requestLogin: async () => {
+        requested += 1
+        return createLoggedInSession()
+      },
+      confirmLoginIntent: async () => {
+        confirmed += 1
+        return true
+      },
       saveSession: (session) => {
         savedSession = session
       },
@@ -64,11 +79,15 @@ test('runCustomerAuthorizedAction performs login before executing when session i
 
   assert.equal(result, true)
   assert.equal(executed, 1)
+  assert.equal(requested, 1)
+  assert.equal(confirmed, 1)
   assert.equal(savedSession?.isLoggedIn, true)
 })
 
-test('runCustomerAuthorizedAction stops when the login request is cancelled', async () => {
+test('runCustomerAuthorizedAction stops before login when the user cancels login guidance', async () => {
   let executed = 0
+  let requested = 0
+  let confirmed = 0
 
   const result = await runCustomerAuthorizedAction(
     async () => {
@@ -82,7 +101,14 @@ test('runCustomerAuthorizedAction stops when the login request is cancelled', as
         avatarUrl: '',
         lastLoginAt: '',
       }),
-      requestLogin: async () => null,
+      requestLogin: async () => {
+        requested += 1
+        return createLoggedInSession()
+      },
+      confirmLoginIntent: async () => {
+        confirmed += 1
+        return false
+      },
       saveSession: () => {
         return
       },
@@ -91,4 +117,38 @@ test('runCustomerAuthorizedAction stops when the login request is cancelled', as
 
   assert.equal(result, false)
   assert.equal(executed, 0)
+  assert.equal(requested, 0)
+  assert.equal(confirmed, 1)
+})
+
+test('runCustomerAuthorizedAction stops when the login request is cancelled', async () => {
+  let executed = 0
+  let requested = 0
+
+  const result = await runCustomerAuthorizedAction(
+    async () => {
+      executed += 1
+    },
+    {
+      loadSession: () => ({
+        isLoggedIn: false,
+        openIdLikeId: '',
+        nickname: '微信用户',
+        avatarUrl: '',
+        lastLoginAt: '',
+      }),
+      requestLogin: async () => {
+        requested += 1
+        return null
+      },
+      confirmLoginIntent: async () => true,
+      saveSession: () => {
+        return
+      },
+    },
+  )
+
+  assert.equal(result, false)
+  assert.equal(executed, 0)
+  assert.equal(requested, 1)
 })
