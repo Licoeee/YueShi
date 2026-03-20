@@ -8,6 +8,7 @@ function createLoggedInSession(): CustomerLocalSession {
   return {
     isLoggedIn: true,
     openIdLikeId: 'local-openid',
+    authTicket: 'ticket-local',
     nickname: '悦时顾客',
     avatarUrl: 'https://example.com/avatar.png',
     lastLoginAt: '2026-03-15T06:30:00.000Z',

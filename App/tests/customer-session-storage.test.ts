@@ -22,6 +22,7 @@ test('saveCustomerSessionSnapshot persists a local customer login session', () =
   saveCustomerSessionSnapshot(storage, {
     isLoggedIn: true,
     openIdLikeId: 'local-openid',
+    authTicket: 'ticket-local',
     nickname: '悦时顾客',
     avatarUrl: 'https://example.com/avatar.png',
     lastLoginAt: '2026-03-15T06:30:00.000Z',
@@ -40,6 +41,7 @@ test('clearCustomerSessionSnapshot removes only the stored session state', () =>
   saveCustomerSessionSnapshot(storage, {
     isLoggedIn: true,
     openIdLikeId: 'local-openid',
+    authTicket: 'ticket-local',
     nickname: '悦时顾客',
     avatarUrl: 'https://example.com/avatar.png',
     lastLoginAt: '2026-03-15T06:30:00.000Z',
