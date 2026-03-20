@@ -42,6 +42,28 @@
     </view>
   </view>
 
+  <view class="glass-card customer-profile-scene__section customer-profile-scene__recycle-section">
+    <view class="customer-profile-scene__recycle-head">
+      <view class="customer-profile-scene__recycle-symbol" aria-hidden="true">
+        <view class="customer-profile-scene__recycle-lid"></view>
+        <view class="customer-profile-scene__recycle-body"></view>
+      </view>
+      <view class="customer-profile-scene__recycle-copy">
+        <text class="customer-profile-scene__recycle-title">删除订单</text>
+        <text class="customer-profile-scene__recycle-desc">点击后进入“订单回收站”，查看已删除订单并在 7 天内恢复。</text>
+      </view>
+    </view>
+
+    <t-button
+      theme="primary"
+      block="{{true}}"
+      t-class="customer-profile-scene__recycle-entry-button"
+      bindtap="handleDeletedOrderQueryTap"
+    >
+      进入删除订单
+    </t-button>
+  </view>
+
   <view class="glass-card customer-profile-scene__section">
     <text class="customer-profile-scene__section-title">本地账号说明</text>
     <t-cell-group>

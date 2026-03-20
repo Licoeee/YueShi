@@ -50,6 +50,7 @@ function createStoredOrder(input: {
   status?: OrderRecord['status']
   note?: string
   hasNote?: boolean
+  customerRecycleMeta?: OrderRecord['customerRecycleMeta']
 }): OrderRecord {
   return {
     id: input.id,
@@ -84,6 +85,7 @@ function createStoredOrder(input: {
     },
     note: input.note ?? '',
     hasNote: input.hasNote ?? false,
+    customerRecycleMeta: input.customerRecycleMeta,
     totalAmount: 168,
     createdAt: '2026-03-14T02:30:00.000Z',
     updatedAt: '2026-03-14T02:30:00.000Z',
@@ -144,6 +146,77 @@ test('cancelOrder marks cancellable orders as cancelled', async () => {
 
   assert.equal(updated.status, 'cancelled')
   assert.equal(loadOrderSnapshot(storage)[0]?.status, 'cancelled')
+})
+
+test('deleteOrder only allows cancelled or completed orders', async () => {
+  const storage = createMemoryOrderStorage()
+  saveOrderSnapshot(storage, [createStoredOrder({ id: 'pending-order', status: 'pending-payment' })])
+  const repository = createLocalCustomerOrderRepository(storage)
+
+  await assert.rejects(() => repository.deleteOrder('pending-order'))
+})
+
+test('deleteOrder marks cancelled/completed orders into customer recycle bin', async () => {
+  const storage = createMemoryOrderStorage()
+  saveOrderSnapshot(storage, [
+    createStoredOrder({ id: 'completed-order', status: 'completed' }),
+    createStoredOrder({ id: 'cancelled-order', status: 'cancelled' }),
+  ])
+  const repository = createLocalCustomerOrderRepository(storage)
+
+  const deletedCompleted = await repository.deleteOrder('completed-order')
+  const deletedCancelled = await repository.deleteOrder('cancelled-order')
+  const snapshot = loadOrderSnapshot(storage)
+  const completedOrder = snapshot.find((order) => order.id === 'completed-order')
+  const cancelledOrder = snapshot.find((order) => order.id === 'cancelled-order')
+
+  assert.equal(deletedCompleted.customerRecycleMeta !== undefined, true)
+  assert.equal(deletedCancelled.customerRecycleMeta !== undefined, true)
+  assert.equal(completedOrder?.customerRecycleMeta !== undefined, true)
+  assert.equal(cancelledOrder?.customerRecycleMeta !== undefined, true)
+})
+
+test('restoreDeletedOrder puts order back to active list by clearing recycle meta', async () => {
+  const storage = createMemoryOrderStorage()
+  saveOrderSnapshot(storage, [
+    createStoredOrder({
+      id: 'deleted-order',
+      status: 'completed',
+      customerRecycleMeta: {
+        deletedAt: '2026-03-20T02:30:00.000Z',
+        recoverExpiresAt: '2026-03-27T02:30:00.000Z',
+      },
+    }),
+  ])
+  const repository = createLocalCustomerOrderRepository(storage)
+
+  const restored = await repository.restoreDeletedOrder('deleted-order')
+
+  assert.equal(restored.customerRecycleMeta, undefined)
+  assert.equal(loadOrderSnapshot(storage)[0]?.customerRecycleMeta, undefined)
+})
+
+test('expired deleted orders are cleaned from local snapshot before reads', async () => {
+  const storage = createMemoryOrderStorage()
+  saveOrderSnapshot(storage, [
+    createStoredOrder({
+      id: 'expired-deleted-order',
+      status: 'completed',
+      customerRecycleMeta: {
+        deletedAt: '2026-03-01T02:30:00.000Z',
+        recoverExpiresAt: '2026-03-08T02:30:00.000Z',
+      },
+    }),
+    createStoredOrder({ id: 'active-order', status: 'pending-payment' }),
+  ])
+  const repository = createLocalCustomerOrderRepository(storage)
+
+  const order = await repository.getOrderById('expired-deleted-order')
+  const snapshot = loadOrderSnapshot(storage)
+
+  assert.equal(order, null)
+  assert.equal(snapshot.some((item) => item.id === 'expired-deleted-order'), false)
+  assert.equal(snapshot.some((item) => item.id === 'active-order'), true)
 })
 
 test('canCustomerCancelOrder keeps ready-for-pickup and later statuses locked', () => {

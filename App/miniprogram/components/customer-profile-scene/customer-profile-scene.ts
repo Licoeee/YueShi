@@ -97,6 +97,12 @@ Component({
       })
     },
 
+    handleDeletedOrderQueryTap(): void {
+      wx.navigateTo({
+        url: '/pages/customer/order-recycle/order-recycle',
+      })
+    },
+
     handlePreviewReturnTap(): void {
       this.triggerEvent('sceneaction', {
         action: 'preview-return',

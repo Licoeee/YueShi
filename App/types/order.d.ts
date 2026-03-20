@@ -36,6 +36,11 @@ export interface OrderItem {
   coverImage: string
 }
 
+export interface CustomerOrderRecycleMeta {
+  deletedAt: string
+  recoverExpiresAt: string
+}
+
 export interface OrderRecord {
   id: string
   customerOpenId: string
@@ -46,6 +51,7 @@ export interface OrderRecord {
   pickupSlot: PickupSlot
   note: string
   hasNote: boolean
+  customerRecycleMeta?: CustomerOrderRecycleMeta
   totalAmount: number
   createdAt: string
   updatedAt: string

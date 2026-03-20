@@ -18,6 +18,7 @@ test('order detail page contains note editing and cancel-order sections', () => 
 
   assert.match(wxml, /订单备注/)
   assert.match(wxml, /取消订单/)
+  assert.match(wxml, /删除订单/)
   assert.match(wxml, /order-detail-page__item-cover/)
 })
 
@@ -25,6 +26,16 @@ test('order detail page uses cancellation guard logic for locked statuses', () =
   const source = readWorkspaceFile('App/miniprogram/pages/customer/order-detail/order-detail.ts')
 
   assert.match(source, /canCustomerCancelOrder/)
+})
+
+test('order detail page invokes repository delete flow for terminal statuses', () => {
+  const source = readWorkspaceFile('App/miniprogram/pages/customer/order-detail/order-detail.ts')
+
+  assert.match(source, /canCustomerDeleteOrder/)
+  assert.match(source, /runCustomerAuthorizedAction/)
+  assert.match(source, /deleteOrder\(/)
+  assert.match(source, /请先完成微信登录/)
+  assert.match(source, /order-recycle|orders\/orders/)
 })
 
 test('order detail page keeps a dedicated save-note action', () => {

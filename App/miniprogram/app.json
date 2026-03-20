@@ -7,6 +7,7 @@
     "pages/customer/checkout/checkout",
     "pages/customer/orders/orders",
     "pages/customer/order-detail/order-detail",
+    "pages/customer/order-recycle/order-recycle",
     "pages/customer/profile/profile",
     "pages/customer/settings/settings",
     "pages/merchant/products/products",

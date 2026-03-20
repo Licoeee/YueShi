@@ -1,5 +1,6 @@
 import type { OrderRecord, OrderStatus } from '../../../types/order'
-import { loadStoredCustomerOrders } from '../../utils/customer-order-storage'
+import { splitCustomerOrdersByRecycleState } from '../../utils/customer-order-recycle'
+import { loadStoredCustomerOrders, saveStoredCustomerOrders } from '../../utils/customer-order-storage'
 import { resolveCakeImageUrl } from '../../utils/customer-image-fallback'
 import { formatPickupSlot } from '../../utils/customer-pickup-slot'
 
@@ -136,7 +137,13 @@ Component({
 
   methods: {
     syncOrders(): void {
-      const orders = loadStoredCustomerOrders().map(mapOrderToDisplay)
+      const storedOrders = loadStoredCustomerOrders()
+      const { retainedOrders, activeOrders } = splitCustomerOrdersByRecycleState(storedOrders)
+      if (retainedOrders.length !== storedOrders.length) {
+        saveStoredCustomerOrders(retainedOrders)
+      }
+
+      const orders = activeOrders.map(mapOrderToDisplay)
       this.setData({
         orders,
         visibleOrders: filterOrdersByTab(orders, this.data.activeTab),

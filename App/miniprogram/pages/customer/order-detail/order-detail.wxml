@@ -85,11 +85,20 @@
           class="order-detail-page__action-button order-detail-page__action-button--danger"
           bindtap="handleOpenCancelDialog"
         >取消订单</view>
+        <view
+          wx:if="{{order.status === 'completed' || order.status === 'cancelled'}}"
+          class="order-detail-page__action-button order-detail-page__action-button--danger"
+          bindtap="handleOpenDeleteDialog"
+        >删除订单</view>
       </view>
       <text
         wx:if="{{order.status === 'ready-for-pickup' || order.status === 'completed' || order.status === 'cancelled'}}"
         class="order-detail-page__hint"
       >当前状态已锁定，顾客端不能取消订单。</text>
+      <text
+        wx:if="{{order.status === 'completed' || order.status === 'cancelled'}}"
+        class="order-detail-page__hint"
+      >已删除订单会进入回收站，7 天内可恢复。</text>
     </view>
   </view>
 
@@ -102,5 +111,16 @@
     bind:confirm="handleConfirmCancel"
     bind:cancel="handleCloseCancelDialog"
     bind:close="handleCloseCancelDialog"
+  ></t-dialog>
+
+  <t-dialog
+    visible="{{deleteDialogVisible}}"
+    title="删除订单"
+    content="确认删除这笔订单吗？删除后将进入回收站，7 天内可恢复。"
+    confirmBtn="确认删除"
+    cancelBtn="我再想想"
+    bind:confirm="handleConfirmDelete"
+    bind:cancel="handleCloseDeleteDialog"
+    bind:close="handleCloseDeleteDialog"
   ></t-dialog>
 </view>

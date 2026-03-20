@@ -61,6 +61,14 @@ test('customer orders scene tracks the active tab and derives visible orders', (
   assert.match(source, /handleTabChange\(/)
 })
 
+test('customer orders scene excludes recycle-bin orders from normal tabs', () => {
+  const source = readOrdersSceneFile('ts')
+
+  assert.match(source, /splitCustomerOrdersByRecycleState/)
+  assert.match(source, /activeOrders/)
+  assert.match(source, /saveStoredCustomerOrders/)
+})
+
 test('customer orders scene exposes tappable cards that route to detail', () => {
   const wxml = readOrdersSceneFile('wxml')
 
