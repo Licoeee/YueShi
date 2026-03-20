@@ -4,6 +4,8 @@ import {
   buildCheckoutState,
   removeSubmittedCartItems,
 } from '../../../utils/customer-checkout-state'
+import { runCustomerAuthorizedAction } from '../../../utils/customer-action-gate'
+import { resolveCakeImageUrl } from '../../../utils/customer-image-fallback'
 import {
   buildPickupPickerState,
   formatPickupSlot,
@@ -11,10 +13,18 @@ import {
   type PickupPickerIndexes,
   type PickupPickerState,
 } from '../../../utils/customer-pickup-slot'
+import {
+  loadStoredPhoneHistory,
+  savePhoneToHistory,
+} from '../../../utils/customer-phone-history-storage'
 import { createLocalCustomerOrderRepository } from '../../../utils/customer-order-repository'
 import { loadStoredCustomerCart, saveStoredCustomerCart } from '../../../utils/customer-cart-storage'
 
 const PAYMENT_GUIDE_TEXT = '请在付款时备注手机号后四位，以便商家对账'
+
+interface CheckoutDisplayItem extends CheckoutItemRecord {
+  coverImageUrl: string
+}
 
 interface PickerColumnDetail {
   column?: unknown
@@ -34,15 +44,34 @@ interface InputDetail {
   value?: unknown
 }
 
+interface ActionSheetItem {
+  label: string
+}
+
+interface ActionSheetSelectedDetail {
+  selected?: {
+    label?: unknown
+  }
+}
+
+interface PickupCandidate {
+  pickupDate: Date
+  slot: PickupSlot
+}
+
 interface CheckoutPageData {
   checkoutSource: CheckoutSource
-  checkoutItems: CheckoutItemRecord[]
+  checkoutItems: CheckoutDisplayItem[]
   totalAmount: number
   totalQuantity: number
   phone: string
   phoneError: string
+  phoneHistoryVisible: boolean
+  phoneHistoryItems: ActionSheetItem[]
   pickupError: string
+  pickupWarning: string
   pickupSummary: string
+  submitDisabled: boolean
   pickupPickerVisible: boolean
   pickupPickerState: PickupPickerState
   pickupPickerValue: string[]
@@ -58,18 +87,82 @@ function buildPickerValue(state: PickupPickerState): string[] {
   ]
 }
 
+function resolvePickupCandidate(indexes: PickupPickerIndexes, now: Date): PickupCandidate | null {
+  const pickupPickerState = buildPickupPickerState(now, indexes)
+  const selectedDay = pickupPickerState.dayOptions[pickupPickerState.indexes.dayIndex]
+  const selectedTime = pickupPickerState.timeOptions[pickupPickerState.indexes.timeIndex]
+
+  if (selectedDay === undefined || selectedTime === undefined) {
+    return null
+  }
+
+  const [yearText, monthText, dayText] = selectedDay.value.split('-')
+  const [hourText, minuteText] = selectedTime.value.split(':')
+  const pickupDate = new Date(
+    Number(yearText),
+    Number(monthText) - 1,
+    Number(dayText),
+    Number(hourText),
+    Number(minuteText),
+    0,
+    0,
+  )
+
+  return {
+    pickupDate,
+    slot: {
+      month: Number(monthText),
+      day: Number(dayText),
+      timeLabel: selectedTime.label,
+      isoText: pickupDate.toISOString(),
+    },
+  }
+}
+
+function formatNowText(now: Date): string {
+  return `${now.getFullYear()} 年 ${now.getMonth() + 1} 月 ${now.getDate()} 日 ${String(now.getHours()).padStart(
+    2,
+    '0',
+  )}:${String(now.getMinutes()).padStart(2, '0')}`
+}
+
+function buildPickupWarning(indexes: PickupPickerIndexes, now: Date): string {
+  const candidate = resolvePickupCandidate(indexes, now)
+  if (candidate === null) {
+    return '当前取货时间信息不完整，请重新选择。'
+  }
+
+  if (candidate.pickupDate.getTime() >= now.getTime()) {
+    return ''
+  }
+
+  const currentMonth = now.getMonth() + 1
+  if (candidate.slot.month < currentMonth) {
+    return `当前时间为 ${now.getFullYear()} 年 ${currentMonth} 月，所选月份早于本月。请改选 ${currentMonth} 月及之后的取货日期，避免误选过去时间。`
+  }
+
+  return `当前时间为 ${formatNowText(now)}，所选取货时间已早于当前时间，请重新选择。`
+}
+
+function resolveSubmitDisabled(checkoutItemCount: number, pickupWarning: string): boolean {
+  return checkoutItemCount === 0 || pickupWarning.length > 0
+}
+
 function buildPickupPatch(indexes?: Partial<PickupPickerIndexes>): Pick<
   CheckoutPageData,
-  'pickupPickerState' | 'pickupPickerValue' | 'pickupSummary'
+  'pickupPickerState' | 'pickupPickerValue' | 'pickupSummary' | 'pickupWarning' | 'submitDisabled'
 > {
   const now = new Date()
   const pickupPickerState = buildPickupPickerState(now, indexes)
-  const pickupSlot = resolvePickupSlotFromIndexes(pickupPickerState.indexes, now)
+  const pickupCandidate = resolvePickupCandidate(pickupPickerState.indexes, now)
+  const pickupWarning = buildPickupWarning(pickupPickerState.indexes, now)
 
   return {
     pickupPickerState,
     pickupPickerValue: buildPickerValue(pickupPickerState),
-    pickupSummary: pickupSlot === null ? '请选择取货时间' : formatPickupSlot(pickupSlot),
+    pickupSummary: pickupCandidate === null ? '请选择取货时间' : formatPickupSlot(pickupCandidate.slot),
+    pickupWarning,
+    submitDisabled: pickupWarning.length > 0,
   }
 }
 
@@ -84,6 +177,13 @@ function extractPhone(detail: unknown): string {
   }
 
   return ''
+}
+
+function buildCheckoutDisplayItems(items: CheckoutItemRecord[]): CheckoutDisplayItem[] {
+  return items.map((item) => ({
+    ...item,
+    coverImageUrl: resolveCakeImageUrl(item.coverImage),
+  }))
 }
 
 function isValidPhone(phone: string): boolean {
@@ -128,6 +228,9 @@ Page<
     onShow(): void
     syncCheckout(): void
     handlePhoneChange(event: WechatMiniprogram.CustomEvent<InputDetail>): void
+    handleOpenPhoneHistory(): void
+    handleSelectPhoneHistory(event: WechatMiniprogram.CustomEvent<ActionSheetSelectedDetail>): void
+    handleClosePhoneHistory(): void
     handleOpenPickupPicker(): void
     handlePickupPick(event: WechatMiniprogram.CustomEvent<PickerColumnDetail>): void
     handlePickupConfirm(event: WechatMiniprogram.CustomEvent<PickerConfirmDetail>): void
@@ -143,11 +246,15 @@ Page<
     totalQuantity: 0,
     phone: '',
     phoneError: '',
-    pickupError: '',
-    pickupSummary: '请选择取货时间',
-    pickupPickerVisible: false,
-    pickupPickerState: buildPickupPickerState(new Date()),
-    pickupPickerValue: buildPickerValue(buildPickupPickerState(new Date())),
+  phoneHistoryVisible: false,
+  phoneHistoryItems: [],
+  pickupError: '',
+  pickupWarning: '',
+  pickupSummary: '请选择取货时间',
+  submitDisabled: false,
+  pickupPickerVisible: false,
+  pickupPickerState: buildPickupPickerState(new Date()),
+  pickupPickerValue: buildPickerValue(buildPickupPickerState(new Date())),
     paymentGuideVisible: false,
     paymentGuideText: PAYMENT_GUIDE_TEXT,
   },
@@ -158,13 +265,19 @@ Page<
 
   syncCheckout() {
     const checkoutState = buildCheckoutState(loadStoredCustomerCart())
+    const phoneHistory = loadStoredPhoneHistory()
+    const currentPhone = this.data.phone.trim()
+    const pickupPatch = buildPickupPatch(this.data.pickupPickerState.indexes)
 
     this.setData({
       checkoutSource: checkoutState.source,
-      checkoutItems: checkoutState.items,
+      checkoutItems: buildCheckoutDisplayItems(checkoutState.items),
       totalAmount: checkoutState.totalAmount,
       totalQuantity: checkoutState.totalQuantity,
-      ...buildPickupPatch(this.data.pickupPickerState.indexes),
+      phone: currentPhone.length > 0 ? currentPhone : (phoneHistory[0] ?? ''),
+      phoneHistoryItems: phoneHistory.map((phone) => ({ label: phone })),
+      ...pickupPatch,
+      submitDisabled: resolveSubmitDisabled(checkoutState.items.length, pickupPatch.pickupWarning),
     })
   },
 
@@ -172,6 +285,35 @@ Page<
     this.setData({
       phone: extractPhone(event.detail).trim(),
       phoneError: '',
+    })
+  },
+
+  handleOpenPhoneHistory() {
+    if (this.data.phoneHistoryItems.length === 0) {
+      return
+    }
+
+    this.setData({
+      phoneHistoryVisible: true,
+    })
+  },
+
+  handleSelectPhoneHistory(event) {
+    const selectedPhone = event.detail.selected?.label
+    if (typeof selectedPhone !== 'string') {
+      return
+    }
+
+    this.setData({
+      phone: selectedPhone,
+      phoneError: '',
+      phoneHistoryVisible: false,
+    })
+  },
+
+  handleClosePhoneHistory() {
+    this.setData({
+      phoneHistoryVisible: false,
     })
   },
 
@@ -201,18 +343,22 @@ Page<
       nextIndexes.timeIndex = detail.index
     }
 
+    const pickupPatch = buildPickupPatch(nextIndexes)
     this.setData({
-      ...buildPickupPatch(nextIndexes),
+      ...pickupPatch,
+      submitDisabled: resolveSubmitDisabled(this.data.checkoutItems.length, pickupPatch.pickupWarning),
     })
   },
 
   handlePickupConfirm(event) {
     const nextIndexes = extractIndexesFromConfirm(event.detail, this.data.pickupPickerState.indexes)
 
+    const pickupPatch = buildPickupPatch(nextIndexes)
     this.setData({
       pickupPickerVisible: false,
       pickupError: '',
-      ...buildPickupPatch(nextIndexes),
+      ...pickupPatch,
+      submitDisabled: resolveSubmitDisabled(this.data.checkoutItems.length, pickupPatch.pickupWarning),
     })
   },
 
@@ -223,7 +369,12 @@ Page<
   },
 
   async handleSubmit() {
-    if (this.data.checkoutItems.length === 0) {
+    if (this.data.checkoutItems.length === 0 || this.data.submitDisabled) {
+      if (this.data.pickupWarning.length > 0) {
+        this.setData({
+          pickupError: this.data.pickupWarning,
+        })
+      }
       return
     }
 
@@ -243,25 +394,37 @@ Page<
       return
     }
 
-    const repository = createLocalCustomerOrderRepository(wx)
-    await repository.createDraftOrder({
-      source: this.data.checkoutSource,
-      items: this.data.checkoutItems,
-      contact: {
-        phone,
-      },
-      pickupSlot,
-      totalAmount: this.data.totalAmount,
+    const allowed = await runCustomerAuthorizedAction(async () => {
+      const repository = createLocalCustomerOrderRepository(wx)
+      await repository.createDraftOrder({
+        source: this.data.checkoutSource,
+        items: this.data.checkoutItems,
+        contact: {
+          phone,
+        },
+        pickupSlot,
+        totalAmount: this.data.totalAmount,
+      })
+
+      savePhoneToHistory(wx, phone)
+
+      const nextCartItems = removeSubmittedCartItems(loadStoredCustomerCart(), this.data.checkoutItems)
+      saveStoredCustomerCart(nextCartItems)
+
+      this.setData({
+        paymentGuideVisible: true,
+        phoneError: '',
+        pickupError: '',
+        phoneHistoryItems: loadStoredPhoneHistory().map((historyPhone) => ({ label: historyPhone })),
+      })
     })
 
-    const nextCartItems = removeSubmittedCartItems(loadStoredCustomerCart(), this.data.checkoutItems)
-    saveStoredCustomerCart(nextCartItems)
-
-    this.setData({
-      paymentGuideVisible: true,
-      phoneError: '',
-      pickupError: '',
-    })
+    if (!allowed) {
+      wx.showToast({
+        title: '请先完成微信登录',
+        icon: 'none',
+      })
+    }
   },
 
   handlePaymentGuideConfirm() {

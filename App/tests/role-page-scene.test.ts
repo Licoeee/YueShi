@@ -85,3 +85,37 @@ test('wraps customer scenes with a top safe-area shell to avoid status-bar overl
   assert.match(wxml, /role-page-scene__customer-shell/)
   assert.match(wxss, /padding:\s*calc\(14rpx \+ env\(safe-area-inset-top\) \+ 88rpx\)\s*30rpx\s*0;/)
 })
+
+test('forwards cart delete requests to the page with a bubbling composed sceneaction event', () => {
+  const source = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.ts')
+
+  assert.match(
+    source,
+    /handleChildSceneAction[\s\S]*this\.triggerEvent\(\s*'sceneaction',\s*event\.detail,\s*\{\s*bubbles:\s*true,\s*composed:\s*true,\s*\}\s*\)/,
+  )
+})
+
+test('customer scene host pages keep cart delete dialog handling in scene mode', () => {
+  const homeWxml = readWorkspaceFile('App/miniprogram/pages/customer/home/home.wxml')
+  const ordersWxml = readWorkspaceFile('App/miniprogram/pages/customer/orders/orders.wxml')
+  const profileWxml = readWorkspaceFile('App/miniprogram/pages/customer/profile/profile.wxml')
+  const homeJson = readWorkspaceFile('App/miniprogram/pages/customer/home/home.json')
+  const ordersJson = readWorkspaceFile('App/miniprogram/pages/customer/orders/orders.json')
+  const profileJson = readWorkspaceFile('App/miniprogram/pages/customer/profile/profile.json')
+  const homeTs = readWorkspaceFile('App/miniprogram/pages/customer/home/home.ts')
+  const ordersTs = readWorkspaceFile('App/miniprogram/pages/customer/orders/orders.ts')
+  const profileTs = readWorkspaceFile('App/miniprogram/pages/customer/profile/profile.ts')
+
+  assert.match(homeWxml, /cartRefreshTick="\{\{cartRefreshTick\}\}"/)
+  assert.match(ordersWxml, /cartRefreshTick="\{\{cartRefreshTick\}\}"/)
+  assert.match(profileWxml, /cartRefreshTick="\{\{cartRefreshTick\}\}"/)
+  assert.match(homeWxml, /<t-dialog/)
+  assert.match(ordersWxml, /<t-dialog/)
+  assert.match(profileWxml, /<t-dialog/)
+  assert.match(homeJson, /"t-dialog":\s*"tdesign-miniprogram\/dialog\/dialog"/)
+  assert.match(ordersJson, /"t-dialog":\s*"tdesign-miniprogram\/dialog\/dialog"/)
+  assert.match(profileJson, /"t-dialog":\s*"tdesign-miniprogram\/dialog\/dialog"/)
+  assert.match(homeTs, /request-cart-delete/)
+  assert.match(ordersTs, /request-cart-delete/)
+  assert.match(profileTs, /request-cart-delete/)
+})

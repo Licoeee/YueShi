@@ -47,6 +47,13 @@
   display: flex;
   flex: 1;
   min-width: 0;
+  padding: 4rpx;
+  border-radius: 999rpx;
+}
+
+.customer-orders-scene__tab-item--active {
+  background: linear-gradient(135deg, rgba(255, 236, 227, 0.94) 0%, rgba(255, 244, 240, 0.98) 100%);
+  box-shadow: inset 0 0 0 1px rgba(240, 179, 157, 0.42);
 }
 
 .customer-orders-scene__filter-tag {
@@ -95,9 +102,21 @@
 
 .customer-orders-scene__card-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16rpx;
+}
+
+.customer-orders-scene__cover-shell {
+  flex: none;
+}
+
+.customer-orders-scene__cover {
+  width: 132rpx;
+  height: 132rpx;
+  overflow: hidden;
+  border-radius: 24rpx;
+  background: rgba(255, 245, 242, 0.95);
 }
 
 .customer-orders-scene__tag-stack {
@@ -125,6 +144,12 @@
   color: #76554f;
   font-size: 22rpx;
   line-height: 1.6;
+}
+
+.customer-orders-scene__item-quantity {
+  color: #b06251;
+  font-size: 22rpx;
+  font-weight: 600;
 }
 
 .customer-orders-scene__meta-row {

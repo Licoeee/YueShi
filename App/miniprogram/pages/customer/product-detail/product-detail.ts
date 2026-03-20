@@ -10,6 +10,7 @@ import {
 import { getCakeDetailById } from '../../../utils/customer-cake-catalog'
 import { resolveCakeImageUrl } from '../../../utils/customer-image-fallback'
 import { loadStoredCustomerCart, saveStoredCustomerCart } from '../../../utils/customer-cart-storage'
+import { runCustomerAuthorizedAction } from '../../../utils/customer-action-gate'
 
 interface ProductDetailPageData {
   cake: CakeDetail | null
@@ -164,13 +165,22 @@ Page<
       return
     }
 
-    const cartSnapshot = loadStoredCustomerCart()
-    const result = applySelectionToCart(cartSnapshot, cake, selection, 'cart')
-    saveStoredCustomerCart(result.items)
+    void runCustomerAuthorizedAction(async () => {
+      const cartSnapshot = loadStoredCustomerCart()
+      const result = applySelectionToCart(cartSnapshot, cake, selection, 'cart')
+      saveStoredCustomerCart(result.items)
 
-    wx.showToast({
-      title: '已加入购物车',
-      icon: 'success',
+      wx.showToast({
+        title: '已加入购物车',
+        icon: 'success',
+      })
+    }).then((allowed) => {
+      if (!allowed) {
+        wx.showToast({
+          title: '请先完成微信登录',
+          icon: 'none',
+        })
+      }
     })
   },
 
@@ -181,10 +191,19 @@ Page<
       return
     }
 
-    const cartSnapshot = loadStoredCustomerCart()
-    const result = applySelectionToCart(cartSnapshot, cake, selection, 'buy-now')
-    saveStoredCustomerCart(result.items)
+    void runCustomerAuthorizedAction(async () => {
+      const cartSnapshot = loadStoredCustomerCart()
+      const result = applySelectionToCart(cartSnapshot, cake, selection, 'buy-now')
+      saveStoredCustomerCart(result.items)
 
-    wx.redirectTo({ url: '/pages/customer/checkout/checkout' })
+      wx.redirectTo({ url: '/pages/customer/checkout/checkout' })
+    }).then((allowed) => {
+      if (!allowed) {
+        wx.showToast({
+          title: '请先完成微信登录',
+          icon: 'none',
+        })
+      }
+    })
   },
 })

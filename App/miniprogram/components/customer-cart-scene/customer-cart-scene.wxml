@@ -9,30 +9,76 @@
   </view>
 
   <view class="customer-cart-scene__list" wx:else>
-    <view wx:for="{{items}}" wx:key="id" class="customer-cart-scene__item">
-      <t-checkbox
-        checked="{{item.checked}}"
-        label="{{item.productName}}"
+    <view wx:for="{{items}}" wx:key="id" class="customer-cart-scene__swipe-shell">
+      <view class="customer-cart-scene__swipe-action">
+        <view class="customer-cart-scene__swipe-delete" catchtap="handleSwipeAction" data-item-id="{{item.id}}">
+          <view class="customer-cart-scene__swipe-delete-button">删除</view>
+        </view>
+      </view>
+      <view
+        class="customer-cart-scene__swipe-track"
         data-item-id="{{item.id}}"
-        bind:change="handleItemCheckChange"
-      ></t-checkbox>
-      <view class="customer-cart-scene__meta">
-        <text class="customer-cart-scene__spec">{{item.specLabel}}</text>
-        <text class="customer-cart-scene__price">¥ {{item.totalPrice}} x {{item.quantity}}</text>
+        style="{{item.swipeStyle}}"
+        bindtouchstart="handleItemTouchStart"
+        bindtouchmove="handleItemTouchMove"
+        bindtouchend="handleItemTouchEnd"
+        bindtouchcancel="handleItemTouchCancel"
+        bindtap="handleSwipeContentTap"
+      >
+        <view class="customer-cart-scene__item {{item.checked ? 'customer-cart-scene__item--checked' : ''}}">
+        <view class="customer-cart-scene__select">
+          <view
+            class="customer-cart-scene__select-pill customer-cart-scene__select-pill--{{item.checked ? 'checked' : 'idle'}}"
+            data-item-id="{{item.id}}"
+            catchtap="handleItemCheckChange"
+          >{{item.checked ? '已选' : '未选'}}</view>
+        </view>
+
+        <t-image
+          class="customer-cart-scene__cover"
+          src="{{item.coverImageUrl}}"
+          mode="aspectFill"
+          shape="round"
+          lazy="{{true}}"
+        ></t-image>
+
+        <view class="customer-cart-scene__meta">
+          <text class="customer-cart-scene__name">{{item.productName}}</text>
+          <text class="customer-cart-scene__spec">{{item.specLabel}}</text>
+          <text class="customer-cart-scene__cream">{{item.creamLabel}}</text>
+        </view>
+
+        <view class="customer-cart-scene__price-stack">
+          <text class="customer-cart-scene__price">¥ {{item.totalPrice}}</text>
+          <text class="customer-cart-scene__quantity">x{{item.quantity}}</text>
+        </view>
+      </view>
       </view>
     </view>
 
     <view class="customer-cart-scene__summary">
-      <view class="customer-cart-scene__summary-copy">
-        <text class="customer-cart-scene__summary-label">合计</text>
-        <text class="customer-cart-scene__summary-price">¥ {{checkedAmount}}</text>
+      <view class="customer-cart-scene__summary-main">
+        <view
+          class="customer-cart-scene__summary-toggle customer-cart-scene__summary-toggle--{{allChecked ? 'primary' : 'outline'}}"
+          bindtap="handleToggleAll"
+        >{{allChecked ? '取消' : '全选'}}</view>
+
+        <view class="customer-cart-scene__summary-copy">
+          <view class="customer-cart-scene__summary-price-row">
+            <text class="customer-cart-scene__summary-label">合计</text>
+            <view class="customer-cart-scene__summary-price">
+              <text class="customer-cart-scene__summary-price-currency">¥</text>
+              <text class="customer-cart-scene__summary-price-value {{checkedAmountSizeClass}}">{{checkedAmountText}}</text>
+            </view>
+          </view>
+          <text class="customer-cart-scene__summary-meta">已选 {{checkedCount}} 件蛋糕</text>
+        </view>
       </view>
-      <t-button
-        theme="primary"
-        size="medium"
-        disabled="{{!canCheckout}}"
+
+    <view
+        class="customer-cart-scene__summary-cta customer-cart-scene__summary-cta--{{canCheckout ? 'primary' : 'disabled'}}"
         bindtap="handleCheckout"
-      >去结算</t-button>
+      >去结算</view>
     </view>
   </view>
 </view>

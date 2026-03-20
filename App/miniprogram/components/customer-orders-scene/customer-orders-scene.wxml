@@ -9,7 +9,7 @@
       <view
         wx:for="{{orderTabs}}"
         wx:key="value"
-        class="customer-orders-scene__tab-item"
+        class="customer-orders-scene__tab-item {{activeTab === item.value ? 'customer-orders-scene__tab-item--active' : ''}}"
         data-tab-key="{{item.value}}"
         bindtap="handleTabChange"
       >
@@ -37,12 +37,22 @@
       bindtap="handleOrderTap"
     >
       <view class="customer-orders-scene__card-head">
+        <view class="customer-orders-scene__cover-shell">
+          <t-image
+            class="customer-orders-scene__cover"
+            src="{{item.coverImageUrl}}"
+            mode="aspectFill"
+            shape="round"
+            lazy="{{true}}"
+          ></t-image>
+        </view>
         <view class="customer-orders-scene__card-copy">
           <text class="customer-orders-scene__order-id">订单号 {{item.id}}</text>
           <text class="customer-orders-scene__item-summary">{{item.itemSummary}}</text>
+          <text class="customer-orders-scene__item-quantity">{{item.itemQuantitySummary}}</text>
         </view>
         <view class="customer-orders-scene__tag-stack">
-          <t-tag theme="{{item.status === 'pending-payment' ? 'warning' : 'primary'}}" variant="light">
+          <t-tag theme="{{item.statusTheme}}" variant="light">
             {{item.statusLabel}}
           </t-tag>
           <t-tag wx:if="{{item.hasNote}}" theme="danger" variant="light">有备注</t-tag>

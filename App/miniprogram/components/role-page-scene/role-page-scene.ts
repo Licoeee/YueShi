@@ -1,4 +1,5 @@
 import type { RoleType } from '../../../types/role'
+import type { RoleSceneActionDetail } from '../../utils/role-page-scene-actions'
 import { getRolePageScene, type RolePageScene } from '../../utils/role-page-scenes'
 
 interface RoleSwitchOption {
@@ -7,7 +8,7 @@ interface RoleSwitchOption {
   note: string
 }
 
-type RolePageSceneRenderMode = 'placeholder' | 'customer-home' | 'customer-cart' | 'customer-orders'
+type RolePageSceneRenderMode = 'placeholder' | 'customer-home' | 'customer-cart' | 'customer-orders' | 'customer-profile'
 
 interface RolePageSceneData {
   scene: RolePageScene | null
@@ -43,6 +44,10 @@ Component({
     canBackToAdmin: {
       type: Boolean,
       value: false,
+    },
+    cartRefreshTick: {
+      type: Number,
+      value: 0,
     },
     roleSwitchOptions: {
       type: Array,
@@ -85,6 +90,8 @@ Component({
             ? 'customer-cart'
             : nextScene.path === '/pages/customer/orders/orders'
               ? 'customer-orders'
+            : nextScene.path === '/pages/customer/profile/profile'
+              ? 'customer-profile'
             : 'placeholder'
 
       if (this.data.scene?.path === nextScene.path && this.data.renderMode === renderMode) {
@@ -118,6 +125,13 @@ Component({
     handlePreviewReturnTap(): void {
       this.triggerEvent('sceneaction', {
         action: 'preview-return',
+      })
+    },
+
+    handleChildSceneAction(event: WechatMiniprogram.CustomEvent<RoleSceneActionDetail>): void {
+      this.triggerEvent('sceneaction', event.detail, {
+        bubbles: true,
+        composed: true,
       })
     },
   },

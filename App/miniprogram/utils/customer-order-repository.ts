@@ -4,6 +4,14 @@ import type { ProductSpecSize } from '../../types/product'
 import { getCakeDetailById } from './customer-cake-catalog'
 import { canCustomerCancelOrder } from './customer-order-detail-state'
 import {
+  canCustomerDeleteOrder,
+  canCustomerRestoreDeletedOrder,
+  clearOrderCustomerRecycleMeta,
+  isOrderInCustomerRecycleBin,
+  markOrderAsCustomerDeleted,
+  purgeExpiredDeletedCustomerOrders,
+} from './customer-order-recycle'
+import {
   loadOrderSnapshot,
   saveOrderSnapshot,
   type OrderStorageLike,
@@ -14,6 +22,8 @@ export interface CustomerOrderRepository {
   getOrderById(orderId: string): Promise<OrderRecord | null>
   updateOrderNote(orderId: string, note: string): Promise<OrderRecord>
   cancelOrder(orderId: string): Promise<OrderRecord>
+  deleteOrder(orderId: string): Promise<OrderRecord>
+  restoreDeletedOrder(orderId: string): Promise<OrderRecord>
 }
 
 function resolvePrimarySize(item: CheckoutItemRecord): ProductSpecSize {
@@ -35,6 +45,7 @@ function toOrderItem(item: CheckoutItemRecord): OrderItem {
     layerId: item.layerId,
     sizePlanId: item.sizePlanId,
     creamId: item.creamId,
+    creamLabel: item.creamLabel,
     size: resolvePrimarySize(item),
     quantity: item.quantity,
     unitPrice: item.unitPrice,
@@ -83,7 +94,20 @@ function replaceOrderAtIndex(orders: OrderRecord[], orderIndex: number, nextOrde
   return orders.map((order, index) => (index === orderIndex ? nextOrder : order))
 }
 
-export { canCustomerCancelOrder }
+function loadOrdersWithCleanup(storage: OrderStorageLike): {
+  orders: OrderRecord[]
+  cleaned: boolean
+} {
+  const orders = loadOrderSnapshot(storage)
+  const retainedOrders = purgeExpiredDeletedCustomerOrders(orders)
+
+  return {
+    orders: retainedOrders,
+    cleaned: retainedOrders.length !== orders.length,
+  }
+}
+
+export { canCustomerCancelOrder, canCustomerDeleteOrder }
 
 export function createLocalCustomerOrderRepository(storage: OrderStorageLike): CustomerOrderRepository {
   return {
@@ -108,19 +132,28 @@ export function createLocalCustomerOrderRepository(storage: OrderStorageLike): C
         updatedAt: nowText,
       }
 
-      const previousOrders = loadOrderSnapshot(storage)
+      const { orders: previousOrders } = loadOrdersWithCleanup(storage)
       saveOrderSnapshot(storage, [nextOrder, ...previousOrders])
 
       return nextOrder
     },
 
     async getOrderById(orderId: string): Promise<OrderRecord | null> {
-      return loadOrderSnapshot(storage).find((order) => order.id === orderId) ?? null
+      const { orders, cleaned } = loadOrdersWithCleanup(storage)
+      if (cleaned) {
+        saveOrderSnapshot(storage, orders)
+      }
+
+      return orders.find((order) => order.id === orderId) ?? null
     },
 
     async updateOrderNote(orderId: string, note: string): Promise<OrderRecord> {
-      const orders = loadOrderSnapshot(storage)
+      const { orders } = loadOrdersWithCleanup(storage)
       const { order, index } = getRequiredOrder(orders, orderId)
+      if (isOrderInCustomerRecycleBin(order)) {
+        throw new Error(`Order "${orderId}" has been deleted by customer`)
+      }
+
       const nextNote = note.trim()
       const nextOrder: OrderRecord = {
         ...order,
@@ -134,8 +167,12 @@ export function createLocalCustomerOrderRepository(storage: OrderStorageLike): C
     },
 
     async cancelOrder(orderId: string): Promise<OrderRecord> {
-      const orders = loadOrderSnapshot(storage)
+      const { orders } = loadOrdersWithCleanup(storage)
       const { order, index } = getRequiredOrder(orders, orderId)
+      if (isOrderInCustomerRecycleBin(order)) {
+        throw new Error(`Order "${orderId}" has been deleted by customer`)
+      }
+
       if (!canCustomerCancelOrder(order.status)) {
         throw new Error(`Order "${orderId}" cannot be cancelled by customer`)
       }
@@ -146,6 +183,38 @@ export function createLocalCustomerOrderRepository(storage: OrderStorageLike): C
         updatedAt: new Date().toISOString(),
       }
 
+      saveOrderSnapshot(storage, replaceOrderAtIndex(orders, index, nextOrder))
+      return nextOrder
+    },
+
+    async deleteOrder(orderId: string): Promise<OrderRecord> {
+      const { orders } = loadOrdersWithCleanup(storage)
+      const { order, index } = getRequiredOrder(orders, orderId)
+      if (isOrderInCustomerRecycleBin(order)) {
+        throw new Error(`Order "${orderId}" has already been deleted`)
+      }
+
+      if (!canCustomerDeleteOrder(order.status)) {
+        throw new Error(`Order "${orderId}" cannot be deleted by customer`)
+      }
+
+      const nextOrder = markOrderAsCustomerDeleted(order)
+      saveOrderSnapshot(storage, replaceOrderAtIndex(orders, index, nextOrder))
+      return nextOrder
+    },
+
+    async restoreDeletedOrder(orderId: string): Promise<OrderRecord> {
+      const { orders } = loadOrdersWithCleanup(storage)
+      const { order, index } = getRequiredOrder(orders, orderId)
+      if (!isOrderInCustomerRecycleBin(order)) {
+        throw new Error(`Order "${orderId}" is not in customer recycle bin`)
+      }
+
+      if (!canCustomerRestoreDeletedOrder(order)) {
+        throw new Error(`Order "${orderId}" has exceeded the restore window`)
+      }
+
+      const nextOrder = clearOrderCustomerRecycleMeta(order)
       saveOrderSnapshot(storage, replaceOrderAtIndex(orders, index, nextOrder))
       return nextOrder
     },

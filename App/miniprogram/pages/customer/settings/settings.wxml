@@ -1,0 +1,117 @@
+<view class="settings-page">
+  <view class="settings-page__background"></view>
+
+  <view class="settings-page__content">
+    <view class="glass-card settings-page__hero">
+      <text class="settings-page__eyebrow">SETTINGS</text>
+      <text class="settings-page__title">设置</text>
+      <text class="settings-page__subtitle">当前轮次以本地持久化为主，适合清理购物车、手机号历史和本地订单缓存。</text>
+    </view>
+
+    <view class="glass-card settings-page__section">
+      <text class="settings-page__section-title">登录状态</text>
+      <view class="settings-page__account-card">
+        <view class="settings-page__account-copy">
+          <text class="settings-page__account-label">当前账号</text>
+          <text class="settings-page__account-name">{{session.nickname}}</text>
+          <text class="settings-page__account-desc">{{session.isLoggedIn ? '已完成微信登录，可直接执行加入购物车、去结算和提交订单等关键动作。' : '当前为游客浏览，触发关键动作时会先拉起微信登录。'}}</text>
+        </view>
+        <t-tag theme="{{session.isLoggedIn ? 'primary' : 'default'}}" variant="light">
+          {{session.isLoggedIn ? '已登录' : '游客浏览'}}
+        </t-tag>
+      </view>
+      <t-cell-group>
+        <t-cell
+          title="状态"
+          note="{{session.isLoggedIn ? '已登录' : '未登录'}}"
+          description="{{session.lastLoginAt || '暂无登录时间'}}"
+          t-class-title="app-interactive-text"
+          t-class-note="settings-page__cell-note"
+        ></t-cell>
+      </t-cell-group>
+    </view>
+
+    <view class="glass-card settings-page__section">
+      <text class="settings-page__section-title">本地缓存</text>
+      <view class="settings-page__action-card">
+        <view class="settings-page__action-copy">
+          <text class="settings-page__action-title">清理购物车</text>
+          <text class="settings-page__action-desc">当前共 {{cartCount}} 件，清理后结算页会同步清空。</text>
+        </view>
+        <view
+          class="settings-page__action-button settings-page__action-button--outline"
+          data-target="cart"
+          bindtap="handleOpenClearDialog"
+        >清理购物车</view>
+      </view>
+      <view class="settings-page__action-card">
+        <view class="settings-page__action-copy">
+          <text class="settings-page__action-title">本地订单</text>
+          <text class="settings-page__action-desc">当前共 {{orderCount}} 笔，本地订单删除后订单页和备注页会同步清空。</text>
+        </view>
+        <view
+          class="settings-page__action-button settings-page__action-button--danger"
+          data-target="orders"
+          bindtap="handleOpenClearDialog"
+        >清理订单缓存</view>
+      </view>
+    </view>
+
+    <view class="glass-card settings-page__section">
+      <view class="settings-page__section-head">
+        <text class="settings-page__section-title">手机号历史</text>
+        <view
+          class="settings-page__action-button settings-page__action-button--outline"
+          data-target="phones"
+          bindtap="handleOpenClearDialog"
+        >清空全部</view>
+      </view>
+
+      <view class="settings-page__empty" wx:if="{{phoneHistory.length === 0}}">
+        <text class="settings-page__empty-text">暂无历史手机号，提交订单后会自动沉淀到这里。</text>
+      </view>
+
+      <view wx:else class="settings-page__history-list">
+        <view wx:for="{{phoneHistory}}" wx:key="*this" class="settings-page__history-item">
+          <text class="settings-page__history-phone">{{item}}</text>
+          <view
+            class="settings-page__action-button settings-page__action-button--ghost"
+            data-phone="{{item}}"
+            bindtap="handleRemovePhone"
+          >移除</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="glass-card settings-page__section">
+      <text class="settings-page__section-title">基础说明</text>
+      <t-cell-group>
+        <t-cell
+          title="前端闭环"
+          note="本轮"
+          description="顾客端当前只保证本机可用，不直接接入多端云端联动。"
+          t-class-title="app-interactive-text"
+          t-class-note="settings-page__cell-note"
+        ></t-cell>
+        <t-cell
+          title="搜索 ID"
+          note="待后置"
+          description="依赖多端商品 ID 统一，本轮只保留文档与 TODO，不提前实现。"
+          t-class-title="app-interactive-text"
+          t-class-note="settings-page__cell-note"
+        ></t-cell>
+      </t-cell-group>
+    </view>
+  </view>
+
+  <t-dialog
+    visible="{{clearDialogVisible}}"
+    title="{{clearDialogTitle}}"
+    content="{{clearDialogContent}}"
+    confirmBtn="确认"
+    cancelBtn="取消"
+    bind:confirm="handleConfirmClear"
+    bind:cancel="handleCloseClearDialog"
+    bind:close="handleCloseClearDialog"
+  ></t-dialog>
+</view>

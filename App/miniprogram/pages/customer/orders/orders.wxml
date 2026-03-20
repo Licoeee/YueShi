@@ -8,6 +8,7 @@
       activeRole="{{activeRole}}"
       isPreviewMode="{{isPreviewMode}}"
       canBackToAdmin="{{canBackToAdmin}}"
+      cartRefreshTick="{{cartRefreshTick}}"
       bind:sceneaction="handleSceneAction"
     ></role-page-scene>
   </view>
@@ -19,3 +20,14 @@
     bind:tabchange="handleTabChange"
   ></custom-tab-bar>
 </view>
+
+<t-dialog
+  visible="{{deleteDialogVisible}}"
+  title="删除商品"
+  content="确认从购物车删除这件蛋糕吗？删除后需要重新选择规格才能再次加入。"
+  confirmBtn="确认删除"
+  cancelBtn="我再想想"
+  bind:confirm="handleConfirmDelete"
+  bind:cancel="handleCloseDeleteDialog"
+  bind:close="handleCloseDeleteDialog"
+></t-dialog>

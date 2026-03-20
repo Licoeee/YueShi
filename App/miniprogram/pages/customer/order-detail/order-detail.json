@@ -3,6 +3,7 @@
   "usingComponents": {
     "t-button": "tdesign-miniprogram/button/button",
     "t-dialog": "tdesign-miniprogram/dialog/dialog",
+    "t-image": "tdesign-miniprogram/image/image",
     "t-tag": "tdesign-miniprogram/tag/tag",
     "t-textarea": "tdesign-miniprogram/textarea/textarea"
   }

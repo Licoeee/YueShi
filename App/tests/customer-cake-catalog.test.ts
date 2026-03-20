@@ -43,3 +43,15 @@ test('keeps customer cake media sources package-local to avoid unstable network 
     })
   })
 })
+
+test('keeps customer cream options aligned to the fixed checkout vocabulary', () => {
+  const cakes = resolveCakeFeed({ keyword: '', sortMode: 'sales-desc' })
+  const expectedLabels = ['乳脂奶油', '动物奶油', '裸蛋糕']
+
+  cakes.forEach((cake) => {
+    assert.deepEqual(
+      cake.creamOptions.map((option) => option.label),
+      expectedLabels,
+    )
+  })
+})

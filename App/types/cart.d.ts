@@ -11,6 +11,8 @@ export interface CartItemRecord {
   productId: string
   productName: string
   coverImage: string
+  specLabel: string
+  creamLabel: string
   quantity: number
   unitPrice: number
   totalPrice: number

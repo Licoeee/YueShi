@@ -4,6 +4,7 @@ import { createRolePreviewSession, getRoleEntryPath } from './role-routing'
 export interface RoleSceneActionDetail {
   action?: unknown
   role?: unknown
+  itemId?: unknown
 }
 
 export function parseRoleType(rawValue: unknown): RoleType | null {
