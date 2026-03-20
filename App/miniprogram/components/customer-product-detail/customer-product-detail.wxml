@@ -1,0 +1,150 @@
+<view class="customer-product-detail" wx:if="{{cake && selection}}">
+  <view class="customer-product-detail__hero">
+    <view
+      class="customer-product-detail__hero-image"
+      data-image-url="{{cake.coverImage || fallbackImage}}"
+      bindtap="handlePreviewImage"
+    >
+      <t-image
+        class="customer-product-detail__cover"
+        src="{{cake.coverImage || fallbackImage}}"
+        mode="aspectFill"
+        shape="round"
+        lazy="{{true}}"
+      ></t-image>
+    </view>
+
+    <view class="customer-product-detail__hero-body">
+      <text class="customer-product-detail__eyebrow">Cake Detail</text>
+      <text class="customer-product-detail__title">{{cake.title}}</text>
+      <text class="customer-product-detail__description">{{cake.description}}</text>
+      <view class="customer-product-detail__price-row">
+        <text class="customer-product-detail__price">¥ {{currentPrice}}</text>
+        <t-tag theme="primary" variant="light">本地加购预览</t-tag>
+      </view>
+    </view>
+  </view>
+
+  <view class="customer-product-detail__section">
+    <text class="customer-product-detail__section-title">层数</text>
+    <view class="customer-product-detail__chips">
+      <view
+        wx:for="{{cake.layerOptions}}"
+        wx:key="id"
+        class="customer-product-detail__chip {{selection.layerId === item.id ? 'customer-product-detail__chip--active' : ''}}"
+        data-layer-id="{{item.id}}"
+        bindtap="handleLayerChange"
+      >
+        <t-tag theme="{{selection.layerId === item.id ? 'primary' : 'default'}}" variant="light">
+          {{item.label}}
+        </t-tag>
+        <text class="customer-product-detail__chip-meta">{{item.layers}} 层</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="customer-product-detail__section">
+    <text class="customer-product-detail__section-title">
+      {{selection.layerId === 'single' ? '尺寸' : '尺寸搭配'}}
+    </text>
+    <view class="customer-product-detail__chips">
+      <view
+        wx:for="{{selectableSizePlans}}"
+        wx:key="id"
+        class="customer-product-detail__chip {{selection.sizePlanId === item.id ? 'customer-product-detail__chip--active' : ''}}"
+        data-size-plan-id="{{item.id}}"
+        bindtap="handleSizePlanChange"
+      >
+        <t-tag theme="{{selection.sizePlanId === item.id ? 'primary' : 'default'}}" variant="light">
+          {{item.label}}
+        </t-tag>
+        <text class="customer-product-detail__chip-meta">¥ {{item.price}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="customer-product-detail__section">
+    <text class="customer-product-detail__section-title">奶油类型</text>
+    <view class="customer-product-detail__chips">
+      <view
+        wx:for="{{cake.creamOptions}}"
+        wx:key="id"
+        class="customer-product-detail__chip {{selection.creamId === item.id ? 'customer-product-detail__chip--active' : ''}}"
+        data-cream-id="{{item.id}}"
+        bindtap="handleCreamChange"
+      >
+        <t-tag theme="{{selection.creamId === item.id ? 'primary' : 'default'}}" variant="light">
+          {{item.label}}
+        </t-tag>
+        <text class="customer-product-detail__chip-meta">
+          {{item.priceDelta === 0 ? '不加价' : ('+' + item.priceDelta + ' 元')}}
+        </text>
+      </view>
+    </view>
+  </view>
+
+  <view class="customer-product-detail__section">
+    <text class="customer-product-detail__section-title">详情图</text>
+    <view
+      wx:for="{{cake.detailImages}}"
+      wx:key="url"
+      class="customer-product-detail__detail-image"
+      data-image-url="{{item.url || fallbackImage}}"
+      bindtap="handlePreviewImage"
+    >
+      <t-image
+        class="customer-product-detail__detail-media"
+        src="{{item.url || fallbackImage}}"
+        mode="widthFix"
+        shape="round"
+        lazy="{{true}}"
+      ></t-image>
+    </view>
+  </view>
+
+  <!-- 底栏：左侧导航 + 右侧操作 -->
+  <view class="customer-product-detail__footer">
+    <view class="customer-product-detail__footer-nav-group">
+      <view class="customer-product-detail__nav-cell" bindtap="handleGoHome">
+        <t-image
+          class="customer-product-detail__nav-icon-image"
+          src="/assets/icons/tab/home-inactive.svg"
+          mode="aspectFit"
+          shape="square"
+          lazy="{{false}}"
+        ></t-image>
+        <text class="customer-product-detail__nav-label">{{homeLabel}}</text>
+      </view>
+      <view class="customer-product-detail__nav-cell" bindtap="handleGoCart">
+        <t-image
+          class="customer-product-detail__nav-icon-image"
+          src="/assets/icons/tab/cart-inactive.svg"
+          mode="aspectFit"
+          shape="square"
+          lazy="{{false}}"
+        ></t-image>
+        <text class="customer-product-detail__nav-label">{{cartLabel}}</text>
+      </view>
+    </view>
+
+    <view class="customer-product-detail__footer-action-group">
+      <t-button
+        class="customer-product-detail__action-host"
+        t-class="customer-product-detail__action-btn customer-product-detail__action-btn--ghost"
+        theme="default"
+        variant="outline"
+        size="medium"
+        block="{{true}}"
+        bindtap="handleAddToCart"
+      >{{addCartLabel}}</t-button>
+      <t-button
+        class="customer-product-detail__action-host"
+        t-class="customer-product-detail__action-btn customer-product-detail__action-btn--primary"
+        theme="primary"
+        size="medium"
+        block="{{true}}"
+        bindtap="handleBuyNow"
+      >{{buyNowLabel}}</t-button>
+    </view>
+  </view>
+</view>

@@ -25,10 +25,20 @@ export interface OrderItem {
   productId: string
   productName: string
   specId: string
+  specLabel: string
+  layerId: string
+  sizePlanId: string
+  creamId: string
+  creamLabel: string
   size: ProductSpecSize
   quantity: number
   unitPrice: number
   coverImage: string
+}
+
+export interface CustomerOrderRecycleMeta {
+  deletedAt: string
+  recoverExpiresAt: string
 }
 
 export interface OrderRecord {
@@ -41,6 +51,7 @@ export interface OrderRecord {
   pickupSlot: PickupSlot
   note: string
   hasNote: boolean
+  customerRecycleMeta?: CustomerOrderRecycleMeta
   totalAmount: number
   createdAt: string
   updatedAt: string

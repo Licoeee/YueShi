@@ -1,0 +1,126 @@
+<view class="order-detail-page" wx:if="{{order}}">
+  <view class="order-detail-page__background"></view>
+
+  <view class="order-detail-page__content">
+    <view class="glass-card order-detail-page__hero">
+      <view class="order-detail-page__hero-head">
+        <view class="order-detail-page__hero-copy">
+          <text class="order-detail-page__eyebrow">ORDER DETAIL</text>
+          <text class="order-detail-page__title">订单详情</text>
+          <view class="order-detail-page__order-id-row">
+            <text class="order-detail-page__order-id-label">订单号</text>
+            <text class="order-detail-page__order-id-value">{{order.id}}</text>
+          </view>
+        </view>
+        <t-tag theme="{{statusTheme}}" variant="light">{{statusLabel}}</t-tag>
+      </view>
+      <text class="order-detail-page__subtitle">取货时间：{{pickupSummary}}</text>
+      <text class="order-detail-page__subtitle">联系电话：{{order.contact.phone}}</text>
+    </view>
+
+    <view class="glass-card order-detail-page__section">
+      <text class="order-detail-page__section-title">商品清单</text>
+      <view wx:for="{{order.items}}" wx:key="specId" class="order-detail-page__item">
+        <t-image
+          class="order-detail-page__item-cover"
+          src="{{item.coverImage}}"
+          mode="aspectFill"
+          shape="round"
+          lazy="{{true}}"
+        ></t-image>
+        <view class="order-detail-page__item-copy">
+          <text class="order-detail-page__item-name">{{item.productName}}</text>
+          <text class="order-detail-page__item-spec">{{item.specLabel}}</text>
+          <text class="order-detail-page__item-cream">{{item.creamLabel}}</text>
+        </view>
+        <view class="order-detail-page__item-side">
+          <t-tag theme="primary" variant="light">x{{item.quantity}}</t-tag>
+          <text class="order-detail-page__item-price">¥ {{item.unitPrice}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="glass-card order-detail-page__section">
+      <view class="order-detail-page__section-head">
+        <text class="order-detail-page__section-title">订单备注</text>
+      </view>
+
+      <view wx:if="{{isEditingNote}}">
+        <t-textarea
+          value="{{noteDraft}}"
+          maxlength="120"
+          indicator="{{true}}"
+          placeholder="例如：蜡烛数量、生日牌称呼、取货提醒"
+          bind:change="handleNoteInput"
+        ></t-textarea>
+        <view class="order-detail-page__note-actions">
+          <view
+            class="order-detail-page__action-button order-detail-page__action-button--ghost"
+            bindtap="handleCancelEdit"
+          >取消</view>
+          <view
+            class="order-detail-page__action-button order-detail-page__action-button--primary"
+            bindtap="handleSaveNote"
+          >保存备注</view>
+        </view>
+      </view>
+
+      <text wx:else class="order-detail-page__note-text">{{order.note || '暂无备注'}}</text>
+    </view>
+
+    <view class="glass-card order-detail-page__section" wx:if="{{order}}">
+      <view class="order-detail-page__section-head">
+        <text class="order-detail-page__section-title">订单操作</text>
+        <t-tag theme="{{order.hasNote ? 'primary' : 'default'}}" variant="light">
+          {{order.hasNote ? '已记录备注' : '可继续补充备注'}}
+        </t-tag>
+      </view>
+      <view class="order-detail-page__action-row">
+        <view
+          class="order-detail-page__action-button order-detail-page__action-button--outline"
+          bindtap="handleEditNote"
+        >编辑备注</view>
+        <view
+          wx:if="{{order.status !== 'ready-for-pickup' && order.status !== 'completed' && order.status !== 'cancelled'}}"
+          class="order-detail-page__action-button order-detail-page__action-button--danger"
+          bindtap="handleOpenCancelDialog"
+        >取消订单</view>
+        <view
+          wx:if="{{order.status === 'completed' || order.status === 'cancelled'}}"
+          class="order-detail-page__action-button order-detail-page__action-button--danger"
+          bindtap="handleOpenDeleteDialog"
+        >删除订单</view>
+      </view>
+      <text
+        wx:if="{{order.status === 'ready-for-pickup' || order.status === 'completed' || order.status === 'cancelled'}}"
+        class="order-detail-page__hint"
+      >当前状态已锁定，顾客端不能取消订单。</text>
+      <text
+        wx:if="{{order.status === 'completed' || order.status === 'cancelled'}}"
+        class="order-detail-page__hint"
+      >已删除订单会进入回收站，7 天内可恢复。</text>
+    </view>
+  </view>
+
+  <t-dialog
+    visible="{{cancelDialogVisible}}"
+    title="取消订单"
+    content="确认取消这笔订单吗？取消后会同步更新本地订单状态。"
+    confirmBtn="确认取消"
+    cancelBtn="我再想想"
+    bind:confirm="handleConfirmCancel"
+    bind:cancel="handleCloseCancelDialog"
+    bind:close="handleCloseCancelDialog"
+  ></t-dialog>
+
+  <t-dialog
+    visible="{{deleteDialogVisible}}"
+    title="删除订单"
+    content="确认删除这笔订单吗？删除后将进入回收站，7 天内可恢复。"
+    confirmBtn="确认删除"
+    cancelBtn="我再想想"
+    bind:confirm="handleConfirmDelete"
+    bind:cancel="handleCloseDeleteDialog"
+    bind:close="handleCloseDeleteDialog"
+  ></t-dialog>
+</view>

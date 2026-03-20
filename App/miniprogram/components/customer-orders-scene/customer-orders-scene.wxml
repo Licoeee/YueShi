@@ -1,0 +1,72 @@
+<view class="customer-orders-scene">
+  <view class="customer-orders-scene__hero">
+    <text class="customer-orders-scene__title">我的订单</text>
+    <text class="customer-orders-scene__subtitle">按进度查看待确认、制作、取货和已完成订单</text>
+  </view>
+
+  <view class="customer-orders-scene__tabs-shell">
+    <view class="customer-orders-scene__tab-list">
+      <view
+        wx:for="{{orderTabs}}"
+        wx:key="value"
+        class="customer-orders-scene__tab-item {{activeTab === item.value ? 'customer-orders-scene__tab-item--active' : ''}}"
+        data-tab-key="{{item.value}}"
+        bindtap="handleTabChange"
+      >
+        <t-tag
+          t-class="customer-orders-scene__filter-tag"
+          theme="{{activeTab === item.value ? 'primary' : 'default'}}"
+          variant="light"
+        >
+          {{item.label}}
+        </t-tag>
+      </view>
+    </view>
+  </view>
+
+  <view class="customer-orders-scene__empty" wx:if="{{visibleOrders.length === 0}}">
+    <t-empty description="暂无订单，先去挑一块蛋糕吧"></t-empty>
+  </view>
+
+  <view class="customer-orders-scene__list" wx:else>
+    <view
+      wx:for="{{visibleOrders}}"
+      wx:key="id"
+      class="customer-orders-scene__card {{item.hasNote ? 'customer-orders-scene__card--noted' : ''}}"
+      data-order-id="{{item.id}}"
+      bindtap="handleOrderTap"
+    >
+      <view class="customer-orders-scene__card-head">
+        <view class="customer-orders-scene__cover-shell">
+          <t-image
+            class="customer-orders-scene__cover"
+            src="{{item.coverImageUrl}}"
+            mode="aspectFill"
+            shape="round"
+            lazy="{{true}}"
+          ></t-image>
+        </view>
+        <view class="customer-orders-scene__card-copy">
+          <text class="customer-orders-scene__order-id">订单号 {{item.id}}</text>
+          <text class="customer-orders-scene__item-summary">{{item.itemSummary}}</text>
+          <text class="customer-orders-scene__item-quantity">{{item.itemQuantitySummary}}</text>
+        </view>
+        <view class="customer-orders-scene__tag-stack">
+          <t-tag theme="{{item.statusTheme}}" variant="light">
+            {{item.statusLabel}}
+          </t-tag>
+          <t-tag wx:if="{{item.hasNote}}" theme="danger" variant="light">有备注</t-tag>
+        </view>
+      </view>
+
+      <view class="customer-orders-scene__meta-row">
+        <text class="customer-orders-scene__meta-label">取货时间</text>
+        <text class="customer-orders-scene__meta-value">{{item.pickupSummary}}</text>
+      </view>
+      <view class="customer-orders-scene__meta-row">
+        <text class="customer-orders-scene__meta-label">合计金额</text>
+        <text class="customer-orders-scene__meta-value">¥ {{item.totalAmount}}</text>
+      </view>
+    </view>
+  </view>
+</view>

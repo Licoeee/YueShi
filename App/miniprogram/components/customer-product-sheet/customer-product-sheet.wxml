@@ -1,0 +1,54 @@
+<view class="customer-product-sheet" wx:if="{{visible && cake}}">
+  <view class="customer-product-sheet__mask" bindtap="handleMaskTap"></view>
+  <view
+    class="customer-product-sheet__panel"
+    bindtouchstart="handleTouchStart"
+    bindtouchend="handleTouchEnd"
+  >
+    <view class="customer-product-sheet__handle"></view>
+    <view class="customer-product-sheet__heading">
+      <text class="customer-product-sheet__eyebrow">Cake Preview</text>
+      <text class="customer-product-sheet__title">{{cake.title}}</text>
+      <text class="customer-product-sheet__description">{{cake.description}}</text>
+    </view>
+
+    <view class="customer-product-sheet__gallery" wx:if="{{imageUrls.length > 0}}">
+      <view
+        class="customer-product-sheet__gallery-main"
+        data-image-url="{{imageUrls[0]}}"
+        bindtap="handlePreviewImage"
+      >
+        <t-image
+          class="customer-product-sheet__gallery-image"
+          src="{{imageUrls[0]}}"
+          mode="aspectFill"
+          shape="round"
+          lazy="{{true}}"
+        ></t-image>
+      </view>
+      <view class="customer-product-sheet__gallery-grid">
+        <view
+          wx:for="{{imageUrls}}"
+          wx:key="*this"
+          class="customer-product-sheet__gallery-sub {{index === 0 ? 'customer-product-sheet__gallery-sub--hidden' : ''}}"
+          data-image-url="{{item}}"
+          bindtap="handlePreviewImage"
+        >
+          <t-image
+            class="customer-product-sheet__gallery-image"
+            src="{{item}}"
+            mode="aspectFill"
+            shape="round"
+            lazy="{{true}}"
+          ></t-image>
+          <text class="customer-product-sheet__zoom-tip" wx:if="{{index > 0}}">点击查看</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="customer-product-sheet__hint">
+      <t-tag theme="primary" variant="light">展示态</t-tag>
+      <text class="customer-product-sheet__hint-text">支持详情图放大查看，在详情区域继续上滑进入完整详情页</text>
+    </view>
+  </view>
+</view>

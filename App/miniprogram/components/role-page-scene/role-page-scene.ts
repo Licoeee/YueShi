@@ -1,4 +1,5 @@
 import type { RoleType } from '../../../types/role'
+import type { RoleSceneActionDetail } from '../../utils/role-page-scene-actions'
 import { getRolePageScene, type RolePageScene } from '../../utils/role-page-scenes'
 
 interface RoleSwitchOption {
@@ -7,8 +8,11 @@ interface RoleSwitchOption {
   note: string
 }
 
+type RolePageSceneRenderMode = 'placeholder' | 'customer-home' | 'customer-cart' | 'customer-orders' | 'customer-profile'
+
 interface RolePageSceneData {
   scene: RolePageScene | null
+  renderMode: RolePageSceneRenderMode
 }
 
 function parseRoleType(rawValue: unknown): RoleType | null {
@@ -41,6 +45,10 @@ Component({
       type: Boolean,
       value: false,
     },
+    cartRefreshTick: {
+      type: Number,
+      value: 0,
+    },
     roleSwitchOptions: {
       type: Array,
       value: [],
@@ -49,6 +57,7 @@ Component({
 
   data: {
     scene: null,
+    renderMode: 'placeholder',
   } as RolePageSceneData,
 
   observers: {
@@ -74,11 +83,25 @@ Component({
       }
 
       const nextScene = getRolePageScene(scenePath)
-      if (this.data.scene?.path === nextScene.path) {
+      const renderMode: RolePageSceneRenderMode =
+        nextScene.path === '/pages/customer/home/home'
+          ? 'customer-home'
+          : nextScene.path === '/pages/customer/cart/cart'
+            ? 'customer-cart'
+            : nextScene.path === '/pages/customer/orders/orders'
+              ? 'customer-orders'
+            : nextScene.path === '/pages/customer/profile/profile'
+              ? 'customer-profile'
+            : 'placeholder'
+
+      if (this.data.scene?.path === nextScene.path && this.data.renderMode === renderMode) {
         return
       }
 
-      this.setData({ scene: nextScene })
+      this.setData({
+        scene: nextScene,
+        renderMode,
+      })
     },
 
     getRoleSwitchOptions(): RoleSwitchOption[] {
@@ -102,6 +125,13 @@ Component({
     handlePreviewReturnTap(): void {
       this.triggerEvent('sceneaction', {
         action: 'preview-return',
+      })
+    },
+
+    handleChildSceneAction(event: WechatMiniprogram.CustomEvent<RoleSceneActionDetail>): void {
+      this.triggerEvent('sceneaction', event.detail, {
+        bubbles: true,
+        composed: true,
       })
     },
   },

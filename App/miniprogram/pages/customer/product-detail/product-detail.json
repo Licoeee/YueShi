@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "蛋糕详情",
+  "usingComponents": {
+    "customer-product-detail": "/components/customer-product-detail/customer-product-detail"
+  }
+}

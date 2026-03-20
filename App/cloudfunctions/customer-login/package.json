@@ -1,0 +1,10 @@
+{
+  "name": "customer-login",
+  "version": "1.0.0",
+  "description": "YueShi customer real login handshake function",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "^3.0.1"
+  }
+}
