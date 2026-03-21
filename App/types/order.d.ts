@@ -41,6 +41,13 @@ export interface CustomerOrderRecycleMeta {
   recoverExpiresAt: string
 }
 
+export type MerchantOrderRecycleSource = 'manual' | 'auto-cleanup' | 'instant-clear'
+
+export interface MerchantOrderRecycleMeta {
+  deletedAt: string
+  source: MerchantOrderRecycleSource
+}
+
 export interface OrderRecord {
   id: string
   customerOpenId: string
@@ -52,6 +59,7 @@ export interface OrderRecord {
   note: string
   hasNote: boolean
   customerRecycleMeta?: CustomerOrderRecycleMeta
+  merchantRecycleMeta?: MerchantOrderRecycleMeta
   totalAmount: number
   createdAt: string
   updatedAt: string

@@ -1,0 +1,125 @@
+<view class="merchant-order-recycle-page">
+  <view class="merchant-order-recycle-page__background"></view>
+
+  <view class="merchant-order-recycle-page__content">
+    <view class="glass-card merchant-order-recycle-page__hero">
+      <view class="merchant-order-recycle-page__hero-head">
+        <view class="merchant-order-recycle-page__hero-copy">
+          <text class="merchant-order-recycle-page__title">订单回收站</text>
+          <view class="merchant-order-recycle-page__hero-tags">
+            <t-tag theme="warning" variant="light">当前 {{recycleOrders.length}} 条</t-tag>
+            <t-tag theme="default" variant="light">支持恢复</t-tag>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="merchant-order-recycle-page__clear-action">
+      <t-button
+        size="small"
+        theme="primary"
+        t-class="merchant-button-token merchant-button-token--primary merchant-order-recycle-page__clear-btn"
+        bindtap="handleClearRecycle"
+      >
+        清空回收站
+      </t-button>
+    </view>
+
+    <view class="merchant-order-recycle-page__empty" wx:if="{{recycleOrders.length === 0}}">
+      <t-empty description="暂无回收站订单"></t-empty>
+    </view>
+
+    <view class="merchant-order-recycle-page__list" wx:else>
+      <view wx:for="{{recycleOrders}}" wx:key="id" class="merchant-order-recycle-page__card">
+        <view class="merchant-order-recycle-page__card-head">
+          <view class="merchant-order-recycle-page__cover-shell">
+            <t-image
+              class="merchant-order-recycle-page__cover"
+              src="{{item.coverImageUrl}}"
+              mode="aspectFill"
+              shape="round"
+              lazy="{{true}}"
+            ></t-image>
+          </view>
+
+          <view class="merchant-order-recycle-page__card-copy">
+            <text class="merchant-order-recycle-page__order-id">订单号 {{item.id}}</text>
+            <text class="merchant-order-recycle-page__item-summary">{{item.itemSummary}}</text>
+            <text class="merchant-order-recycle-page__item-quantity">{{item.itemQuantitySummary}}</text>
+          </view>
+
+          <view class="merchant-order-recycle-page__tag-stack">
+            <t-tag theme="warning" variant="light">{{item.sourceLabel}}</t-tag>
+          </view>
+        </view>
+
+        <view class="merchant-order-recycle-page__meta-row">
+          <text class="merchant-order-recycle-page__meta-label">删除时间</text>
+          <text class="merchant-order-recycle-page__meta-value">{{item.deletedAtLabel}}</text>
+        </view>
+        <view class="merchant-order-recycle-page__meta-row">
+          <text class="merchant-order-recycle-page__meta-label">取货时间</text>
+          <text class="merchant-order-recycle-page__meta-value">{{item.pickupSummary}}</text>
+        </view>
+        <view class="merchant-order-recycle-page__meta-row">
+          <text class="merchant-order-recycle-page__meta-label">订单金额</text>
+          <text class="merchant-order-recycle-page__meta-value">¥{{item.totalAmount}}</text>
+        </view>
+
+        <view class="merchant-order-recycle-page__actions">
+          <t-button
+            size="small"
+            theme="primary"
+            t-class="merchant-button-token merchant-button-token--primary merchant-order-recycle-page__action-btn"
+            data-order-id="{{item.id}}"
+            bindtap="handleRestoreOrder"
+          >
+            恢复订单
+          </t-button>
+          <t-button
+            size="small"
+            theme="danger"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--danger merchant-order-recycle-page__action-btn"
+            data-order-id="{{item.id}}"
+            bindtap="handleDeleteOrderPermanently"
+          >
+            彻底删除
+          </t-button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <root-portal enable="{{true}}">
+    <t-popup visible="{{confirmDialogVisible}}" placement="center" bind:visible-change="handleConfirmDialogVisibleChange">
+      <view class="merchant-order-recycle-page__dialog-shell">
+        <view class="merchant-order-recycle-page__dialog-head">
+          <text class="merchant-order-recycle-page__dialog-title">{{confirmDialogTitle}}</text>
+          <text class="merchant-order-recycle-page__dialog-copy">{{confirmDialogContent}}</text>
+        </view>
+
+        <view class="merchant-order-recycle-page__dialog-actions">
+          <t-button
+            size="small"
+            theme="default"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--outline merchant-order-recycle-page__dialog-btn"
+            bindtap="handleCloseConfirmDialog"
+          >
+            取消
+          </t-button>
+          <t-button
+            size="small"
+            theme="danger"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--danger merchant-order-recycle-page__dialog-btn"
+            bindtap="handleConfirmDialog"
+          >
+            {{confirmDialogConfirmText}}
+          </t-button>
+        </view>
+      </view>
+    </t-popup>
+  </root-portal>
+</view>

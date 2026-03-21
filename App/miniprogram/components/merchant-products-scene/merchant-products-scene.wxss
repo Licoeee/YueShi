@@ -1,0 +1,666 @@
+@import "../../styles/merchant-button-token.wxss";
+
+.merchant-products-scene {
+  min-height: 100%;
+  padding: 0 0 calc(188rpx + env(safe-area-inset-bottom));
+}
+
+.merchant-products-scene__hero {
+  padding: 20rpx;
+}
+
+.merchant-products-scene__title {
+  display: block;
+  color: #553633;
+  font-size: 40rpx;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.merchant-products-scene__tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-top: 12rpx;
+}
+
+.merchant-products-scene__search {
+  margin-top: 16rpx;
+}
+
+.merchant-products-scene__action-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  margin-top: 16rpx;
+}
+
+.merchant-products-scene__action-row {
+  display: flex;
+  gap: 10rpx;
+}
+
+.merchant-products-scene__action-row t-button {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.merchant-products-scene__batch-state {
+  margin-top: 14rpx;
+  padding: 14rpx 16rpx;
+  border-radius: 18rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: rgba(255, 252, 250, 0.95);
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.merchant-products-scene__batch-state-label,
+.merchant-products-scene__batch-state-value {
+  color: #7a5952;
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.merchant-products-scene__toolbar-btn {
+  --td-button-small-height: 58rpx;
+  --td-button-small-padding-horizontal: 16rpx;
+  --td-button-small-font-size: 22rpx;
+  --td-button-small-icon-size: 30rpx;
+}
+
+.merchant-products-scene__card-btn {
+  --td-button-small-height: 54rpx;
+  --td-button-small-padding-horizontal: 0rpx;
+  --td-button-small-font-size: 22rpx;
+  width: 100%;
+}
+
+.merchant-products-scene__popup-btn {
+  --td-button-small-height: 60rpx;
+  --td-button-small-padding-horizontal: 18rpx;
+  --td-button-small-font-size: 24rpx;
+}
+
+.merchant-products-scene__popup-btn--single {
+  width: 240rpx;
+  max-width: 100%;
+}
+
+.merchant-products-scene__popup-head-btn {
+  --td-button-small-height: 54rpx;
+  --td-button-small-padding-horizontal: 18rpx;
+  --td-button-small-font-size: 22rpx;
+}
+
+.merchant-products-scene__empty {
+  margin-top: 18rpx;
+  border-radius: 24rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 14rpx 26rpx rgba(188, 113, 96, 0.11);
+  padding: 24rpx 20rpx;
+}
+
+.merchant-products-scene__empty--popup {
+  flex: 1;
+  margin-top: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.merchant-products-scene__waterfall {
+  margin-top: 18rpx;
+  display: flex;
+  gap: 14rpx;
+  align-items: flex-start;
+}
+
+.merchant-products-scene__column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.merchant-products-scene__card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 24rpx;
+  border: 1px solid rgba(244, 210, 198, 0.95);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14rpx 24rpx rgba(188, 113, 96, 0.12);
+}
+
+.merchant-products-scene__card-image {
+  display: block;
+  width: 100%;
+  height: 240rpx;
+}
+
+.merchant-products-scene__card-body {
+  flex: 1;
+  padding: 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.merchant-products-scene__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10rpx;
+}
+
+.merchant-products-scene__card-id-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.merchant-products-scene__selection {
+  flex: none;
+  display: flex;
+  align-items: center;
+}
+
+.merchant-products-scene__selection-check {
+  --td-checkbox-icon-size: 36rpx;
+  --td-checkbox-title-line-height: 36rpx;
+}
+
+.merchant-products-scene__card-id {
+  color: #a46457;
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.merchant-products-scene__card-price {
+  flex: none;
+  color: #c94b2b;
+  font-size: 22rpx;
+  font-weight: 700;
+  text-align: right;
+}
+
+.merchant-products-scene__card-title {
+  color: #563733;
+  font-size: 24rpx;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.merchant-products-scene__card-meta {
+  color: #7a5952;
+  font-size: 20rpx;
+  line-height: 1.55;
+}
+
+.merchant-products-scene__card-actions {
+  margin-top: auto;
+  padding-top: 4rpx;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8rpx;
+}
+
+.merchant-products-scene__card-action-cell {
+  display: block;
+}
+
+.merchant-products-scene__card-action-cell--active {
+  opacity: 0.92;
+}
+
+.merchant-products-scene__card-action-shell {
+  min-height: 54rpx;
+  padding: 0 14rpx;
+  border-radius: 18rpx;
+  border: 1px solid rgba(236, 178, 156, 0.86);
+  background: linear-gradient(180deg, rgba(255, 248, 244, 0.98) 0%, rgba(255, 239, 230, 0.98) 100%);
+  box-shadow: 0 8rpx 16rpx rgba(188, 113, 96, 0.12), inset 0 2rpx 0 rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.merchant-products-scene__card-action-shell--danger {
+  border-color: rgba(209, 92, 104, 0.7);
+  background: linear-gradient(180deg, rgba(255, 244, 246, 0.98) 0%, rgba(255, 232, 236, 0.98) 100%);
+}
+
+.merchant-products-scene__card-action-text {
+  color: #5f433d;
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.merchant-products-scene__card-action-shell--danger .merchant-products-scene__card-action-text {
+  color: #9d3f4d;
+}
+
+.merchant-products-scene__recycle-actions t-button {
+  width: 100%;
+  min-width: 0;
+}
+
+.merchant-products-scene__popup-shell {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 24rpx 22rpx calc(24rpx + env(safe-area-inset-bottom));
+  border-radius: 28rpx 28rpx 0 0;
+  background: rgba(255, 255, 255, 0.98);
+  max-height: calc(100vh - 56rpx);
+}
+
+.merchant-products-scene__popup-shell--editor {
+  height: 78vh;
+  min-height: 760rpx;
+}
+
+.merchant-products-scene__popup-shell--batch {
+  height: 62vh;
+  min-height: 620rpx;
+}
+
+.merchant-products-scene__popup-shell--recycle {
+  height: 68vh;
+  min-height: 680rpx;
+}
+
+.merchant-products-scene__popup-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+  padding-bottom: 12rpx;
+  border-bottom: 1px solid rgba(244, 210, 198, 0.72);
+}
+
+.merchant-products-scene__popup-title {
+  display: block;
+  color: #553633;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.merchant-products-scene__popup-scroll {
+  flex: 1;
+  min-height: 0;
+  height: 0;
+  margin-top: 16rpx;
+}
+
+.merchant-products-scene__popup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  padding-right: 4rpx;
+}
+
+.merchant-products-scene__id-preview {
+  padding: 12rpx 14rpx;
+  border-radius: 14rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: rgba(255, 251, 248, 0.95);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.merchant-products-scene__id-preview-label {
+  color: #7a5952;
+  font-size: 22rpx;
+}
+
+.merchant-products-scene__id-preview-value {
+  color: #a46457;
+  font-size: 24rpx;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.merchant-products-scene__field,
+.merchant-products-scene__photo-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.merchant-products-scene__field-label {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.merchant-products-scene__field-label-text {
+  color: #553633;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.merchant-products-scene__required-mark {
+  color: #ff835f;
+  font-size: 26rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.merchant-products-scene__select-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.merchant-products-scene__select-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.merchant-products-scene__select-label {
+  color: #7a5952;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.merchant-products-scene__select-toggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 14rpx;
+  border-radius: 999rpx;
+  border: 1px solid rgba(236, 178, 156, 0.88);
+  background: rgba(255, 248, 244, 0.96);
+}
+
+.merchant-products-scene__select-toggle--active {
+  background: rgba(255, 238, 229, 0.98);
+}
+
+.merchant-products-scene__select-toggle-circle {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 999rpx;
+  border: 4rpx solid rgba(193, 123, 105, 0.72);
+  box-sizing: border-box;
+  background: transparent;
+}
+
+.merchant-products-scene__select-toggle--active .merchant-products-scene__select-toggle-circle {
+  border-color: #ff835f;
+  background: radial-gradient(circle, #ff835f 0 50%, transparent 52%);
+}
+
+.merchant-products-scene__select-toggle-text {
+  color: #6f4f49;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.merchant-products-scene__choice-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx 24rpx;
+}
+
+.merchant-products-scene__choice-item {
+  min-width: 160rpx;
+}
+
+.merchant-products-scene__choice-check {
+  --td-checkbox-icon-size: 36rpx;
+  --td-checkbox-title-line-height: 40rpx;
+}
+
+.merchant-products-scene__choice-radio {
+  --td-radio-icon-size: 36rpx;
+  --td-radio-label-line-height: 40rpx;
+}
+
+.merchant-products-scene__choice-label {
+  color: #553633;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.merchant-products-scene__photo-row {
+  display: flex;
+  align-items: center;
+}
+
+.merchant-products-scene__price-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.merchant-products-scene__price-item {
+  display: grid;
+  grid-template-columns: 144rpx minmax(0, 1fr);
+  align-items: center;
+  gap: 14rpx;
+  padding: 14rpx 16rpx;
+  border-radius: 18rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: rgba(255, 251, 249, 0.95);
+}
+
+.merchant-products-scene__price-item-label {
+  color: #6f4f49;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.merchant-products-scene__image-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.merchant-products-scene__image-card {
+  padding: 14rpx;
+  border-radius: 20rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: rgba(255, 252, 250, 0.96);
+}
+
+.merchant-products-scene__image-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10rpx;
+  margin-bottom: 10rpx;
+}
+
+.merchant-products-scene__image-tag {
+  color: #a46457;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.merchant-products-scene__photo-preview {
+  width: 100%;
+  height: 280rpx;
+  border-radius: 20rpx;
+}
+
+.merchant-products-scene__image-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8rpx;
+  margin-top: 10rpx;
+}
+
+.merchant-products-scene__image-action-shell {
+  min-height: 48rpx;
+  padding: 0 10rpx;
+  border-radius: 16rpx;
+  border: 1px solid rgba(236, 178, 156, 0.86);
+  background: linear-gradient(180deg, rgba(255, 248, 244, 0.98) 0%, rgba(255, 239, 230, 0.98) 100%);
+  box-shadow: inset 0 2rpx 0 rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.merchant-products-scene__image-action-shell--danger {
+  border-color: rgba(209, 92, 104, 0.7);
+  background: linear-gradient(180deg, rgba(255, 244, 246, 0.98) 0%, rgba(255, 232, 236, 0.98) 100%);
+}
+
+.merchant-products-scene__image-action-text {
+  color: #5f433d;
+  font-size: 20rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.merchant-products-scene__image-action-text--danger {
+  color: #9d3f4d;
+}
+
+.merchant-products-scene__dialog-shell {
+  width: min(640rpx, calc(100vw - 64rpx));
+  padding: 28rpx 24rpx;
+  border-radius: 30rpx;
+  background: linear-gradient(180deg, rgba(255, 251, 248, 0.98) 0%, rgba(255, 244, 240, 0.98) 100%);
+  box-shadow: 0 20rpx 42rpx rgba(188, 113, 96, 0.2);
+  box-sizing: border-box;
+}
+
+.merchant-products-scene__dialog-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.merchant-products-scene__dialog-title {
+  color: #553633;
+  font-size: 30rpx;
+  font-weight: 700;
+  text-align: center;
+}
+
+.merchant-products-scene__dialog-copy {
+  color: #7a5952;
+  font-size: 22rpx;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.merchant-products-scene__dialog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  margin-top: 18rpx;
+}
+
+.merchant-products-scene__dialog-item {
+  padding: 10rpx 12rpx;
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(244, 210, 198, 0.76);
+}
+
+.merchant-products-scene__dialog-item-text {
+  color: #6f4f49;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.merchant-products-scene__dialog-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 22rpx;
+}
+
+.merchant-products-scene__dialog-btn {
+  min-width: 240rpx;
+  --td-button-small-height: 62rpx;
+  --td-button-small-padding-horizontal: 20rpx;
+  --td-button-small-font-size: 24rpx;
+}
+
+.merchant-products-scene__popup-actions {
+  flex: none;
+  margin-top: 18rpx;
+  padding-top: 16rpx;
+  border-top: 1px solid rgba(244, 210, 198, 0.72);
+  display: flex;
+  gap: 10rpx;
+}
+
+.merchant-products-scene__popup-actions t-button {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.merchant-products-scene__batch-count {
+  color: #7a5952;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.merchant-products-scene__recycle-list {
+  flex: 1;
+  min-height: 0;
+  margin-top: 16rpx;
+}
+
+.merchant-products-scene__recycle-card {
+  border-radius: 18rpx;
+  border: 1px solid rgba(244, 210, 198, 0.95);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 14rpx;
+  box-shadow: 0 12rpx 20rpx rgba(188, 113, 96, 0.1);
+}
+
+.merchant-products-scene__recycle-card + .merchant-products-scene__recycle-card {
+  margin-top: 12rpx;
+}
+
+.merchant-products-scene__recycle-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.merchant-products-scene__recycle-title {
+  flex: 1;
+  min-width: 0;
+  color: #563733;
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.merchant-products-scene__recycle-time {
+  display: block;
+  margin-top: 8rpx;
+  color: #7a5952;
+  font-size: 20rpx;
+}
+
+.merchant-products-scene__recycle-actions {
+  margin-top: 12rpx;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8rpx;
+}

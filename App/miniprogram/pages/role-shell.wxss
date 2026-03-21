@@ -7,7 +7,7 @@ page {
 .role-page {
   position: relative;
   min-height: 100vh;
-  overflow: hidden;
+  overflow: visible;
   background: linear-gradient(180deg, #fff5f7 0%, #ffe5d6 100%);
 }
 

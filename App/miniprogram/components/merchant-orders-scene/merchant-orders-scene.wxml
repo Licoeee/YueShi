@@ -1,0 +1,334 @@
+<view class="merchant-orders-scene">
+  <view class="glass-card merchant-orders-scene__hero">
+    <text class="merchant-orders-scene__title">订单管理</text>
+    <view class="merchant-orders-scene__tag-row">
+      <t-tag theme="primary" variant="light">订单总数 {{orders.length}}</t-tag>
+      <t-tag theme="danger" variant="light">含备注 {{notedOrderCount}}</t-tag>
+      <t-tag theme="default" variant="light">筛选 {{selectedDateLabel}}</t-tag>
+    </view>
+
+    <t-input
+      class="merchant-orders-scene__search"
+      placeholder="搜索订单号、手机号、商品名称"
+      value="{{orderSearchKeyword}}"
+      clearable="{{true}}"
+      bind:change="handleOrderSearchChange"
+    ></t-input>
+
+    <view class="merchant-orders-scene__status-tabs">
+      <view class="merchant-orders-scene__tab-list">
+        <view
+          class="merchant-orders-scene__tab-item {{activeStatusTab === 'pending-confirmation' ? 'merchant-orders-scene__tab-item--active' : ''}}"
+          data-tab-key="pending-confirmation"
+          bindtap="handleStatusTabChange"
+        >
+          <t-tag
+            t-class="merchant-orders-scene__filter-tag"
+            theme="{{activeStatusTab === 'pending-confirmation' ? 'primary' : 'default'}}"
+            variant="light"
+          >
+            待确认
+          </t-tag>
+        </view>
+        <view
+          class="merchant-orders-scene__tab-item {{activeStatusTab === 'in-production' ? 'merchant-orders-scene__tab-item--active' : ''}}"
+          data-tab-key="in-production"
+          bindtap="handleStatusTabChange"
+        >
+          <t-tag
+            t-class="merchant-orders-scene__filter-tag"
+            theme="{{activeStatusTab === 'in-production' ? 'primary' : 'default'}}"
+            variant="light"
+          >
+            待制作
+          </t-tag>
+        </view>
+        <view
+          class="merchant-orders-scene__tab-item {{activeStatusTab === 'ready-for-pickup' ? 'merchant-orders-scene__tab-item--active' : ''}}"
+          data-tab-key="ready-for-pickup"
+          bindtap="handleStatusTabChange"
+        >
+          <t-tag
+            t-class="merchant-orders-scene__filter-tag"
+            theme="{{activeStatusTab === 'ready-for-pickup' ? 'primary' : 'default'}}"
+            variant="light"
+          >
+            待取货
+          </t-tag>
+        </view>
+        <view
+          class="merchant-orders-scene__tab-item {{activeStatusTab === 'completed' ? 'merchant-orders-scene__tab-item--active' : ''}}"
+          data-tab-key="completed"
+          bindtap="handleStatusTabChange"
+        >
+          <t-tag
+            t-class="merchant-orders-scene__filter-tag"
+            theme="{{activeStatusTab === 'completed' ? 'primary' : 'default'}}"
+            variant="light"
+          >
+            已完成
+          </t-tag>
+        </view>
+      </view>
+    </view>
+
+    <view class="merchant-orders-scene__action-row">
+      <t-button
+        size="small"
+        theme="default"
+        variant="outline"
+        t-class="merchant-button-token merchant-button-token--outline merchant-orders-scene__btn"
+        bindtap="handleOpenCalendar"
+      >
+        选择日期
+      </t-button>
+      <t-button
+        size="small"
+        theme="default"
+        variant="outline"
+        t-class="merchant-button-token merchant-button-token--outline merchant-orders-scene__btn"
+        disabled="{{selectedDateKey.length === 0}}"
+        bindtap="handleClearDateFilter"
+      >
+        清除筛选
+      </t-button>
+    </view>
+
+    <view class="merchant-orders-scene__utility-row">
+      <view class="merchant-orders-scene__utility-entry">
+        <t-button
+          size="small"
+          theme="default"
+          variant="outline"
+          t-class="merchant-button-token merchant-button-token--outline merchant-orders-scene__utility-btn"
+          bindtap="handleOpenCleanupPopup"
+        >
+          定时清理
+        </t-button>
+      </view>
+      <view class="merchant-orders-scene__utility-entry merchant-orders-scene__recycle-entry">
+        <t-button
+          size="small"
+          theme="default"
+          variant="outline"
+          t-class="merchant-button-token merchant-button-token--outline merchant-orders-scene__utility-btn"
+          bindtap="handleOpenRecyclePage"
+        >
+          回收站
+        </t-button>
+      </view>
+    </view>
+  </view>
+
+  <view class="merchant-orders-scene__empty" wx:if="{{visibleOrders.length === 0}}">
+    <t-empty description="{{emptyDescription}}"></t-empty>
+  </view>
+
+  <view class="merchant-orders-scene__list" wx:else>
+    <view
+      wx:for="{{visibleOrders}}"
+      wx:key="id"
+      class="merchant-orders-scene__card {{item.hasNote ? 'merchant-orders-scene__card--noted' : ''}}"
+      data-order-id="{{item.id}}"
+      bindtap="handleOpenOrderDetail"
+    >
+      <view class="merchant-orders-scene__card-head">
+        <view class="merchant-orders-scene__cover-shell">
+          <t-image
+            class="merchant-orders-scene__cover"
+            src="{{item.coverImageUrl}}"
+            mode="aspectFill"
+            shape="round"
+            lazy="{{true}}"
+          ></t-image>
+        </view>
+
+        <view class="merchant-orders-scene__card-copy">
+          <text class="merchant-orders-scene__order-id">订单号 {{item.id}}</text>
+          <text class="merchant-orders-scene__item-summary">{{item.itemSummary}}</text>
+          <text class="merchant-orders-scene__item-quantity">{{item.itemQuantitySummary}}</text>
+        </view>
+
+        <view class="merchant-orders-scene__tag-stack">
+          <t-tag theme="{{item.statusTheme}}" variant="light">{{item.statusLabel}}</t-tag>
+          <t-tag wx:if="{{item.hasNote}}" theme="danger" variant="light">有备注</t-tag>
+        </view>
+      </view>
+
+      <view class="merchant-orders-scene__meta-row">
+        <text class="merchant-orders-scene__meta-label">取货时间</text>
+        <text class="merchant-orders-scene__meta-value">{{item.pickupSummary}}</text>
+      </view>
+      <view class="merchant-orders-scene__meta-row">
+        <text class="merchant-orders-scene__meta-label">下单时间</text>
+        <text class="merchant-orders-scene__meta-value">{{item.createdSummary}}</text>
+      </view>
+      <view class="merchant-orders-scene__meta-row">
+        <text class="merchant-orders-scene__meta-label">联系人</text>
+        <text class="merchant-orders-scene__meta-value">{{item.phoneSummary}}</text>
+      </view>
+      <view class="merchant-orders-scene__meta-row">
+        <text class="merchant-orders-scene__meta-label">金额</text>
+        <text class="merchant-orders-scene__meta-value">¥{{item.totalAmount}}</text>
+      </view>
+
+      <view class="merchant-orders-scene__note" wx:if="{{item.hasNote}}">
+        <text class="merchant-orders-scene__note-label">备注</text>
+        <text class="merchant-orders-scene__note-value">{{item.note}}</text>
+      </view>
+
+      <view class="merchant-orders-scene__card-actions" wx:if="{{item.actionType !== 'none'}}">
+        <t-button
+          wx:if="{{item.actionType === 'advance' && item.nextStatus === 'in-production'}}"
+          size="small"
+          theme="primary"
+          t-class="merchant-button-token merchant-button-token--primary merchant-orders-scene__action-btn"
+          data-order-id="{{item.id}}"
+          data-action-type="{{item.actionType}}"
+          data-next-status="{{item.nextStatus}}"
+          catchtap="handleCardActionTap"
+        >
+          确认付款
+        </t-button>
+        <t-button
+          wx:elif="{{item.actionType === 'advance' && item.nextStatus === 'ready-for-pickup'}}"
+          size="small"
+          theme="primary"
+          t-class="merchant-button-token merchant-button-token--primary merchant-orders-scene__action-btn"
+          data-order-id="{{item.id}}"
+          data-action-type="{{item.actionType}}"
+          data-next-status="{{item.nextStatus}}"
+          catchtap="handleCardActionTap"
+        >
+          制作完成
+        </t-button>
+        <t-button
+          wx:elif="{{item.actionType === 'advance' && item.nextStatus === 'completed'}}"
+          size="small"
+          theme="primary"
+          t-class="merchant-button-token merchant-button-token--primary merchant-orders-scene__action-btn"
+          data-order-id="{{item.id}}"
+          data-action-type="{{item.actionType}}"
+          data-next-status="{{item.nextStatus}}"
+          catchtap="handleCardActionTap"
+        >
+          已取货
+        </t-button>
+        <t-button
+          wx:elif="{{item.actionType === 'delete'}}"
+          size="small"
+          theme="danger"
+          variant="outline"
+          t-class="merchant-button-token merchant-button-token--danger merchant-orders-scene__action-btn"
+          data-order-id="{{item.id}}"
+          data-action-type="{{item.actionType}}"
+          catchtap="handleCardActionTap"
+        >
+          删除订单
+        </t-button>
+      </view>
+    </view>
+  </view>
+
+  <root-portal enable="{{true}}">
+    <t-calendar
+      visible="{{calendarVisible}}"
+      usePopup="{{true}}"
+      title="选择日期"
+      type="single"
+      confirmBtn="确认筛选"
+      t-class="merchant-orders-scene__calendar"
+      bind:confirm="handleCalendarConfirm"
+      bind:close="handleCalendarClose"
+    ></t-calendar>
+  </root-portal>
+
+  <root-portal enable="{{true}}">
+    <t-popup
+      visible="{{cleanupPopupVisible}}"
+      placement="bottom"
+      bind:visible-change="handleCleanupPopupVisibleChange"
+    >
+      <view class="merchant-orders-scene__popup-shell">
+        <view class="merchant-orders-scene__popup-head">
+          <text class="merchant-orders-scene__popup-title">定时清理</text>
+        </view>
+
+        <view class="merchant-orders-scene__popup-body">
+          <t-radio-group value="{{autoCleanupDays}}" bind:change="handleAutoCleanupChange">
+            <view class="merchant-orders-scene__cleanup-list">
+              <view wx:for="{{cleanupOptions}}" wx:key="value" class="merchant-orders-scene__cleanup-item">
+                <t-radio
+                  value="{{item.value}}"
+                  icon="{{selectionCircleIcons}}"
+                  borderless="{{true}}"
+                  t-class="merchant-orders-scene__cleanup-radio"
+                  t-class-label="merchant-orders-scene__cleanup-label"
+                >
+                  {{item.label}}
+                </t-radio>
+              </view>
+            </view>
+          </t-radio-group>
+
+          <view class="merchant-orders-scene__popup-actions">
+            <t-button
+              size="small"
+              theme="primary"
+              t-class="merchant-button-token merchant-button-token--primary merchant-orders-scene__popup-action-btn"
+              bindtap="handleInstantCleanup"
+            >
+              立即清空
+            </t-button>
+          </view>
+
+          <view class="merchant-orders-scene__popup-note">
+            <text class="merchant-orders-scene__popup-note-text">已完成订单会在达到设定天数后自动移入回收站。</text>
+          </view>
+        </view>
+      </view>
+    </t-popup>
+  </root-portal>
+
+  <root-portal enable="{{true}}">
+    <t-popup visible="{{confirmDialogVisible}}" placement="center" bind:visible-change="handleActionDialogVisibleChange">
+      <view class="merchant-orders-scene__dialog-shell">
+        <view class="merchant-orders-scene__dialog-head">
+          <text class="merchant-orders-scene__dialog-title">{{confirmDialogTitle}}</text>
+          <text class="merchant-orders-scene__dialog-copy">{{confirmDialogDescription}}</text>
+        </view>
+
+        <view class="merchant-orders-scene__dialog-actions">
+          <t-button
+            size="small"
+            theme="default"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--outline merchant-orders-scene__dialog-btn"
+            bindtap="handleCloseActionDialog"
+          >
+            取消
+          </t-button>
+          <t-button
+            wx:if="{{confirmDialogTone === 'danger'}}"
+            size="small"
+            theme="danger"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--danger merchant-orders-scene__dialog-btn"
+            bindtap="handleConfirmActionDialog"
+          >
+            {{confirmDialogConfirmText}}
+          </t-button>
+          <t-button
+            wx:else
+            size="small"
+            theme="primary"
+            t-class="merchant-button-token merchant-button-token--primary merchant-orders-scene__dialog-btn"
+            bindtap="handleConfirmActionDialog"
+          >
+            {{confirmDialogConfirmText}}
+          </t-button>
+        </view>
+      </view>
+    </t-popup>
+  </root-portal>
+</view>

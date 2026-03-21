@@ -1,0 +1,169 @@
+<view class="merchant-inventory-scene">
+  <view class="glass-card merchant-inventory-scene__hero">
+    <text class="merchant-inventory-scene__title">商品库存</text>
+    <view class="merchant-inventory-scene__tag-row">
+      <t-tag theme="primary" variant="light">库存 {{records.length}}</t-tag>
+      <t-tag theme="warning" variant="light">临期 {{nearExpiryCount}}</t-tag>
+    </view>
+    <view class="merchant-inventory-scene__action-row">
+      <t-button
+        size="small"
+        theme="primary"
+        t-class="merchant-button-token merchant-button-token--primary merchant-inventory-scene__btn"
+        bindtap="handleOpenCreatePopup"
+      >
+        新增入库
+      </t-button>
+    </view>
+  </view>
+
+  <view class="merchant-inventory-scene__empty" wx:if="{{records.length === 0}}">
+    <t-empty description="暂无入库记录"></t-empty>
+  </view>
+
+  <view class="merchant-inventory-scene__list" wx:else>
+    <view
+      wx:for="{{records}}"
+      wx:key="id"
+      class="merchant-inventory-scene__card {{item.isNearExpiry && !item.isExpired ? 'merchant-inventory-scene__card--near' : ''}}"
+    >
+      <view class="merchant-inventory-scene__item-row">
+        <t-image
+          class="merchant-inventory-scene__card-image"
+          src="{{item.photoPreviewUrl}}"
+          mode="aspectFill"
+          shape="round"
+          lazy="{{true}}"
+        ></t-image>
+
+        <view class="merchant-inventory-scene__item-body">
+          <view class="merchant-inventory-scene__card-head">
+            <text class="merchant-inventory-scene__item-name">{{item.itemName}}</text>
+            <t-tag theme="{{item.isExpired ? 'danger' : (item.isNearExpiry ? 'warning' : 'primary')}}" variant="light">
+              {{item.isExpired ? '已过期' : (item.isNearExpiry ? ('剩余 ' + item.daysLeft + ' 天') : '库存正常')}}
+            </t-tag>
+          </view>
+
+          <text class="merchant-inventory-scene__meta-line">进价：¥{{item.costPrice}}</text>
+          <text class="merchant-inventory-scene__meta-line">生产日期：{{item.productionSummary}}</text>
+          <text class="merchant-inventory-scene__meta-line">保质期：{{item.shelfLifeDays}} 天</text>
+          <text class="merchant-inventory-scene__meta-line">过期日期：{{item.expirySummary}}</text>
+        </view>
+      </view>
+
+      <view class="merchant-inventory-scene__card-actions">
+        <t-button
+          size="small"
+          theme="danger"
+          variant="outline"
+          t-class="merchant-button-token merchant-button-token--danger merchant-inventory-scene__btn"
+          data-record-id="{{item.id}}"
+          bindtap="handleDeleteRecord"
+        >
+          删除记录
+        </t-button>
+      </view>
+    </view>
+  </view>
+
+  <root-portal enable="{{true}}">
+<t-popup
+    visible="{{createPopupVisible}}"
+    placement="bottom"
+    bind:visible-change="handleCreatePopupVisibleChange"
+  >
+    <view class="merchant-inventory-scene__popup">
+      <text class="merchant-inventory-scene__popup-title">入库登记</text>
+
+      <t-input
+        label="商品名称"
+        placeholder="输入入库商品名称"
+        value="{{itemNameInput}}"
+        bind:change="handleItemNameChange"
+      ></t-input>
+      <t-input
+        label="进价"
+        type="digit"
+        placeholder="输入进价（元）"
+        value="{{costPriceInput}}"
+        bind:change="handleCostPriceChange"
+      ></t-input>
+
+      <view class="merchant-inventory-scene__field-cell" bindtap="handleOpenProductionPicker">
+        <text class="merchant-inventory-scene__field-label">生产日期</text>
+        <text class="merchant-inventory-scene__field-value">{{productionDateInput}}</text>
+      </view>
+
+      <t-input
+        label="保质期"
+        type="number"
+        placeholder="输入具体天数"
+        value="{{shelfLifeDaysInput}}"
+        bind:change="handleShelfLifeDaysChange"
+      ></t-input>
+
+      <view class="merchant-inventory-scene__field-cell merchant-inventory-scene__field-cell--readonly">
+        <text class="merchant-inventory-scene__field-label">过期日期</text>
+        <text class="merchant-inventory-scene__field-value">{{expiryDatePreview}}</text>
+      </view>
+
+      <view class="merchant-inventory-scene__photo-row">
+        <t-button
+          size="small"
+          theme="default"
+          variant="outline"
+          t-class="merchant-button-token merchant-button-token--outline merchant-inventory-scene__btn"
+          bindtap="handleChoosePhoto"
+        >
+          上传图片
+        </t-button>
+      </view>
+
+      <t-image
+        wx:if="{{photoUrlInput.length > 0}}"
+        class="merchant-inventory-scene__photo-preview"
+        src="{{photoUrlInput}}"
+        mode="aspectFill"
+        shape="round"
+        lazy="{{true}}"
+      ></t-image>
+
+      <view class="merchant-inventory-scene__popup-actions">
+        <t-button
+          size="small"
+          theme="primary"
+          t-class="merchant-button-token merchant-button-token--primary merchant-inventory-scene__btn"
+          disabled="{{!canSubmitCreate}}"
+          bindtap="handleCreateRecord"
+        >
+          保存入库
+        </t-button>
+        <t-button
+          size="small"
+          theme="default"
+          variant="outline"
+          t-class="merchant-button-token merchant-button-token--outline merchant-inventory-scene__btn"
+          bindtap="handleCloseCreatePopup"
+        >
+          取消
+        </t-button>
+      </view>
+    </view>
+  </t-popup>
+</root-portal>
+
+  <root-portal enable="{{true}}">
+  <t-picker
+    visible="{{productionPickerVisible}}"
+    title="选择生产日期"
+    value="{{productionPickerValue}}"
+    bind:pick="handleProductionPick"
+    bind:confirm="handleProductionConfirm"
+    bind:cancel="handleProductionCancel"
+  >
+    <t-picker-item options="{{productionPickerState.yearOptions}}"></t-picker-item>
+    <t-picker-item options="{{productionPickerState.monthOptions}}"></t-picker-item>
+    <t-picker-item options="{{productionPickerState.dayOptions}}"></t-picker-item>
+  </t-picker>
+</root-portal>
+</view>

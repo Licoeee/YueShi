@@ -1,0 +1,214 @@
+@import "../../../styles/merchant-button-token.wxss";
+
+.merchant-order-recycle-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fff5f7 0%, #ffe5d6 100%);
+}
+
+.merchant-order-recycle-page__background {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 14% 10%, rgba(255, 255, 255, 0.56) 0%, rgba(255, 255, 255, 0) 40%),
+    radial-gradient(circle at 82% 8%, rgba(255, 230, 223, 0.58) 0%, rgba(255, 230, 223, 0) 42%),
+    linear-gradient(180deg, #fff5f7 0%, #ffe5d6 100%);
+}
+
+.merchant-order-recycle-page__content {
+  position: relative;
+  z-index: 1;
+  padding: calc(30rpx + env(safe-area-inset-top)) 30rpx calc(80rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.merchant-order-recycle-page__hero {
+  padding: 24rpx;
+}
+
+.merchant-order-recycle-page__hero-head {
+  display: flex;
+  gap: 18rpx;
+  align-items: flex-start;
+}
+
+.merchant-order-recycle-page__hero-copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.merchant-order-recycle-page__title {
+  display: block;
+  color: #553633;
+  font-size: 42rpx;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.merchant-order-recycle-page__hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 14rpx;
+}
+
+.merchant-order-recycle-page__clear-action {
+  display: flex;
+  justify-content: center;
+  margin-top: 20rpx;
+}
+
+.merchant-order-recycle-page__clear-btn {
+  min-width: 260rpx;
+  --td-button-small-height: 60rpx;
+  --td-button-small-padding-horizontal: 20rpx;
+  --td-button-small-font-size: 22rpx;
+}
+
+.merchant-order-recycle-page__empty {
+  margin-top: 24rpx;
+  padding: 38rpx 24rpx;
+  border-radius: 30rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18rpx 32rpx rgba(188, 113, 96, 0.12);
+}
+
+.merchant-order-recycle-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+  margin-top: 24rpx;
+}
+
+.merchant-order-recycle-page__card {
+  padding: 24rpx;
+  border-radius: 28rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16rpx 30rpx rgba(188, 113, 96, 0.12);
+}
+
+.merchant-order-recycle-page__card-head {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.merchant-order-recycle-page__cover-shell {
+  flex: none;
+}
+
+.merchant-order-recycle-page__cover {
+  width: 132rpx;
+  height: 132rpx;
+  overflow: hidden;
+  border-radius: 24rpx;
+  background: rgba(255, 245, 242, 0.95);
+}
+
+.merchant-order-recycle-page__card-copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.merchant-order-recycle-page__tag-stack {
+  display: flex;
+  flex: none;
+  align-items: flex-start;
+}
+
+.merchant-order-recycle-page__order-id {
+  color: #5b3a35;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.merchant-order-recycle-page__item-summary {
+  color: #76554f;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.merchant-order-recycle-page__item-quantity,
+.merchant-order-recycle-page__meta-label {
+  color: #8c6a63;
+  font-size: 22rpx;
+}
+
+.merchant-order-recycle-page__meta-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-top: 16rpx;
+}
+
+.merchant-order-recycle-page__meta-value {
+  color: #563733;
+  font-size: 24rpx;
+  font-weight: 600;
+  text-align: right;
+}
+
+.merchant-order-recycle-page__actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 18rpx;
+}
+
+.merchant-order-recycle-page__action-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  --td-button-small-height: 64rpx;
+  --td-button-small-padding-horizontal: 20rpx;
+  --td-button-small-font-size: 24rpx;
+}
+
+.merchant-order-recycle-page__dialog-shell {
+  width: min(640rpx, calc(100vw - 64rpx));
+  padding: 28rpx 24rpx;
+  border-radius: 30rpx;
+  background: linear-gradient(180deg, rgba(255, 251, 248, 0.98) 0%, rgba(255, 244, 240, 0.98) 100%);
+  box-shadow: 0 20rpx 42rpx rgba(188, 113, 96, 0.2);
+  box-sizing: border-box;
+}
+
+.merchant-order-recycle-page__dialog-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.merchant-order-recycle-page__dialog-title {
+  color: #553633;
+  font-size: 30rpx;
+  font-weight: 700;
+  text-align: center;
+}
+
+.merchant-order-recycle-page__dialog-copy {
+  color: #7a5952;
+  font-size: 22rpx;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.merchant-order-recycle-page__dialog-actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 22rpx;
+}
+
+.merchant-order-recycle-page__dialog-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  --td-button-small-height: 62rpx;
+  --td-button-small-padding-horizontal: 20rpx;
+  --td-button-small-font-size: 24rpx;
+}

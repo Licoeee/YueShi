@@ -78,6 +78,16 @@ test('renders customer business scenes instead of placeholder cards for home, ca
   assert.match(source, /<customer-orders-scene/)
 })
 
+test('registers sibling business scenes with relative component paths for stable devtools resolution', () => {
+  const json = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.json')
+
+  assert.match(json, /"merchant-account-book-scene":\s*"\.\.\/merchant-account-book-scene\/merchant-account-book-scene"/)
+  assert.match(json, /"merchant-products-scene":\s*"\.\.\/merchant-products-scene\/merchant-products-scene"/)
+  assert.match(json, /"merchant-orders-scene":\s*"\.\.\/merchant-orders-scene\/merchant-orders-scene"/)
+  assert.match(json, /"merchant-inventory-scene":\s*"\.\.\/merchant-inventory-scene\/merchant-inventory-scene"/)
+  assert.match(json, /"merchant-profile-scene":\s*"\.\.\/merchant-profile-scene\/merchant-profile-scene"/)
+})
+
 test('wraps customer scenes with a top safe-area shell to avoid status-bar overlap', () => {
   const wxml = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.wxml')
   const wxss = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.wxss')

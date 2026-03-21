@@ -1,0 +1,33 @@
+<view class="merchant-profile-scene">
+  <view class="glass-card merchant-profile-scene__hero">
+    <text class="merchant-profile-scene__title">客户风控</text>
+    <view class="merchant-profile-scene__tag-row">
+      <t-tag theme="danger" variant="light">黑名单 {{blacklistCount}}</t-tag>
+      <t-tag wx:if="{{isPreviewMode}}" theme="warning" variant="light">管理员预览</t-tag>
+    </view>
+    <view class="merchant-profile-scene__actions">
+      <t-button
+        size="small"
+        theme="danger"
+        variant="outline"
+        t-class="merchant-button-token merchant-button-token--danger merchant-profile-scene__btn"
+        bindtap="handleOpenBlacklist"
+      >
+        黑名单管理
+      </t-button>
+    </view>
+  </view>
+
+  <view class="glass-card merchant-profile-scene__section" wx:if="{{canBackToAdmin}}">
+    <text class="merchant-profile-scene__section-title">预览切换</text>
+    <t-button
+      size="small"
+      theme="default"
+      variant="outline"
+      t-class="merchant-button-token merchant-button-token--outline merchant-profile-scene__btn"
+      bindtap="handlePreviewReturnTap"
+    >
+      返回管理员视角
+    </t-button>
+  </view>
+</view>

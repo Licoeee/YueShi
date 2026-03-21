@@ -1,0 +1,64 @@
+<view class="merchant-blacklist-page">
+  <view class="merchant-blacklist-page__background"></view>
+
+  <view class="merchant-blacklist-page__content">
+    <view class="glass-card merchant-blacklist-page__hero">
+      <text class="merchant-blacklist-page__title">黑名单管理</text>
+      <t-tag theme="danger" variant="light">当前拉黑 {{entries.length}} 人</t-tag>
+    </view>
+
+    <view class="glass-card merchant-blacklist-page__editor">
+      <t-input
+        label="OpenID"
+        placeholder="输入需要拉黑的顾客 OpenID"
+        value="{{openIdInput}}"
+        bind:change="handleOpenIdInputChange"
+      ></t-input>
+      <view class="merchant-blacklist-page__editor-actions">
+        <t-button
+          size="small"
+          theme="danger"
+          t-class="merchant-blacklist-page__btn merchant-blacklist-page__btn--danger"
+          disabled="{{openIdInput.length === 0}}"
+          bindtap="handleAddOpenId"
+        >
+          拉黑用户
+        </t-button>
+      </view>
+    </view>
+
+    <view class="merchant-blacklist-page__empty" wx:if="{{entries.length === 0}}">
+      <t-empty description="暂无拉黑用户"></t-empty>
+    </view>
+
+    <view class="merchant-blacklist-page__list" wx:else>
+      <view wx:for="{{entries}}" wx:key="openId" class="glass-card merchant-blacklist-page__card">
+        <text class="merchant-blacklist-page__openid">{{item.openId}}</text>
+        <text class="merchant-blacklist-page__created-at">加入时间：{{item.createdAt}}</text>
+        <view class="merchant-blacklist-page__card-actions">
+          <t-button
+            size="small"
+            theme="default"
+            variant="outline"
+            t-class="merchant-blacklist-page__btn merchant-blacklist-page__btn--outline"
+            data-open-id="{{item.openId}}"
+            bindtap="handleRequestRemoveOpenId"
+          >
+            解除拉黑
+          </t-button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <t-dialog
+    visible="{{removeDialogVisible}}"
+    title="确认解除拉黑"
+    content="解除后该用户可再次下单。"
+    confirm-btn="确认解除"
+    cancel-btn="取消"
+    bind:confirm="handleConfirmRemoveOpenId"
+    bind:close="handleCloseRemoveDialog"
+    bind:cancel="handleCloseRemoveDialog"
+  ></t-dialog>
+</view>

@@ -1,0 +1,155 @@
+<view class="merchant-account-book-scene">
+  <view class="glass-card merchant-account-book-scene__hero">
+    <text class="merchant-account-book-scene__title">资金流水</text>
+    <view class="merchant-account-book-scene__tag-row">
+      <t-tag theme="primary" variant="light">收入：¥{{totalIncome}}</t-tag>
+      <t-tag theme="danger" variant="light">支出：¥{{totalExpense}}</t-tag>
+      <t-tag theme="default" variant="light">净额：¥{{netIncome}}</t-tag>
+    </view>
+
+    <view class="merchant-account-book-scene__range-row">
+      <t-button
+        size="small"
+        theme="{{rangeMode === 'day' ? 'primary' : 'default'}}"
+        variant="{{rangeMode === 'day' ? 'base' : 'outline'}}"
+        t-class="merchant-button-token {{rangeMode === 'day' ? 'merchant-button-token--primary' : 'merchant-button-token--outline'}} merchant-account-book-scene__btn"
+        data-mode="day"
+        bindtap="handleRangeModeChange"
+      >
+        日
+      </t-button>
+      <t-button
+        size="small"
+        theme="{{rangeMode === 'week' ? 'primary' : 'default'}}"
+        variant="{{rangeMode === 'week' ? 'base' : 'outline'}}"
+        t-class="merchant-button-token {{rangeMode === 'week' ? 'merchant-button-token--primary' : 'merchant-button-token--outline'}} merchant-account-book-scene__btn"
+        data-mode="week"
+        bindtap="handleRangeModeChange"
+      >
+        周
+      </t-button>
+      <t-button
+        size="small"
+        theme="{{rangeMode === 'month' ? 'primary' : 'default'}}"
+        variant="{{rangeMode === 'month' ? 'base' : 'outline'}}"
+        t-class="merchant-button-token {{rangeMode === 'month' ? 'merchant-button-token--primary' : 'merchant-button-token--outline'}} merchant-account-book-scene__btn"
+        data-mode="month"
+        bindtap="handleRangeModeChange"
+      >
+        月
+      </t-button>
+      <t-button
+        size="small"
+        theme="default"
+        variant="outline"
+        disabled="{{true}}"
+        t-class="merchant-button-token merchant-button-token--outline merchant-account-book-scene__btn"
+      >
+        导出报表
+      </t-button>
+    </view>
+  </view>
+
+  <view class="glass-card merchant-account-book-scene__chart-card">
+    <view class="merchant-account-book-scene__chart-shell">
+      <view class="merchant-account-book-scene__chart-main">
+        <view class="merchant-account-book-scene__y-axis">
+          <text>{{chartMax}}</text>
+          <text>{{chartMid}}</text>
+          <text>0</text>
+        </view>
+
+        <view class="merchant-account-book-scene__chart-stage">
+          <view class="merchant-account-book-scene__plot">
+            <view class="merchant-account-book-scene__plot-grid">
+              <view class="merchant-account-book-scene__grid-line"></view>
+              <view class="merchant-account-book-scene__grid-line"></view>
+              <view class="merchant-account-book-scene__grid-line"></view>
+            </view>
+
+            <view
+              wx:for="{{incomeSegments}}"
+              wx:key="index"
+              class="merchant-account-book-scene__line-segment"
+              style="left: {{item.left}}; top: {{item.top}}; width: {{item.width}}; background: {{item.color}}; transform: rotate({{item.rotateDeg}});"
+            ></view>
+            <view
+              wx:for="{{expenseSegments}}"
+              wx:key="index"
+              class="merchant-account-book-scene__line-segment"
+              style="left: {{item.left}}; top: {{item.top}}; width: {{item.width}}; background: {{item.color}}; transform: rotate({{item.rotateDeg}});"
+            ></view>
+
+            <view
+              wx:for="{{incomeDots}}"
+              wx:key="key"
+              class="merchant-account-book-scene__dot merchant-account-book-scene__dot--income {{selectedPointKey === item.key ? 'merchant-account-book-scene__dot--selected' : ''}}"
+              data-key="{{item.key}}"
+              bindtap="handleChartPointTap"
+              style="left: {{item.left}}; top: {{item.top}}; background: {{item.color}};"
+            ></view>
+            <view
+              wx:for="{{expenseDots}}"
+              wx:key="key"
+              class="merchant-account-book-scene__dot merchant-account-book-scene__dot--expense {{selectedPointKey === item.key ? 'merchant-account-book-scene__dot--selected' : ''}}"
+              data-key="{{item.key}}"
+              bindtap="handleChartPointTap"
+              style="left: {{item.left}}; top: {{item.top}}; background: {{item.color}};"
+            ></view>
+          </view>
+
+          <view class="merchant-account-book-scene__x-axis">
+            <text wx:for="{{xLabels}}" wx:key="*this" class="merchant-account-book-scene__x-label">{{item}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="merchant-account-book-scene__legend-row">
+        <view class="merchant-account-book-scene__legend-item">
+          <view class="merchant-account-book-scene__legend-line merchant-account-book-scene__legend-line--income"></view>
+          <text>收入</text>
+        </view>
+        <view class="merchant-account-book-scene__legend-item">
+          <view class="merchant-account-book-scene__legend-line merchant-account-book-scene__legend-line--expense"></view>
+          <text>支出</text>
+        </view>
+      </view>
+
+      <view class="merchant-account-book-scene__point-detail" wx:if="{{selectedPointKey.length > 0}}">
+        <view class="merchant-account-book-scene__point-detail-head">
+          <text class="merchant-account-book-scene__point-detail-title">{{selectedPointLabel}}</text>
+          <text class="merchant-account-book-scene__point-detail-net">净额 ¥{{selectedPointNet}}</text>
+        </view>
+        <view class="merchant-account-book-scene__point-detail-grid">
+          <view class="merchant-account-book-scene__point-detail-item">
+            <text class="merchant-account-book-scene__point-detail-label">收入</text>
+            <text class="merchant-account-book-scene__point-detail-value merchant-account-book-scene__point-detail-value--income">¥{{selectedPointIncome}}</text>
+          </view>
+          <view class="merchant-account-book-scene__point-detail-item">
+            <text class="merchant-account-book-scene__point-detail-label">支出</text>
+            <text class="merchant-account-book-scene__point-detail-value merchant-account-book-scene__point-detail-value--expense">¥{{selectedPointExpense}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="merchant-account-book-scene__empty" wx:if="{{records.length === 0}}">
+    <t-empty description="暂无流水记录"></t-empty>
+  </view>
+
+  <view class="merchant-account-book-scene__list" wx:else>
+    <view wx:for="{{records}}" wx:key="id" class="merchant-account-book-scene__record-card">
+      <view class="merchant-account-book-scene__record-head">
+        <text class="merchant-account-book-scene__record-title">{{item.title}}</text>
+        <t-tag theme="{{item.type === 'income' ? 'primary' : 'danger'}}" variant="light">
+          {{item.type === 'income' ? '收入' : '支出'}}
+        </t-tag>
+      </view>
+      <view class="merchant-account-book-scene__record-row">
+        <text class="merchant-account-book-scene__record-date">{{item.dateLabel}}</text>
+        <text class="merchant-account-book-scene__record-amount">{{item.amountLabel}}</text>
+      </view>
+    </view>
+  </view>
+</view>

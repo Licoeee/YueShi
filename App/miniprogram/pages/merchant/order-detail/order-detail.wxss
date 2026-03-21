@@ -1,0 +1,356 @@
+.merchant-order-detail-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fff5f7 0%, #ffe5d6 100%);
+}
+
+.merchant-order-detail-page__background {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 14% 10%, rgba(255, 255, 255, 0.56) 0%, rgba(255, 255, 255, 0) 40%),
+    radial-gradient(circle at 82% 8%, rgba(255, 230, 223, 0.58) 0%, rgba(255, 230, 223, 0) 42%),
+    linear-gradient(180deg, #fff5f7 0%, #ffe5d6 100%);
+}
+
+.merchant-order-detail-page__content {
+  position: relative;
+  z-index: 1;
+  padding: calc(30rpx + env(safe-area-inset-top)) 30rpx calc(80rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.merchant-order-detail-page__hero,
+.merchant-order-detail-page__section {
+  padding: 24rpx;
+}
+
+.merchant-order-detail-page__section {
+  margin-top: 22rpx;
+}
+
+.merchant-order-detail-page__hero-head {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.merchant-order-detail-page__hero-cover {
+  width: 140rpx;
+  height: 140rpx;
+  flex: none;
+  overflow: hidden;
+  border-radius: 24rpx;
+  background: rgba(255, 245, 242, 0.95);
+  border: 1px solid rgba(244, 210, 198, 0.78);
+}
+
+.merchant-order-detail-page__hero-copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.merchant-order-detail-page__title-row,
+.merchant-order-detail-page__hero-meta-row,
+.merchant-order-detail-page__section-head,
+.merchant-order-detail-page__meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14rpx;
+}
+
+.merchant-order-detail-page__title {
+  color: #553633;
+  font-size: 40rpx;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.merchant-order-detail-page__hero-meta-text,
+.merchant-order-detail-page__section-side,
+.merchant-order-detail-page__meta-label,
+.merchant-order-detail-page__item-meta {
+  color: #7a5952;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+
+.merchant-order-detail-page__hero-meta-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.merchant-order-detail-page__zoom-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 86rpx;
+  padding: 0 20rpx;
+  height: 48rpx;
+  border-radius: 999rpx;
+  border: 1px solid rgba(236, 178, 156, 0.92);
+  background: linear-gradient(135deg, rgba(255, 248, 244, 0.98) 0%, rgba(255, 236, 227, 0.96) 100%);
+  box-shadow: 0 10rpx 18rpx rgba(188, 113, 96, 0.12), inset 0 2rpx 0 rgba(255, 255, 255, 0.58);
+}
+
+.merchant-order-detail-page__zoom-trigger-text {
+  color: #6f4f49;
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.merchant-order-detail-page__section-title,
+.merchant-order-detail-page__zoom-title {
+  color: #553633;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.merchant-order-detail-page__meta-row {
+  padding: 18rpx 0;
+  border-bottom: 1px solid rgba(244, 210, 198, 0.72);
+  align-items: flex-start;
+}
+
+.merchant-order-detail-page__meta-row:first-of-type {
+  margin-top: 8rpx;
+}
+
+.merchant-order-detail-page__meta-row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.merchant-order-detail-page__meta-row--note {
+  align-items: flex-start;
+}
+
+.merchant-order-detail-page__meta-label {
+  flex: none;
+  min-width: 104rpx;
+}
+
+.merchant-order-detail-page__meta-main {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.merchant-order-detail-page__meta-main--note {
+  align-items: flex-start;
+}
+
+.merchant-order-detail-page__meta-value {
+  color: #553633;
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 1.6;
+  text-align: right;
+  flex: 1;
+  min-width: 0;
+}
+
+.merchant-order-detail-page__meta-value--note {
+  white-space: pre-wrap;
+}
+
+.merchant-order-detail-page__item-card {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin-top: 18rpx;
+  padding: 16rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 251, 249, 0.92);
+  border: 1px solid rgba(244, 210, 198, 0.78);
+}
+
+.merchant-order-detail-page__item-cover {
+  width: 118rpx;
+  height: 118rpx;
+  flex: none;
+  overflow: hidden;
+  border-radius: 22rpx;
+  background: rgba(255, 245, 242, 0.95);
+}
+
+.merchant-order-detail-page__item-copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.merchant-order-detail-page__item-title {
+  color: #553633;
+  font-size: 26rpx;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.merchant-order-detail-page__item-side {
+  flex: none;
+  display: flex;
+  align-items: center;
+}
+
+.merchant-order-detail-page__zoom-popup {
+  padding: 24rpx 22rpx calc(28rpx + env(safe-area-inset-bottom));
+  border-radius: 28rpx 28rpx 0 0;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 250, 0.99) 0%, rgba(255, 245, 240, 0.97) 100%);
+}
+
+.merchant-order-detail-page__zoom-head {
+  padding-bottom: 14rpx;
+  border-bottom: 1px solid rgba(244, 210, 198, 0.72);
+}
+
+.merchant-order-detail-page__zoom-toolbar {
+  margin-top: 18rpx;
+}
+
+.merchant-order-detail-page__font-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  padding: 18rpx 20rpx;
+  border-radius: 22rpx;
+  border: 1px solid rgba(236, 178, 156, 0.88);
+  background: linear-gradient(135deg, rgba(255, 248, 244, 0.98) 0%, rgba(255, 239, 231, 0.96) 100%);
+  box-shadow: 0 12rpx 22rpx rgba(188, 113, 96, 0.12), inset 0 2rpx 0 rgba(255, 255, 255, 0.56);
+}
+
+.merchant-order-detail-page__font-picker-label,
+.merchant-order-detail-page__font-picker-unit {
+  color: #7a5952;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.merchant-order-detail-page__font-picker-value-shell {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6rpx;
+  flex: none;
+}
+
+.merchant-order-detail-page__font-picker-value {
+  color: #553633;
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.merchant-order-detail-page__zoom-stage {
+  display: flex;
+  justify-content: center;
+  margin-top: 18rpx;
+}
+
+.merchant-order-detail-page__zoom-scroll {
+  width: 100%;
+  height: 58vh;
+}
+
+.merchant-order-detail-page__zoom-stage-inner {
+  min-height: 58vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx 0 20rpx;
+  box-sizing: border-box;
+}
+
+.merchant-order-detail-page__zoom-card {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 28rpx 24rpx;
+  border-radius: 30rpx;
+  border: 1px solid rgba(244, 210, 198, 0.84);
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 246, 241, 0.98) 100%);
+  box-shadow:
+    0 22rpx 42rpx rgba(188, 113, 96, 0.14),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.62);
+}
+
+.merchant-order-detail-page__zoom-card--text {
+  display: flex;
+  min-height: 320rpx;
+}
+
+.merchant-order-detail-page__zoom-copy-shell {
+  display: flex;
+  flex: 1;
+  min-height: 264rpx;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.merchant-order-detail-page__zoom-copy-frame {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.merchant-order-detail-page__zoom-copy {
+  display: block;
+  max-width: 100%;
+  color: #553633;
+  line-height: 1.8;
+  text-align: center;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.merchant-order-detail-page__zoom-field-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+}
+
+.merchant-order-detail-page__zoom-field-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 18rpx;
+  padding-bottom: 18rpx;
+  border-bottom: 1px solid rgba(244, 210, 198, 0.6);
+}
+
+.merchant-order-detail-page__zoom-field-row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.merchant-order-detail-page__zoom-field-label {
+  flex: none;
+  width: 4em;
+  color: #9a6a5e;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.merchant-order-detail-page__zoom-field-value {
+  flex: 1;
+  min-width: 0;
+  color: #553633;
+  font-weight: 600;
+  line-height: 1.7;
+  text-align: left;
+  word-break: break-word;
+}

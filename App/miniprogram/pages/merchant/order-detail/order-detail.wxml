@@ -1,0 +1,204 @@
+<view class="merchant-order-detail-page" wx:if="{{order}}">
+  <view class="merchant-order-detail-page__background"></view>
+
+  <view class="merchant-order-detail-page__content">
+    <view class="glass-card merchant-order-detail-page__hero">
+      <view class="merchant-order-detail-page__hero-head">
+        <t-image
+          class="merchant-order-detail-page__hero-cover"
+          src="{{coverImageUrl}}"
+          mode="aspectFill"
+          shape="round"
+          lazy="{{true}}"
+          data-item-index="{{0}}"
+          bindtap="handlePreviewOrderImages"
+        ></t-image>
+
+        <view class="merchant-order-detail-page__hero-copy">
+          <view class="merchant-order-detail-page__title-row">
+            <text class="merchant-order-detail-page__title">订单详情</text>
+            <t-tag theme="{{statusTheme}}" variant="light">{{statusLabel}}</t-tag>
+          </view>
+
+          <view class="merchant-order-detail-page__hero-meta-row">
+            <text class="merchant-order-detail-page__hero-meta-text">订单号 {{order.id}}</text>
+            <view class="merchant-order-detail-page__zoom-trigger" data-field-key="order-id" bindtap="handleOpenZoomPopup">
+              <text class="merchant-order-detail-page__zoom-trigger-text">放大</text>
+            </view>
+          </view>
+
+          <view class="merchant-order-detail-page__hero-meta-row">
+            <text class="merchant-order-detail-page__hero-meta-text">图片 {{itemViews.length}} 张</text>
+            <view class="merchant-order-detail-page__zoom-trigger" data-item-index="{{0}}" bindtap="handlePreviewOrderImages">
+              <text class="merchant-order-detail-page__zoom-trigger-text">查看</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="glass-card merchant-order-detail-page__section">
+      <text class="merchant-order-detail-page__section-title">关键信息</text>
+
+      <view class="merchant-order-detail-page__meta-row">
+        <text class="merchant-order-detail-page__meta-label">取货时间</text>
+        <view class="merchant-order-detail-page__meta-main">
+          <text class="merchant-order-detail-page__meta-value">{{pickupSummary}}</text>
+          <view class="merchant-order-detail-page__zoom-trigger" data-field-key="pickup-time" bindtap="handleOpenZoomPopup">
+            <text class="merchant-order-detail-page__zoom-trigger-text">放大</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="merchant-order-detail-page__meta-row">
+        <text class="merchant-order-detail-page__meta-label">下单时间</text>
+        <view class="merchant-order-detail-page__meta-main">
+          <text class="merchant-order-detail-page__meta-value">{{createdSummary}}</text>
+          <view class="merchant-order-detail-page__zoom-trigger" data-field-key="created-at" bindtap="handleOpenZoomPopup">
+            <text class="merchant-order-detail-page__zoom-trigger-text">放大</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="merchant-order-detail-page__meta-row">
+        <text class="merchant-order-detail-page__meta-label">联系人</text>
+        <view class="merchant-order-detail-page__meta-main">
+          <text class="merchant-order-detail-page__meta-value">{{order.contact.consignee || '未填写'}} · {{order.contact.phone}}</text>
+          <view class="merchant-order-detail-page__zoom-trigger" data-field-key="contact" bindtap="handleOpenZoomPopup">
+            <text class="merchant-order-detail-page__zoom-trigger-text">放大</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="merchant-order-detail-page__meta-row">
+        <text class="merchant-order-detail-page__meta-label">订单金额</text>
+        <view class="merchant-order-detail-page__meta-main">
+          <text class="merchant-order-detail-page__meta-value">¥{{order.totalAmount}}</text>
+          <view class="merchant-order-detail-page__zoom-trigger" data-field-key="amount" bindtap="handleOpenZoomPopup">
+            <text class="merchant-order-detail-page__zoom-trigger-text">放大</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="merchant-order-detail-page__meta-row merchant-order-detail-page__meta-row--note">
+        <text class="merchant-order-detail-page__meta-label">订单备注</text>
+        <view class="merchant-order-detail-page__meta-main merchant-order-detail-page__meta-main--note">
+          <text class="merchant-order-detail-page__meta-value merchant-order-detail-page__meta-value--note">{{order.note || '暂无备注'}}</text>
+          <view class="merchant-order-detail-page__zoom-trigger" data-field-key="note" bindtap="handleOpenZoomPopup">
+            <text class="merchant-order-detail-page__zoom-trigger-text">放大</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="glass-card merchant-order-detail-page__section">
+      <view class="merchant-order-detail-page__section-head">
+        <text class="merchant-order-detail-page__section-title">商品清单</text>
+        <text class="merchant-order-detail-page__section-side">共 {{itemViews.length}} 款</text>
+      </view>
+
+      <view wx:for="{{itemViews}}" wx:key="specId" class="merchant-order-detail-page__item-card">
+        <t-image
+          class="merchant-order-detail-page__item-cover"
+          src="{{item.coverImageUrl}}"
+          mode="aspectFill"
+          shape="round"
+          lazy="{{true}}"
+          data-item-index="{{index}}"
+          bindtap="handlePreviewOrderImages"
+        ></t-image>
+
+        <view class="merchant-order-detail-page__item-copy">
+          <text class="merchant-order-detail-page__item-title">{{item.productName}}</text>
+          <text class="merchant-order-detail-page__item-meta">{{item.specLabel}}</text>
+          <text class="merchant-order-detail-page__item-meta">{{item.creamLabel}}</text>
+          <text class="merchant-order-detail-page__item-meta">数量 x{{item.quantity}} · 单价 ¥{{item.unitPrice}}</text>
+        </view>
+
+        <view class="merchant-order-detail-page__item-side">
+          <view
+            class="merchant-order-detail-page__zoom-trigger"
+            data-field-key="item"
+            data-item-index="{{index}}"
+            bindtap="handleOpenZoomPopup"
+          >
+            <text class="merchant-order-detail-page__zoom-trigger-text">放大</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <root-portal enable="{{true}}">
+    <t-popup
+      visible="{{zoomPopupVisible}}"
+      placement="bottom"
+      bind:visible-change="handleZoomPopupVisibleChange"
+    >
+      <view class="merchant-order-detail-page__zoom-popup">
+        <view class="merchant-order-detail-page__zoom-head">
+          <text class="merchant-order-detail-page__zoom-title">{{zoomPopupTitle}}</text>
+        </view>
+
+        <view class="merchant-order-detail-page__zoom-toolbar">
+          <view class="merchant-order-detail-page__font-picker" bindtap="handleOpenFontSizePicker">
+            <text class="merchant-order-detail-page__font-picker-label">字体大小</text>
+            <view class="merchant-order-detail-page__font-picker-value-shell">
+              <text class="merchant-order-detail-page__font-picker-value">{{fontSizeMode}}</text>
+              <text class="merchant-order-detail-page__font-picker-unit">号</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="merchant-order-detail-page__zoom-stage">
+          <scroll-view
+            class="merchant-order-detail-page__zoom-scroll"
+            scroll-y="{{true}}"
+            enhanced="{{true}}"
+            show-scrollbar="{{false}}"
+          >
+            <view class="merchant-order-detail-page__zoom-stage-inner">
+              <view class="merchant-order-detail-page__zoom-card {{zoomPopupKind === 'text' ? 'merchant-order-detail-page__zoom-card--text' : ''}}">
+                <view wx:if="{{zoomPopupKind === 'text'}}" class="merchant-order-detail-page__zoom-copy-shell">
+                  <view class="merchant-order-detail-page__zoom-copy-frame">
+                    <text class="merchant-order-detail-page__zoom-copy" style="font-size: {{fontSizeMode}}px;">{{zoomPopupTextContent}}</text>
+                  </view>
+                </view>
+
+                <view wx:else class="merchant-order-detail-page__zoom-field-list">
+                  <view wx:for="{{zoomPopupFields}}" wx:key="label" class="merchant-order-detail-page__zoom-field-row">
+                    <text
+                      class="merchant-order-detail-page__zoom-field-label"
+                      style="font-size: {{fontSizeMode}}px;"
+                    >
+                      {{item.label}}
+                    </text>
+                    <text
+                      class="merchant-order-detail-page__zoom-field-value"
+                      style="font-size: {{fontSizeMode}}px;"
+                    >
+                      {{item.value}}
+                    </text>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </scroll-view>
+        </view>
+      </view>
+    </t-popup>
+  </root-portal>
+
+  <root-portal enable="{{true}}">
+    <t-picker
+      visible="{{fontSizePickerVisible}}"
+      title="选择字体大小"
+      value="{{fontSizePickerValue}}"
+      bind:pick="handleFontSizeChange"
+      bind:confirm="handleFontSizeConfirm"
+      bind:cancel="handleFontSizeCancel"
+    >
+      <t-picker-item options="{{fontSizeOptions}}"></t-picker-item>
+    </t-picker>
+  </root-portal>
+</view>

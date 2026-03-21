@@ -1,0 +1,293 @@
+@import "../../styles/merchant-button-token.wxss";
+
+.merchant-account-book-scene {
+  min-height: 100%;
+  padding: 0 0 calc(188rpx + env(safe-area-inset-bottom));
+}
+
+.merchant-account-book-scene__hero,
+.merchant-account-book-scene__chart-card {
+  padding: 20rpx;
+}
+
+.merchant-account-book-scene__chart-card {
+  margin-top: 18rpx;
+}
+
+.merchant-account-book-scene__title {
+  color: #553633;
+  font-size: 40rpx;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.merchant-account-book-scene__tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-top: 12rpx;
+}
+
+.merchant-account-book-scene__range-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 12rpx;
+}
+
+.merchant-account-book-scene__btn {
+  --td-button-small-height: 58rpx;
+  --td-button-small-padding-horizontal: 18rpx;
+  --td-button-small-font-size: 22rpx;
+}
+
+.merchant-account-book-scene__chart-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.merchant-account-book-scene__chart-main {
+  display: flex;
+  align-items: stretch;
+  gap: 16rpx;
+}
+
+.merchant-account-book-scene__y-axis {
+  flex: none;
+  width: 64rpx;
+  padding: 16rpx 0 52rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #a48d86;
+  font-size: 20rpx;
+}
+
+.merchant-account-book-scene__chart-stage {
+  flex: 1;
+  min-width: 0;
+}
+
+.merchant-account-book-scene__plot-grid,
+.merchant-account-book-scene__plot {
+  border-radius: 28rpx;
+}
+
+.merchant-account-book-scene__plot-grid {
+  position: absolute;
+  inset: 0;
+  padding: 18rpx 18rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.merchant-account-book-scene__grid-line {
+  height: 1rpx;
+  background: linear-gradient(90deg, rgba(235, 211, 203, 0.16) 0%, rgba(235, 211, 203, 0.6) 14%, rgba(235, 211, 203, 0.16) 100%);
+}
+
+.merchant-account-book-scene__plot {
+  position: relative;
+  height: 264rpx;
+  border-radius: 32rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: linear-gradient(180deg, #fffefc 0%, #fff7f1 100%);
+  overflow: hidden;
+}
+
+.merchant-account-book-scene__line-segment {
+  position: absolute;
+  height: 4rpx;
+  transform-origin: left center;
+  border-radius: 999rpx;
+  z-index: 2;
+}
+
+.merchant-account-book-scene__dot {
+  position: absolute;
+  width: 18rpx;
+  height: 18rpx;
+  margin-left: -9rpx;
+  margin-top: -9rpx;
+  border-radius: 50%;
+  border: 3rpx solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 6rpx 14rpx rgba(188, 113, 96, 0.18);
+  z-index: 3;
+}
+
+.merchant-account-book-scene__dot--income {
+  box-shadow: 0 6rpx 14rpx rgba(255, 139, 107, 0.22);
+}
+
+.merchant-account-book-scene__dot--expense {
+  box-shadow: 0 6rpx 14rpx rgba(209, 111, 122, 0.22);
+}
+
+.merchant-account-book-scene__dot--selected {
+  transform: scale(1.14);
+  box-shadow: 0 0 0 6rpx rgba(255, 240, 233, 0.88), 0 8rpx 18rpx rgba(188, 113, 96, 0.2);
+}
+
+.merchant-account-book-scene__x-axis {
+  margin-top: 10rpx;
+  padding-left: 4%;
+  padding-right: 4%;
+  display: flex;
+  justify-content: space-between;
+  gap: 10rpx;
+}
+
+.merchant-account-book-scene__x-label {
+  flex: 1;
+  min-width: 0;
+  color: #a48d86;
+  font-size: 20rpx;
+  text-align: center;
+}
+
+.merchant-account-book-scene__legend-row {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.merchant-account-book-scene__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  color: #7b5a53;
+  font-size: 22rpx;
+}
+
+.merchant-account-book-scene__legend-line {
+  width: 28rpx;
+  height: 4rpx;
+  border-radius: 999rpx;
+}
+
+.merchant-account-book-scene__legend-line--income {
+  background: #ff8b6b;
+}
+
+.merchant-account-book-scene__legend-line--expense {
+  background: #d16f7a;
+}
+
+.merchant-account-book-scene__point-detail {
+  padding: 16rpx 18rpx;
+  border-radius: 24rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: linear-gradient(180deg, rgba(255, 252, 249, 0.98) 0%, rgba(255, 246, 240, 0.98) 100%);
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.56);
+}
+
+.merchant-account-book-scene__point-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.merchant-account-book-scene__point-detail-title {
+  color: #553633;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.merchant-account-book-scene__point-detail-net {
+  color: #a46457;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.merchant-account-book-scene__point-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12rpx;
+  margin-top: 14rpx;
+}
+
+.merchant-account-book-scene__point-detail-item {
+  padding: 12rpx 14rpx;
+  border-radius: 18rpx;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(244, 210, 198, 0.68);
+}
+
+.merchant-account-book-scene__point-detail-label {
+  display: block;
+  color: #8c6a63;
+  font-size: 20rpx;
+}
+
+.merchant-account-book-scene__point-detail-value {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.merchant-account-book-scene__point-detail-value--income {
+  color: #c96545;
+}
+
+.merchant-account-book-scene__point-detail-value--expense {
+  color: #a04c5a;
+}
+
+.merchant-account-book-scene__empty {
+  margin-top: 18rpx;
+  padding: 26rpx 20rpx;
+  border-radius: 24rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.merchant-account-book-scene__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-top: 18rpx;
+}
+
+.merchant-account-book-scene__record-card {
+  padding: 18rpx;
+  border-radius: 20rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 14rpx 24rpx rgba(188, 113, 96, 0.1);
+}
+
+.merchant-account-book-scene__record-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10rpx;
+}
+
+.merchant-account-book-scene__record-title {
+  color: #5b3a35;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.merchant-account-book-scene__record-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14rpx;
+  margin-top: 10rpx;
+}
+
+.merchant-account-book-scene__record-date {
+  color: #8c6a63;
+  font-size: 22rpx;
+}
+
+.merchant-account-book-scene__record-amount {
+  color: #5b3a35;
+  font-size: 24rpx;
+  font-weight: 700;
+}

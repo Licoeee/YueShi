@@ -1,0 +1,106 @@
+page {
+  min-height: 100%;
+  background: linear-gradient(180deg, #fff5f7 0%, #ffe5d6 100%);
+}
+
+.merchant-blacklist-page {
+  position: relative;
+  min-height: 100vh;
+}
+
+.merchant-blacklist-page__background {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255, 255, 255, 0.56) 0%, rgba(255, 255, 255, 0) 42%),
+    radial-gradient(circle at 82% 8%, rgba(255, 232, 220, 0.58) 0%, rgba(255, 232, 220, 0) 40%),
+    linear-gradient(180deg, #fff5f7 0%, #ffe5d6 100%);
+}
+
+.merchant-blacklist-page__content {
+  position: relative;
+  z-index: 1;
+  padding: calc(30rpx + env(safe-area-inset-top)) 30rpx calc(188rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.merchant-blacklist-page__hero,
+.merchant-blacklist-page__editor,
+.merchant-blacklist-page__card {
+  padding: 20rpx;
+}
+
+.merchant-blacklist-page__editor,
+.merchant-blacklist-page__list,
+.merchant-blacklist-page__empty {
+  margin-top: 20rpx;
+}
+
+.merchant-blacklist-page__title {
+  color: #553633;
+  font-size: 40rpx;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.merchant-blacklist-page__editor-actions {
+  margin-top: 14rpx;
+}
+
+.merchant-blacklist-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.merchant-blacklist-page__card {
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12rpx 22rpx rgba(188, 113, 96, 0.1);
+}
+
+.merchant-blacklist-page__openid {
+  display: block;
+  color: #5b3a35;
+  font-size: 24rpx;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.merchant-blacklist-page__created-at {
+  display: block;
+  margin-top: 8rpx;
+  color: #8c6a63;
+  font-size: 20rpx;
+}
+
+.merchant-blacklist-page__card-actions {
+  margin-top: 12rpx;
+}
+
+.merchant-blacklist-page__btn {
+  --td-button-small-height: 58rpx;
+  --td-button-small-padding-horizontal: 18rpx;
+  --td-button-small-font-size: 22rpx;
+  --td-button-border-radius: 18rpx;
+  font-weight: 700;
+}
+
+.merchant-blacklist-page__btn--outline {
+  --td-button-default-outline-color: #7a5952;
+  --td-button-default-outline-border-color: rgba(242, 210, 199, 0.95);
+  --td-button-default-outline-active-bg-color: rgba(255, 245, 240, 0.95);
+  --td-button-default-outline-active-border-color: rgba(242, 210, 199, 0.95);
+  --td-button-default-outline-disabled-color: rgba(170, 150, 142, 0.9);
+}
+
+.merchant-blacklist-page__btn--danger {
+  --td-button-danger-bg-color: #d15c68;
+  --td-button-danger-border-color: #d15c68;
+  --td-button-danger-active-bg-color: #c24c58;
+  --td-button-danger-active-border-color: #c24c58;
+  --td-button-danger-disabled-bg: rgba(230, 220, 214, 0.95);
+  --td-button-danger-disabled-border-color: rgba(212, 194, 187, 0.95);
+  --td-button-danger-disabled-color: rgba(135, 118, 112, 0.85);
+}

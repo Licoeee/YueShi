@@ -2,7 +2,7 @@ export type ProductCategory = 'birthday-cake' | 'dessert' | 'cookie' | 'gift-box
 
 export type ProductStatus = 'draft' | 'active' | 'archived'
 
-export type ProductSpecSize = '6-inch' | '8-inch' | '10-inch'
+export type ProductSpecSize = '6-inch' | '8-inch' | '10-inch' | '12-inch' | '14-inch' | '16-inch'
 
 export type CakeLayerId = 'single' | 'double' | 'triple'
 

@@ -1,0 +1,771 @@
+<view class="merchant-products-scene">
+  <view class="glass-card merchant-products-scene__hero">
+    <text class="merchant-products-scene__title">商品管理</text>
+    <view class="merchant-products-scene__tag-row">
+      <t-tag theme="primary" variant="light">上架 {{activeProducts.length}}</t-tag>
+      <t-tag theme="warning" variant="light">回收站 {{recycleProducts.length}}</t-tag>
+    </view>
+
+    <t-input
+      class="merchant-products-scene__search"
+      placeholder="搜索商品名称、ID、规格"
+      value="{{productSearchKeyword}}"
+      clearable="{{true}}"
+      bind:change="handleProductSearchChange"
+    ></t-input>
+
+    <view class="merchant-products-scene__action-grid">
+      <view class="merchant-products-scene__action-row merchant-products-scene__action-row--primary">
+        <t-button
+          size="small"
+          theme="primary"
+          t-class="merchant-button-token merchant-button-token--primary merchant-products-scene__toolbar-btn"
+          disabled="{{batchEditPhase !== 'idle'}}"
+          bindtap="handleOpenCreateEditor"
+        >
+          新增商品
+        </t-button>
+        <t-button
+          size="small"
+          theme="default"
+          variant="outline"
+          t-class="merchant-button-token merchant-button-token--outline merchant-products-scene__toolbar-btn"
+          disabled="{{batchEditPhase !== 'idle'}}"
+          bindtap="handleOpenRecyclePopup"
+        >
+          回收站
+        </t-button>
+      </view>
+
+      <view class="merchant-products-scene__action-row merchant-products-scene__action-row--secondary">
+        <t-button
+          size="small"
+          theme="default"
+          variant="outline"
+          t-class="merchant-button-token merchant-button-token--outline merchant-products-scene__toolbar-btn"
+          bindtap="handleBatchEditTrigger"
+        >
+          批量编辑
+        </t-button>
+        <t-button
+          size="small"
+          theme="default"
+          variant="outline"
+          t-class="merchant-button-token merchant-button-token--outline merchant-products-scene__toolbar-btn"
+          disabled="{{batchEditPhase === 'idle'}}"
+          bindtap="handleExitBatchEdit"
+        >
+          退出编辑
+        </t-button>
+      </view>
+    </view>
+
+    <view class="merchant-products-scene__batch-state" wx:if="{{batchEditPhase !== 'idle'}}">
+      <text class="merchant-products-scene__batch-state-label">{{batchPhaseLabel}}</text>
+      <text class="merchant-products-scene__batch-state-value">{{batchPhaseValue}}</text>
+    </view>
+  </view>
+
+  <view class="merchant-products-scene__empty" wx:if="{{visibleProductCount === 0}}">
+    <t-empty description="{{emptyDescription}}"></t-empty>
+  </view>
+
+  <view class="merchant-products-scene__waterfall" wx:else>
+    <view class="merchant-products-scene__column">
+      <view wx:for="{{leftColumnProducts}}" wx:key="id" class="merchant-products-scene__card">
+        <t-image
+          class="merchant-products-scene__card-image"
+          src="{{item.coverImageUrl}}"
+          mode="aspectFill"
+          shape="round"
+          lazy="{{true}}"
+        ></t-image>
+
+        <view class="merchant-products-scene__card-body">
+          <view class="merchant-products-scene__card-head">
+            <view class="merchant-products-scene__card-id-wrap">
+              <view class="merchant-products-scene__selection" wx:if="{{batchEditPhase !== 'idle'}}">
+                <t-checkbox
+                  value="{{item.id}}"
+                  checked="{{selectedProductMap[item.id]}}"
+                  icon="{{selectionCircleIcons}}"
+                  borderless="{{true}}"
+                  t-class="merchant-products-scene__selection-check"
+                  data-product-id="{{item.id}}"
+                  bind:change="handleToggleProductSelection"
+                ></t-checkbox>
+              </view>
+              <text class="merchant-products-scene__card-id">ID {{item.id}}</text>
+            </view>
+            <text class="merchant-products-scene__card-price">{{item.priceSummary}}</text>
+          </view>
+
+          <text class="merchant-products-scene__card-title">{{item.title}}</text>
+          <text class="merchant-products-scene__card-meta">{{item.specSummary}} · {{item.layerSummary}} · {{item.creamSummary}}</text>
+
+          <view class="merchant-products-scene__card-actions" wx:if="{{batchEditPhase === 'idle'}}">
+            <view
+              class="merchant-products-scene__card-action-cell"
+              data-product-id="{{item.id}}"
+              hover-class="merchant-products-scene__card-action-cell--active"
+              bindtap="handleOpenEditEditor"
+            >
+              <view class="merchant-products-scene__card-action-shell">
+                <text class="merchant-products-scene__card-action-text">编辑</text>
+              </view>
+            </view>
+            <view
+              class="merchant-products-scene__card-action-cell"
+              data-product-id="{{item.id}}"
+              hover-class="merchant-products-scene__card-action-cell--active"
+              bindtap="handleDeleteProduct"
+            >
+              <view class="merchant-products-scene__card-action-shell merchant-products-scene__card-action-shell--danger">
+                <text class="merchant-products-scene__card-action-text">删除</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="merchant-products-scene__column">
+      <view wx:for="{{rightColumnProducts}}" wx:key="id" class="merchant-products-scene__card">
+        <t-image
+          class="merchant-products-scene__card-image"
+          src="{{item.coverImageUrl}}"
+          mode="aspectFill"
+          shape="round"
+          lazy="{{true}}"
+        ></t-image>
+
+        <view class="merchant-products-scene__card-body">
+          <view class="merchant-products-scene__card-head">
+            <view class="merchant-products-scene__card-id-wrap">
+              <view class="merchant-products-scene__selection" wx:if="{{batchEditPhase !== 'idle'}}">
+                <t-checkbox
+                  value="{{item.id}}"
+                  checked="{{selectedProductMap[item.id]}}"
+                  icon="{{selectionCircleIcons}}"
+                  borderless="{{true}}"
+                  t-class="merchant-products-scene__selection-check"
+                  data-product-id="{{item.id}}"
+                  bind:change="handleToggleProductSelection"
+                ></t-checkbox>
+              </view>
+              <text class="merchant-products-scene__card-id">ID {{item.id}}</text>
+            </view>
+            <text class="merchant-products-scene__card-price">{{item.priceSummary}}</text>
+          </view>
+
+          <text class="merchant-products-scene__card-title">{{item.title}}</text>
+          <text class="merchant-products-scene__card-meta">{{item.specSummary}} · {{item.layerSummary}} · {{item.creamSummary}}</text>
+
+          <view class="merchant-products-scene__card-actions" wx:if="{{batchEditPhase === 'idle'}}">
+            <view
+              class="merchant-products-scene__card-action-cell"
+              data-product-id="{{item.id}}"
+              hover-class="merchant-products-scene__card-action-cell--active"
+              bindtap="handleOpenEditEditor"
+            >
+              <view class="merchant-products-scene__card-action-shell">
+                <text class="merchant-products-scene__card-action-text">编辑</text>
+              </view>
+            </view>
+            <view
+              class="merchant-products-scene__card-action-cell"
+              data-product-id="{{item.id}}"
+              hover-class="merchant-products-scene__card-action-cell--active"
+              bindtap="handleDeleteProduct"
+            >
+              <view class="merchant-products-scene__card-action-shell merchant-products-scene__card-action-shell--danger">
+                <text class="merchant-products-scene__card-action-text">删除</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <root-portal enable="{{true}}">
+    <t-popup
+      visible="{{productEditorVisible}}"
+      placement="bottom"
+      bind:visible-change="handleProductEditorVisibleChange"
+    >
+      <view class="merchant-products-scene__popup-shell merchant-products-scene__popup-shell--editor">
+        <view class="merchant-products-scene__popup-head">
+          <text class="merchant-products-scene__popup-title">{{productEditorMode === 'create' ? '新增商品' : '编辑商品'}}</text>
+        </view>
+
+        <scroll-view class="merchant-products-scene__popup-scroll" scroll-y type="list">
+          <view class="merchant-products-scene__popup-body">
+            <view class="merchant-products-scene__id-preview" wx:if="{{productEditorMode === 'create'}}">
+              <text class="merchant-products-scene__id-preview-label">自动生成 ID</text>
+              <text class="merchant-products-scene__id-preview-value">{{nextProductIdPreview}}</text>
+            </view>
+
+            <view class="merchant-products-scene__field">
+              <view class="merchant-products-scene__field-label">
+                <text class="merchant-products-scene__required-mark">*</text>
+                <text class="merchant-products-scene__field-label-text">商品名称</text>
+              </view>
+              <t-input
+                placeholder="输入商品名称"
+                value="{{productTitleInput}}"
+                bind:change="handleProductTitleChange"
+              ></t-input>
+            </view>
+
+            <view class="merchant-products-scene__field">
+              <view class="merchant-products-scene__field-label">
+                <text class="merchant-products-scene__field-label-text">商品描述</text>
+              </view>
+              <t-input
+                placeholder="输入商品描述"
+                value="{{productDescriptionInput}}"
+                bind:change="handleProductDescriptionChange"
+              ></t-input>
+            </view>
+
+            <view class="merchant-products-scene__field">
+              <view class="merchant-products-scene__field-label">
+                <text class="merchant-products-scene__required-mark">*</text>
+                <text class="merchant-products-scene__field-label-text">基础价格</text>
+              </view>
+              <t-input
+                type="digit"
+                placeholder="输入基础价格"
+                value="{{productPriceInput}}"
+                bind:change="handleProductPriceChange"
+              ></t-input>
+            </view>
+
+            <view class="merchant-products-scene__select-area">
+              <view class="merchant-products-scene__select-head">
+                <view class="merchant-products-scene__field-label">
+                  <text class="merchant-products-scene__required-mark">*</text>
+                  <text class="merchant-products-scene__select-label">规格多选</text>
+                </view>
+                <view
+                  class="merchant-products-scene__select-toggle {{productSpecSizes.length === specOptions.length ? 'merchant-products-scene__select-toggle--active' : ''}}"
+                  bindtap="handleToggleAllSpecSizes"
+                >
+                  <view class="merchant-products-scene__select-toggle-circle"></view>
+                  <text class="merchant-products-scene__select-toggle-text">全选</text>
+                </view>
+              </view>
+              <t-checkbox-group value="{{productSpecSizes}}" bind:change="handleProductSpecChange">
+                <view class="merchant-products-scene__choice-list">
+                  <view wx:for="{{specOptions}}" wx:key="value" class="merchant-products-scene__choice-item">
+                    <t-checkbox
+                      value="{{item.value}}"
+                      icon="{{selectionCircleIcons}}"
+                      borderless="{{true}}"
+                      t-class="merchant-products-scene__choice-check"
+                      t-class-label="merchant-products-scene__choice-label"
+                    >
+                      {{item.label}}
+                    </t-checkbox>
+                  </view>
+                </view>
+              </t-checkbox-group>
+            </view>
+
+            <view class="merchant-products-scene__select-area">
+              <view class="merchant-products-scene__select-head">
+                <view class="merchant-products-scene__field-label">
+                  <text class="merchant-products-scene__required-mark">*</text>
+                  <text class="merchant-products-scene__select-label">层数选择</text>
+                </view>
+                <view
+                  class="merchant-products-scene__select-toggle {{productLayers.length === layerOptions.length ? 'merchant-products-scene__select-toggle--active' : ''}}"
+                  bindtap="handleToggleAllLayers"
+                >
+                  <view class="merchant-products-scene__select-toggle-circle"></view>
+                  <text class="merchant-products-scene__select-toggle-text">全选</text>
+                </view>
+              </view>
+              <t-checkbox-group value="{{productLayers}}" bind:change="handleProductLayerChange">
+                <view class="merchant-products-scene__choice-list">
+                  <view wx:for="{{layerOptions}}" wx:key="value" class="merchant-products-scene__choice-item">
+                    <t-checkbox
+                      value="{{item.value}}"
+                      icon="{{selectionCircleIcons}}"
+                      borderless="{{true}}"
+                      t-class="merchant-products-scene__choice-check"
+                      t-class-label="merchant-products-scene__choice-label"
+                    >
+                      {{item.label}}
+                    </t-checkbox>
+                  </view>
+                </view>
+              </t-checkbox-group>
+            </view>
+
+            <view class="merchant-products-scene__select-area">
+              <view class="merchant-products-scene__select-head">
+                <view class="merchant-products-scene__field-label">
+                  <text class="merchant-products-scene__required-mark">*</text>
+                  <text class="merchant-products-scene__select-label">奶油类型</text>
+                </view>
+                <view
+                  class="merchant-products-scene__select-toggle {{productCreamTypes.length === creamOptions.length ? 'merchant-products-scene__select-toggle--active' : ''}}"
+                  bindtap="handleToggleAllCreamTypes"
+                >
+                  <view class="merchant-products-scene__select-toggle-circle"></view>
+                  <text class="merchant-products-scene__select-toggle-text">全选</text>
+                </view>
+              </view>
+              <t-checkbox-group value="{{productCreamTypes}}" bind:change="handleProductCreamChange">
+                <view class="merchant-products-scene__choice-list">
+                  <view wx:for="{{creamOptions}}" wx:key="value" class="merchant-products-scene__choice-item">
+                    <t-checkbox
+                      value="{{item.value}}"
+                      icon="{{selectionCircleIcons}}"
+                      borderless="{{true}}"
+                      t-class="merchant-products-scene__choice-check"
+                      t-class-label="merchant-products-scene__choice-label"
+                    >
+                      {{item.label}}
+                    </t-checkbox>
+                  </view>
+                </view>
+              </t-checkbox-group>
+            </view>
+
+            <view class="merchant-products-scene__select-area">
+              <view class="merchant-products-scene__field-label">
+                <text class="merchant-products-scene__required-mark">*</text>
+                <text class="merchant-products-scene__select-label">尺寸加价</text>
+              </view>
+              <view class="merchant-products-scene__price-grid">
+                <view wx:for="{{specOptions}}" wx:key="value" class="merchant-products-scene__price-item">
+                  <text class="merchant-products-scene__price-item-label">{{item.label}}</text>
+                  <t-input
+                    type="digit"
+                    placeholder="0 表示不加价"
+                    value="{{productSizePriceInputs[item.value] || ''}}"
+                    data-option-value="{{item.value}}"
+                    bind:change="handleProductSizePriceChange"
+                  ></t-input>
+                </view>
+              </view>
+            </view>
+
+            <view class="merchant-products-scene__select-area">
+              <view class="merchant-products-scene__field-label">
+                <text class="merchant-products-scene__required-mark">*</text>
+                <text class="merchant-products-scene__select-label">层数加价</text>
+              </view>
+              <view class="merchant-products-scene__price-grid">
+                <view wx:for="{{layerOptions}}" wx:key="value" class="merchant-products-scene__price-item">
+                  <text class="merchant-products-scene__price-item-label">{{item.label}}</text>
+                  <t-input
+                    type="digit"
+                    placeholder="0 表示不加价"
+                    value="{{productLayerPriceInputs[item.value] || ''}}"
+                    data-option-value="{{item.value}}"
+                    bind:change="handleProductLayerPriceChange"
+                  ></t-input>
+                </view>
+              </view>
+            </view>
+
+            <view class="merchant-products-scene__select-area">
+              <view class="merchant-products-scene__field-label">
+                <text class="merchant-products-scene__required-mark">*</text>
+                <text class="merchant-products-scene__select-label">奶油加价</text>
+              </view>
+              <view class="merchant-products-scene__price-grid">
+                <view wx:for="{{creamOptions}}" wx:key="value" class="merchant-products-scene__price-item">
+                  <text class="merchant-products-scene__price-item-label">{{item.label}}</text>
+                  <t-input
+                    type="digit"
+                    placeholder="0 表示不加价"
+                    value="{{productCreamPriceInputs[item.value] || ''}}"
+                    data-option-value="{{item.value}}"
+                    bind:change="handleProductCreamPriceChange"
+                  ></t-input>
+                </view>
+              </view>
+            </view>
+
+            <view class="merchant-products-scene__photo-field">
+              <view class="merchant-products-scene__field-label">
+                <text class="merchant-products-scene__required-mark">*</text>
+                <text class="merchant-products-scene__select-label">商品图片</text>
+              </view>
+            </view>
+
+            <view class="merchant-products-scene__photo-row">
+              <t-button
+                size="small"
+                theme="default"
+                variant="outline"
+                t-class="merchant-button-token merchant-button-token--outline merchant-products-scene__popup-btn merchant-products-scene__popup-btn--single"
+                bindtap="handleChooseProductImage"
+              >
+                上传图片
+              </t-button>
+            </view>
+
+            <view class="merchant-products-scene__image-rail" wx:if="{{productImageUrls.length > 0}}">
+              <view wx:for="{{productImageUrls}}" wx:key="*this" class="merchant-products-scene__image-card">
+                <view class="merchant-products-scene__image-head">
+                  <text class="merchant-products-scene__image-tag">{{index === 0 ? '首图' : ('图片 ' + (index + 1))}}</text>
+                </view>
+                <t-image
+                  class="merchant-products-scene__photo-preview"
+                  src="{{item}}"
+                  mode="aspectFill"
+                  shape="round"
+                  lazy="{{true}}"
+                  data-image-index="{{index}}"
+                  bindtap="handlePreviewProductImage"
+                ></t-image>
+                <view class="merchant-products-scene__image-actions">
+                  <view
+                    class="merchant-products-scene__image-action-shell"
+                    data-image-index="{{index}}"
+                    bindtap="handlePreviewProductImage"
+                  >
+                    <text class="merchant-products-scene__image-action-text">预览</text>
+                  </view>
+                  <view
+                    class="merchant-products-scene__image-action-shell"
+                    data-image-index="{{index}}"
+                    bindtap="handleSetPrimaryProductImage"
+                  >
+                    <text class="merchant-products-scene__image-action-text">设为首图</text>
+                  </view>
+                  <view
+                    class="merchant-products-scene__image-action-shell merchant-products-scene__image-action-shell--danger"
+                    data-image-index="{{index}}"
+                    bindtap="handleRemoveProductImage"
+                  >
+                    <text class="merchant-products-scene__image-action-text merchant-products-scene__image-action-text--danger">删除</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </scroll-view>
+
+        <view class="merchant-products-scene__popup-actions">
+          <t-button
+            size="small"
+            theme="primary"
+            t-class="merchant-button-token merchant-button-token--primary merchant-products-scene__popup-btn"
+            bindtap="handleSaveProduct"
+          >
+            {{productEditorMode === 'create' ? '保存新增' : '保存修改'}}
+          </t-button>
+          <t-button
+            size="small"
+            theme="default"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--outline merchant-products-scene__popup-btn"
+            bindtap="handleCloseProductEditor"
+          >
+            取消
+          </t-button>
+        </view>
+      </view>
+    </t-popup>
+  </root-portal>
+
+  <root-portal enable="{{true}}">
+    <t-popup
+      visible="{{batchEditorVisible}}"
+      placement="bottom"
+      bind:visible-change="handleBatchEditorVisibleChange"
+    >
+      <view class="merchant-products-scene__popup-shell merchant-products-scene__popup-shell--batch">
+        <view class="merchant-products-scene__popup-head">
+          <text class="merchant-products-scene__popup-title">批量修改</text>
+        </view>
+
+        <scroll-view class="merchant-products-scene__popup-scroll" scroll-y type="list">
+          <view class="merchant-products-scene__popup-body">
+            <view class="merchant-products-scene__batch-count">已选 {{selectedProductIds.length}} 件商品</view>
+
+            <view class="merchant-products-scene__field">
+              <view class="merchant-products-scene__field-label">
+                <text class="merchant-products-scene__field-label-text">基础价格覆盖</text>
+              </view>
+              <t-input
+                type="digit"
+                placeholder="可选，不填则不改基础价格"
+                value="{{batchPriceInput}}"
+                bind:change="handleBatchPriceChange"
+              ></t-input>
+            </view>
+
+            <view class="merchant-products-scene__select-area">
+              <view class="merchant-products-scene__select-head">
+                <view class="merchant-products-scene__field-label">
+                  <text class="merchant-products-scene__select-label">规格多选</text>
+                </view>
+                <view
+                  class="merchant-products-scene__select-toggle {{batchSpecSizes.length === specOptions.length ? 'merchant-products-scene__select-toggle--active' : ''}}"
+                  bindtap="handleToggleAllBatchSpecSizes"
+                >
+                  <view class="merchant-products-scene__select-toggle-circle"></view>
+                  <text class="merchant-products-scene__select-toggle-text">全选</text>
+                </view>
+              </view>
+              <t-checkbox-group value="{{batchSpecSizes}}" bind:change="handleBatchSpecChange">
+                <view class="merchant-products-scene__choice-list">
+                  <view wx:for="{{specOptions}}" wx:key="value" class="merchant-products-scene__choice-item">
+                    <t-checkbox
+                      value="{{item.value}}"
+                      icon="{{selectionCircleIcons}}"
+                      borderless="{{true}}"
+                      t-class="merchant-products-scene__choice-check"
+                      t-class-label="merchant-products-scene__choice-label"
+                    >
+                      {{item.label}}
+                    </t-checkbox>
+                  </view>
+                </view>
+              </t-checkbox-group>
+            </view>
+
+            <view class="merchant-products-scene__select-area">
+              <view class="merchant-products-scene__select-head">
+                <view class="merchant-products-scene__field-label">
+                  <text class="merchant-products-scene__select-label">层数选择</text>
+                </view>
+                <view
+                  class="merchant-products-scene__select-toggle {{batchLayers.length === layerOptions.length ? 'merchant-products-scene__select-toggle--active' : ''}}"
+                  bindtap="handleToggleAllBatchLayers"
+                >
+                  <view class="merchant-products-scene__select-toggle-circle"></view>
+                  <text class="merchant-products-scene__select-toggle-text">全选</text>
+                </view>
+              </view>
+              <t-checkbox-group value="{{batchLayers}}" bind:change="handleBatchLayerChange">
+                <view class="merchant-products-scene__choice-list">
+                  <view wx:for="{{layerOptions}}" wx:key="value" class="merchant-products-scene__choice-item">
+                    <t-checkbox
+                      value="{{item.value}}"
+                      icon="{{selectionCircleIcons}}"
+                      borderless="{{true}}"
+                      t-class="merchant-products-scene__choice-check"
+                      t-class-label="merchant-products-scene__choice-label"
+                    >
+                      {{item.label}}
+                    </t-checkbox>
+                  </view>
+                </view>
+              </t-checkbox-group>
+            </view>
+
+            <view class="merchant-products-scene__select-area">
+              <view class="merchant-products-scene__select-head">
+                <view class="merchant-products-scene__field-label">
+                  <text class="merchant-products-scene__select-label">奶油类型</text>
+                </view>
+                <view
+                  class="merchant-products-scene__select-toggle {{batchCreamTypes.length === creamOptions.length ? 'merchant-products-scene__select-toggle--active' : ''}}"
+                  bindtap="handleToggleAllBatchCreamTypes"
+                >
+                  <view class="merchant-products-scene__select-toggle-circle"></view>
+                  <text class="merchant-products-scene__select-toggle-text">全选</text>
+                </view>
+              </view>
+              <t-checkbox-group value="{{batchCreamTypes}}" bind:change="handleBatchCreamChange">
+                <view class="merchant-products-scene__choice-list">
+                  <view wx:for="{{creamOptions}}" wx:key="value" class="merchant-products-scene__choice-item">
+                    <t-checkbox
+                      value="{{item.value}}"
+                      icon="{{selectionCircleIcons}}"
+                      borderless="{{true}}"
+                      t-class="merchant-products-scene__choice-check"
+                      t-class-label="merchant-products-scene__choice-label"
+                    >
+                      {{item.label}}
+                    </t-checkbox>
+                  </view>
+                </view>
+              </t-checkbox-group>
+            </view>
+
+            <view class="merchant-products-scene__select-area">
+              <view class="merchant-products-scene__field-label">
+                <text class="merchant-products-scene__select-label">尺寸加价覆盖</text>
+              </view>
+              <view class="merchant-products-scene__price-grid">
+                <view wx:for="{{specOptions}}" wx:key="value" class="merchant-products-scene__price-item">
+                  <text class="merchant-products-scene__price-item-label">{{item.label}}</text>
+                  <t-input
+                    type="digit"
+                    placeholder="可选，0 表示不加价"
+                    value="{{batchSizePriceInputs[item.value] || ''}}"
+                    data-option-value="{{item.value}}"
+                    bind:change="handleBatchSizePriceChange"
+                  ></t-input>
+                </view>
+              </view>
+            </view>
+
+            <view class="merchant-products-scene__select-area">
+              <view class="merchant-products-scene__field-label">
+                <text class="merchant-products-scene__select-label">层数加价覆盖</text>
+              </view>
+              <view class="merchant-products-scene__price-grid">
+                <view wx:for="{{layerOptions}}" wx:key="value" class="merchant-products-scene__price-item">
+                  <text class="merchant-products-scene__price-item-label">{{item.label}}</text>
+                  <t-input
+                    type="digit"
+                    placeholder="可选，0 表示不加价"
+                    value="{{batchLayerPriceInputs[item.value] || ''}}"
+                    data-option-value="{{item.value}}"
+                    bind:change="handleBatchLayerPriceChange"
+                  ></t-input>
+                </view>
+              </view>
+            </view>
+
+            <view class="merchant-products-scene__select-area">
+              <view class="merchant-products-scene__field-label">
+                <text class="merchant-products-scene__select-label">奶油加价覆盖</text>
+              </view>
+              <view class="merchant-products-scene__price-grid">
+                <view wx:for="{{creamOptions}}" wx:key="value" class="merchant-products-scene__price-item">
+                  <text class="merchant-products-scene__price-item-label">{{item.label}}</text>
+                  <t-input
+                    type="digit"
+                    placeholder="可选，0 表示不加价"
+                    value="{{batchCreamPriceInputs[item.value] || ''}}"
+                    data-option-value="{{item.value}}"
+                    bind:change="handleBatchCreamPriceChange"
+                  ></t-input>
+                </view>
+              </view>
+            </view>
+          </view>
+        </scroll-view>
+
+        <view class="merchant-products-scene__popup-actions">
+          <t-button
+            size="small"
+            theme="primary"
+            t-class="merchant-button-token merchant-button-token--primary merchant-products-scene__popup-btn"
+            bindtap="handleApplyBatchEdit"
+          >
+            批量修改
+          </t-button>
+          <t-button
+            size="small"
+            theme="default"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--outline merchant-products-scene__popup-btn"
+            bindtap="handleCloseBatchEditor"
+          >
+            取消
+          </t-button>
+        </view>
+      </view>
+    </t-popup>
+  </root-portal>
+
+  <root-portal enable="{{true}}">
+    <t-popup
+      visible="{{recyclePopupVisible}}"
+      placement="bottom"
+      bind:visible-change="handleRecyclePopupVisibleChange"
+    >
+      <view class="merchant-products-scene__popup-shell merchant-products-scene__popup-shell--recycle">
+        <view class="merchant-products-scene__popup-head">
+          <text class="merchant-products-scene__popup-title">商品回收站</text>
+          <t-button
+            size="small"
+            theme="default"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--outline merchant-products-scene__popup-head-btn"
+            bindtap="handleCloseRecyclePopup"
+          >
+            关闭
+          </t-button>
+        </view>
+
+        <view class="merchant-products-scene__empty merchant-products-scene__empty--popup" wx:if="{{recycleProducts.length === 0}}">
+          <t-empty description="回收站为空"></t-empty>
+        </view>
+
+        <scroll-view class="merchant-products-scene__recycle-list" scroll-y type="list" wx:else>
+          <view wx:for="{{recycleProducts}}" wx:key="id" class="merchant-products-scene__recycle-card">
+            <view class="merchant-products-scene__recycle-head">
+              <text class="merchant-products-scene__recycle-title">ID {{item.id}} · {{item.title}}</text>
+              <t-tag theme="warning" variant="light">剩余 {{item.recycleLeftDays}} 天</t-tag>
+            </view>
+            <text class="merchant-products-scene__recycle-time">删除时间：{{item.deletedSummary}}</text>
+            <view class="merchant-products-scene__recycle-actions">
+              <t-button
+                size="small"
+                theme="default"
+                variant="outline"
+                t-class="merchant-button-token merchant-button-token--outline merchant-products-scene__card-btn"
+                data-product-id="{{item.id}}"
+                bindtap="handleRestoreProduct"
+              >
+                恢复商品
+              </t-button>
+              <t-button
+                size="small"
+                theme="danger"
+                variant="outline"
+                t-class="merchant-button-token merchant-button-token--danger merchant-products-scene__card-btn"
+                disabled="{{true}}"
+              >
+                永久删除
+              </t-button>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+    </t-popup>
+  </root-portal>
+
+  <root-portal enable="{{true}}">
+    <t-popup visible="{{validationDialogVisible}}" placement="center" bind:visible-change="handleValidationDialogVisibleChange">
+      <view class="merchant-products-scene__dialog-shell">
+        <view class="merchant-products-scene__dialog-head">
+          <text class="merchant-products-scene__dialog-title">请补全必填项</text>
+          <text class="merchant-products-scene__dialog-copy">以下内容尚未填写或格式无效，请先补齐再提交。</text>
+        </view>
+
+        <view class="merchant-products-scene__dialog-list">
+          <view wx:for="{{validationMissingFields}}" wx:key="*this" class="merchant-products-scene__dialog-item">
+            <text class="merchant-products-scene__dialog-item-text">{{index + 1}}. {{item}}</text>
+          </view>
+        </view>
+
+        <view class="merchant-products-scene__dialog-actions">
+          <t-button
+            size="small"
+            theme="primary"
+            t-class="merchant-button-token merchant-button-token--primary merchant-products-scene__dialog-btn"
+            bindtap="handleCloseValidationDialog"
+          >
+            我知道了
+          </t-button>
+        </view>
+      </view>
+    </t-popup>
+  </root-portal>
+
+  <root-portal enable="{{true}}">
+    <t-dialog
+      visible="{{deleteDialogVisible}}"
+      content="确认要删除这个商品吗？"
+      confirm-btn="删除"
+      cancel-btn="取消"
+      bind:confirm="handleConfirmDelete"
+      bind:cancel="handleCloseDeleteDialog"
+    />
+  </root-portal>
+</view>
