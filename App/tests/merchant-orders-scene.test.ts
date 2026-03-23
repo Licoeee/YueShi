@@ -18,8 +18,13 @@ test('role-page-scene mounts merchant orders business scene', () => {
 test('merchant orders scene supports calendar filtering and note highlight cards', () => {
   const wxml = readWorkspaceFile('App/miniprogram/components/merchant-orders-scene/merchant-orders-scene.wxml')
   const wxss = readWorkspaceFile('App/miniprogram/components/merchant-orders-scene/merchant-orders-scene.wxss')
+  const source = readWorkspaceFile('App/miniprogram/components/merchant-orders-scene/merchant-orders-scene.ts')
 
   assert.match(wxml, /t-calendar/)
+  assert.match(wxml, /minDate="\{\{calendarMinDate\}\}"/)
+  assert.match(wxml, /value="\{\{calendarValue\}\}"/)
+  assert.match(source, /calendarMinDate:\s*resolveCalendarMinDate\(\)/)
+  assert.match(source, /calendarValue:\s*resolveTodayTimestamp\(\)/)
   assert.match(wxml, /merchant-orders-scene__card--noted/)
   assert.match(wxss, /merchant-orders-scene__card--noted/)
 })

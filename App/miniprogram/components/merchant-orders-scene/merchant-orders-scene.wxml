@@ -240,6 +240,8 @@
       usePopup="{{true}}"
       title="选择日期"
       type="single"
+      minDate="{{calendarMinDate}}"
+      value="{{calendarValue}}"
       confirmBtn="确认筛选"
       t-class="merchant-orders-scene__calendar"
       bind:confirm="handleCalendarConfirm"

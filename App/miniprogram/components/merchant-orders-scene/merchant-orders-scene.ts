@@ -57,6 +57,8 @@ interface MerchantOrdersSceneData {
   selectedDateKey: string
   selectedDateLabel: string
   calendarVisible: boolean
+  calendarMinDate: number
+  calendarValue: number
   notedOrderCount: number
   activeStatusTab: MerchantOrderStatusTabKey
   orderTabs: MerchantOrderTabOption[]
@@ -106,6 +108,39 @@ const SELECTION_CIRCLE_ICONS = [
   '/assets/icons/common/selection-circle-checked.svg',
   '/assets/icons/common/selection-circle-unchecked.svg',
 ]
+
+function resetDateToStartOfDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+}
+
+function resolveTodayTimestamp(): number {
+  return resetDateToStartOfDay(new Date()).getTime()
+}
+
+function resolveCalendarMinDate(): number {
+  const today = resetDateToStartOfDay(new Date())
+  const previousYearDate = new Date(today)
+  previousYearDate.setFullYear(previousYearDate.getFullYear() - 1)
+  return previousYearDate.getTime()
+}
+
+function resolveCalendarValue(dateKey: string): number {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+    return resolveTodayTimestamp()
+  }
+
+  const [yearText, monthText, dayText] = dateKey.split('-')
+  const year = Number(yearText)
+  const month = Number(monthText)
+  const day = Number(dayText)
+  const resolvedDate = new Date(year, month - 1, day)
+
+  if (Number.isNaN(resolvedDate.getTime())) {
+    return resolveTodayTimestamp()
+  }
+
+  return resetDateToStartOfDay(resolvedDate).getTime()
+}
 
 function parseInputValue(detail: unknown): string {
   if (typeof detail === 'string') {
@@ -365,6 +400,8 @@ Component({
     selectedDateKey: '',
     selectedDateLabel: '全部日期',
     calendarVisible: false,
+    calendarMinDate: resolveCalendarMinDate(),
+    calendarValue: resolveTodayTimestamp(),
     notedOrderCount: 0,
     activeStatusTab: DEFAULT_STATUS_TAB,
     orderTabs: ORDER_TABS,
@@ -462,6 +499,7 @@ Component({
     handleOpenCalendar(): void {
       this.setData({
         calendarVisible: true,
+        calendarValue: resolveCalendarValue(this.data.selectedDateKey),
       })
     },
 
@@ -478,6 +516,7 @@ Component({
         calendarVisible: false,
         selectedDateKey,
         selectedDateLabel: resolveSelectedDateLabel(selectedDateKey),
+        calendarValue: resolveCalendarValue(selectedDateKey),
         ...buildVisibleOrdersPatch(this.data.orders, selectedDateKey, this.data.orderSearchKeyword, this.data.activeStatusTab),
       })
     },
@@ -486,6 +525,7 @@ Component({
       this.setData({
         selectedDateKey: '',
         selectedDateLabel: '全部日期',
+        calendarValue: resolveTodayTimestamp(),
         ...buildVisibleOrdersPatch(this.data.orders, '', this.data.orderSearchKeyword, this.data.activeStatusTab),
       })
     },
