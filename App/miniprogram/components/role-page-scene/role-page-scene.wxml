@@ -15,19 +15,40 @@
       bind:sceneaction="handlePreviewReturnTap"
     ></customer-profile-scene>
   </view>
-  <view class="role-page-scene__customer-shell" wx:elif="{{renderMode === 'merchant-products'}}">
+
+  <view
+    class="role-page-scene__customer-shell"
+    wx:if="{{mountedMerchantProducts}}"
+    hidden="{{renderMode !== 'merchant-products'}}"
+  >
     <merchant-products-scene></merchant-products-scene>
   </view>
-  <view class="role-page-scene__customer-shell" wx:elif="{{renderMode === 'merchant-orders'}}">
+  <view
+    class="role-page-scene__customer-shell"
+    wx:if="{{mountedMerchantOrders}}"
+    hidden="{{renderMode !== 'merchant-orders'}}"
+  >
     <merchant-orders-scene></merchant-orders-scene>
   </view>
-  <view class="role-page-scene__customer-shell" wx:elif="{{renderMode === 'merchant-inventory'}}">
+  <view
+    class="role-page-scene__customer-shell"
+    wx:if="{{mountedMerchantInventory}}"
+    hidden="{{renderMode !== 'merchant-inventory'}}"
+  >
     <merchant-inventory-scene></merchant-inventory-scene>
   </view>
-  <view class="role-page-scene__customer-shell" wx:elif="{{renderMode === 'merchant-account-book'}}">
+  <view
+    class="role-page-scene__customer-shell"
+    wx:if="{{mountedMerchantAccountBook}}"
+    hidden="{{renderMode !== 'merchant-account-book'}}"
+  >
     <merchant-account-book-scene></merchant-account-book-scene>
   </view>
-  <view class="role-page-scene__customer-shell" wx:elif="{{renderMode === 'merchant-profile'}}">
+  <view
+    class="role-page-scene__customer-shell"
+    wx:if="{{mountedMerchantProfile}}"
+    hidden="{{renderMode !== 'merchant-profile'}}"
+  >
     <merchant-profile-scene
       is-preview-mode="{{isPreviewMode}}"
       can-back-to-admin="{{canBackToAdmin}}"
@@ -35,7 +56,7 @@
     ></merchant-profile-scene>
   </view>
 
-  <view class="role-page__content app-shell" wx:else>
+  <view class="role-page__content app-shell" wx:if="{{renderMode === 'placeholder'}}">
     <view class="glass-card role-page__hero">
       <text class="role-page__eyebrow">{{scene.eyebrow}}</text>
       <text class="role-page__title">{{scene.title}}</text>

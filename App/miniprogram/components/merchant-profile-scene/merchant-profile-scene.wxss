@@ -32,16 +32,225 @@
   margin-top: 14rpx;
 }
 
+.merchant-profile-scene__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.merchant-profile-scene__section-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  min-width: 0;
+}
+
 .merchant-profile-scene__section-title {
   display: block;
-  margin-bottom: 12rpx;
   color: #5b3934;
   font-size: 28rpx;
   font-weight: 700;
+}
+
+.merchant-profile-scene__section-status {
+  color: #ab6659;
+  font-size: 20rpx;
+  font-weight: 600;
 }
 
 .merchant-profile-scene__btn {
   --td-button-small-height: 58rpx;
   --td-button-small-padding-horizontal: 18rpx;
   --td-button-small-font-size: 22rpx;
+}
+
+.merchant-profile-scene__save-btn {
+  flex: none;
+  --td-button-small-height: 58rpx;
+  --td-button-small-padding-horizontal: 18rpx;
+  --td-button-small-font-size: 22rpx;
+}
+
+.merchant-profile-scene__pricing-group {
+  margin-top: 18rpx;
+  padding: 18rpx;
+  border-radius: 24rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 14rpx 28rpx rgba(184, 111, 95, 0.1);
+}
+
+.merchant-profile-scene__pricing-head {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.merchant-profile-scene__pricing-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.merchant-profile-scene__pricing-title {
+  color: #5a3833;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.merchant-profile-scene__pricing-actions {
+  display: flex;
+  gap: 12rpx;
+}
+
+.merchant-profile-scene__mini-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  --td-button-small-height: 56rpx;
+  --td-button-small-padding-horizontal: 16rpx;
+  --td-button-small-font-size: 22rpx;
+}
+
+.merchant-profile-scene__pricing-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+  margin-top: 16rpx;
+}
+
+.merchant-profile-scene__pricing-empty {
+  padding: 18rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 245, 242, 0.9);
+}
+
+.merchant-profile-scene__pricing-empty-text {
+  color: #8d6b64;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.merchant-profile-scene__pricing-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180rpx auto;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.merchant-profile-scene__pricing-item-label {
+  min-width: 0;
+  color: #61413b;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+
+.merchant-profile-scene__pricing-item-input {
+  min-width: 0;
+}
+
+.merchant-profile-scene__pricing-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 92rpx;
+  height: 56rpx;
+  padding: 0 18rpx;
+  border-radius: 999rpx;
+  border: 1px solid rgba(236, 120, 123, 0.34);
+  background: linear-gradient(180deg, rgba(255, 244, 244, 0.98) 0%, rgba(255, 233, 234, 0.94) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78), 0 10rpx 18rpx rgba(236, 120, 123, 0.12);
+}
+
+.merchant-profile-scene__pricing-delete-text {
+  color: #cf5d64;
+  font-size: 20rpx;
+  font-weight: 600;
+}
+
+.merchant-profile-scene__dialog-shell {
+  width: min(680rpx, calc(100vw - 64rpx));
+  padding: 28rpx 24rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(180deg, rgba(255, 251, 248, 0.98) 0%, rgba(255, 244, 240, 0.98) 100%);
+  box-shadow: 0 20rpx 42rpx rgba(188, 113, 96, 0.2);
+  box-sizing: border-box;
+}
+
+.merchant-profile-scene__confirm-dialog {
+  width: min(680rpx, calc(100vw - 64rpx));
+  padding: 28rpx 24rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(180deg, rgba(255, 251, 248, 0.98) 0%, rgba(255, 244, 240, 0.98) 100%);
+  box-shadow: 0 20rpx 42rpx rgba(188, 113, 96, 0.2);
+  box-sizing: border-box;
+}
+
+.merchant-profile-scene__dialog-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.merchant-profile-scene__dialog-title {
+  color: #553633;
+  font-size: 30rpx;
+  font-weight: 700;
+  text-align: center;
+}
+
+.merchant-profile-scene__dialog-copy {
+  color: #7a5952;
+  font-size: 22rpx;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.merchant-profile-scene__dialog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12rpx;
+  margin-top: 22rpx;
+}
+
+.merchant-profile-scene__picker {
+  min-width: 0;
+}
+
+.merchant-profile-scene__picker-shell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8rpx;
+  padding: 18rpx 16rpx;
+  border-radius: 22rpx;
+  border: 1px solid rgba(244, 210, 198, 0.92);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
+}
+
+.merchant-profile-scene__picker-label {
+  color: #8f6c65;
+  font-size: 20rpx;
+}
+
+.merchant-profile-scene__picker-value {
+  color: #5a3934;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.merchant-profile-scene__dialog-actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 24rpx;
+}
+
+.merchant-profile-scene__dialog-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  --td-button-small-height: 62rpx;
+  --td-button-small-padding-horizontal: 20rpx;
+  --td-button-small-font-size: 24rpx;
 }

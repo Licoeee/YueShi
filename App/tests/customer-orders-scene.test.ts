@@ -69,6 +69,13 @@ test('customer orders scene excludes recycle-bin orders from normal tabs', () =>
   assert.match(source, /saveStoredCustomerOrders/)
 })
 
+test('customer orders scene also excludes orders moved into merchant recycle bin', () => {
+  const source = readOrdersSceneFile('ts')
+
+  assert.match(source, /splitMerchantOrdersByRecycleState/)
+  assert.match(source, /merchantVisibility/)
+})
+
 test('customer orders scene exposes tappable cards that route to detail', () => {
   const wxml = readOrdersSceneFile('wxml')
 

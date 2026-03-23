@@ -1,0 +1,35 @@
+.shared-search-shell {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.shared-search-shell__input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.shared-search-shell__clear {
+  flex: none;
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 999rpx;
+  border: 1px solid rgba(232, 173, 150, 0.92);
+  background: linear-gradient(180deg, rgba(255, 249, 245, 0.98) 0%, rgba(255, 238, 228, 0.98) 100%);
+  box-shadow: 0 8rpx 16rpx rgba(188, 113, 96, 0.12), inset 0 2rpx 0 rgba(255, 255, 255, 0.52);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.shared-search-shell__clear--active {
+  opacity: 0.9;
+}
+
+.shared-search-shell__clear-text {
+  color: #955244;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 1;
+}

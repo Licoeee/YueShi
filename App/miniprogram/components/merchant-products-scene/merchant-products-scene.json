@@ -2,6 +2,7 @@
   "component": true,
   "styleIsolation": "apply-shared",
   "usingComponents": {
+    "shared-search-shell": "/components/shared-search-shell/shared-search-shell",
     "t-button": "tdesign-miniprogram/button/button",
     "t-checkbox": "tdesign-miniprogram/checkbox/checkbox",
     "t-checkbox-group": "tdesign-miniprogram/checkbox-group/checkbox-group",
@@ -9,9 +10,6 @@
     "t-image": "tdesign-miniprogram/image/image",
     "t-input": "tdesign-miniprogram/input/input",
     "t-popup": "tdesign-miniprogram/popup/popup",
-    "t-dialog": "tdesign-miniprogram/dialog/dialog",
-    "t-radio": "tdesign-miniprogram/radio/radio",
-    "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",
     "t-tag": "tdesign-miniprogram/tag/tag"
   }
 }

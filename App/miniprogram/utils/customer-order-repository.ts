@@ -16,6 +16,8 @@ import {
   saveOrderSnapshot,
   type OrderStorageLike,
 } from './customer-order-storage'
+import { isCustomerOpenIdBlacklisted } from './merchant-blacklist-storage'
+import { isOrderInMerchantRecycleBin } from './merchant-order-management'
 
 export interface CustomerOrderRepository {
   createDraftOrder(input: CheckoutDraftRecord): Promise<OrderRecord>
@@ -25,6 +27,8 @@ export interface CustomerOrderRepository {
   deleteOrder(orderId: string): Promise<OrderRecord>
   restoreDeletedOrder(orderId: string): Promise<OrderRecord>
 }
+
+export const CUSTOMER_ORDER_BLACKLIST_ERROR_CODE = 'CUSTOMER_BLACKLISTED'
 
 function resolvePrimarySize(item: CheckoutItemRecord): ProductSpecSize {
   try {
@@ -114,9 +118,14 @@ export function createLocalCustomerOrderRepository(storage: OrderStorageLike): C
     async createDraftOrder(input: CheckoutDraftRecord): Promise<OrderRecord> {
       const timestamp = Date.now()
       const nowText = new Date(timestamp).toISOString()
+      const customerOpenId = resolveCurrentCustomerOpenId()
+      if (isCustomerOpenIdBlacklisted(customerOpenId)) {
+        throw new Error(CUSTOMER_ORDER_BLACKLIST_ERROR_CODE)
+      }
+
       const nextOrder: OrderRecord = {
         id: buildOrderId(timestamp),
-        customerOpenId: resolveCurrentCustomerOpenId(),
+        customerOpenId,
         merchantOpenId: 'local-merchant',
         status: 'pending-payment',
         items: input.items.map(toOrderItem),
@@ -144,7 +153,12 @@ export function createLocalCustomerOrderRepository(storage: OrderStorageLike): C
         saveOrderSnapshot(storage, orders)
       }
 
-      return orders.find((order) => order.id === orderId) ?? null
+      const order = orders.find((item) => item.id === orderId) ?? null
+      if (order === null || isOrderInMerchantRecycleBin(order)) {
+        return null
+      }
+
+      return order
     },
 
     async updateOrderNote(orderId: string, note: string): Promise<OrderRecord> {
@@ -152,6 +166,10 @@ export function createLocalCustomerOrderRepository(storage: OrderStorageLike): C
       const { order, index } = getRequiredOrder(orders, orderId)
       if (isOrderInCustomerRecycleBin(order)) {
         throw new Error(`Order "${orderId}" has been deleted by customer`)
+      }
+
+      if (isOrderInMerchantRecycleBin(order)) {
+        throw new Error(`Order "${orderId}" has been archived by merchant`)
       }
 
       const nextNote = note.trim()
@@ -173,6 +191,10 @@ export function createLocalCustomerOrderRepository(storage: OrderStorageLike): C
         throw new Error(`Order "${orderId}" has been deleted by customer`)
       }
 
+      if (isOrderInMerchantRecycleBin(order)) {
+        throw new Error(`Order "${orderId}" has been archived by merchant`)
+      }
+
       if (!canCustomerCancelOrder(order.status)) {
         throw new Error(`Order "${orderId}" cannot be cancelled by customer`)
       }
@@ -192,6 +214,10 @@ export function createLocalCustomerOrderRepository(storage: OrderStorageLike): C
       const { order, index } = getRequiredOrder(orders, orderId)
       if (isOrderInCustomerRecycleBin(order)) {
         throw new Error(`Order "${orderId}" has already been deleted`)
+      }
+
+      if (isOrderInMerchantRecycleBin(order)) {
+        throw new Error(`Order "${orderId}" has been archived by merchant`)
       }
 
       if (!canCustomerDeleteOrder(order.status)) {

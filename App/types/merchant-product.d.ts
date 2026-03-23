@@ -6,19 +6,15 @@ export interface MerchantProductRecycleMeta {
 }
 
 export type MerchantCreamType = 'animal-cream-i' | 'dairy-cream' | 'naked-cake'
-export type MerchantProductLayer =
-  | '1-layer'
-  | '2-layer'
-  | '3-layer'
-  | '4-layer'
-  | '5-layer'
-  | '6-layer'
-  | '7-layer'
-  | '8-layer'
-  | '9-layer'
-  | '10-layer'
+export type MerchantProductLayer = '1-layer' | '2-layer' | '3-layer'
+export type MerchantEnabledConfigIdsByTier = {
+  single: string[]
+  double: string[]
+  triple: string[]
+}
 
 export type MerchantProductPriceAdjustmentMap<T extends string> = Partial<Record<T, number>>
+export type MerchantProductConfigAdjustmentMap = Partial<Record<string, number>>
 
 export interface MerchantProductRecord {
   id: string
@@ -29,6 +25,8 @@ export interface MerchantProductRecord {
   layers: MerchantProductLayer[]
   creamTypes: MerchantCreamType[]
   creamType: MerchantCreamType
+  enabledConfigIdsByTier: MerchantEnabledConfigIdsByTier
+  priceAdjustmentsByConfigId: MerchantProductConfigAdjustmentMap
   sizePriceAdjustments: MerchantProductPriceAdjustmentMap<ProductSpecSize>
   layerPriceAdjustments: MerchantProductPriceAdjustmentMap<MerchantProductLayer>
   creamPriceAdjustments: MerchantProductPriceAdjustmentMap<MerchantCreamType>
@@ -42,11 +40,13 @@ export interface MerchantProductRecord {
 export interface MerchantProductDraftInput {
   title: string
   description: string
-  basePrice: number
+  basePrice?: number
   specSizes: ProductSpecSize[]
   layers: MerchantProductLayer[]
   creamTypes: MerchantCreamType[]
   creamType: MerchantCreamType
+  enabledConfigIdsByTier?: MerchantEnabledConfigIdsByTier
+  priceAdjustmentsByConfigId: MerchantProductConfigAdjustmentMap
   sizePriceAdjustments: MerchantProductPriceAdjustmentMap<ProductSpecSize>
   layerPriceAdjustments: MerchantProductPriceAdjustmentMap<MerchantProductLayer>
   creamPriceAdjustments: MerchantProductPriceAdjustmentMap<MerchantCreamType>
@@ -62,6 +62,8 @@ export interface MerchantProductBatchEditInput {
   layers?: MerchantProductLayer[]
   creamTypes?: MerchantCreamType[]
   creamType?: MerchantCreamType
+  enabledConfigIdsByTier?: MerchantEnabledConfigIdsByTier
+  priceAdjustmentsByConfigId?: MerchantProductConfigAdjustmentMap
   sizePriceAdjustments?: MerchantProductPriceAdjustmentMap<ProductSpecSize>
   layerPriceAdjustments?: MerchantProductPriceAdjustmentMap<MerchantProductLayer>
   creamPriceAdjustments?: MerchantProductPriceAdjustmentMap<MerchantCreamType>

@@ -76,9 +76,10 @@ Component({
   },
 
   methods: {
-    syncFeed(): void {
+    syncFeed(keyword?: string): void {
+      const resolvedKeyword = keyword ?? this.data.keyword
       const cakes = resolveCakeFeed({
-        keyword: this.data.keyword,
+        keyword: resolvedKeyword,
         sortMode: this.data.sortMode,
       })
       const [leftColumn, rightColumn] = buildCakeMasonryColumns(cakes.map(normalizeCakeMedia))
@@ -90,10 +91,18 @@ Component({
     },
 
     handleSearchChange(event: WechatMiniprogram.CustomEvent<{ value?: string }>): void {
+      const keyword = extractSearchKeyword(event.detail)
       this.setData({
-        keyword: extractSearchKeyword(event.detail),
+        keyword,
       })
-      this.syncFeed()
+      this.syncFeed(keyword)
+    },
+
+    handleClearSearch(): void {
+      this.setData({
+        keyword: '',
+      })
+      this.syncFeed('')
     },
 
     handleSortTap(event: WechatMiniprogram.BaseEvent): void {

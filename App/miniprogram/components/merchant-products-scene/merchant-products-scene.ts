@@ -1,20 +1,36 @@
 import type {
   MerchantCreamType,
+  MerchantEnabledConfigIdsByTier,
+  MerchantProductConfigAdjustmentMap,
   MerchantProductBatchEditInput,
   MerchantProductDraftInput,
   MerchantProductLayer,
-  MerchantProductPriceAdjustmentMap,
   MerchantProductRecord,
 } from '../../../types/merchant-product'
+import type {
+  MerchantDefaultPriceConfigItem,
+  MerchantDefaultPricingSnapshot,
+  MerchantPriceTier,
+} from '../../../types/merchant-default-pricing'
 import type { ProductSpecSize } from '../../../types/product'
 import { CUSTOMER_IMAGE_PLACEHOLDER } from '../../utils/customer-image-fallback'
+import {
+  flattenMerchantDefaultPricingSnapshot,
+  isDefaultPricingItemCompatible,
+  loadStoredMerchantDefaultPricing,
+  resolveMerchantDefaultPriceByConfigId,
+  resolveMerchantPriceTierFromLayer,
+} from '../../utils/merchant-default-pricing-storage'
 import {
   MERCHANT_PRODUCT_ID_COUNTER_KEY,
   batchEditMerchantProducts,
   createMerchantProduct,
+  deleteRecycledMerchantProduct,
   deleteMerchantProduct,
   loadStoredMerchantProducts,
-  resolveMerchantProductMinSalePrice,
+  resolveMerchantProductEnabledConfigIdsByTier,
+  resolveMerchantProductEnabledPricingItems,
+  resolveMerchantProductConfiguredPrice,
   restoreMerchantProduct,
   splitMerchantProductsByRecycleState,
   updateMerchantProduct,
@@ -37,8 +53,6 @@ interface LayerOption {
   value: MerchantProductLayer
   label: string
 }
-
-type PriceInputMap<T extends string> = Partial<Record<T, string>>
 
 interface MerchantProductDisplayRecord extends MerchantProductRecord {
   specSummary: string
@@ -76,8 +90,24 @@ interface ProductImageDataset {
   imageIndex?: unknown
 }
 
-interface PriceInputDataset {
-  optionValue?: unknown
+interface ConfigPriceInputDataset {
+  configId?: unknown
+  tier?: unknown
+}
+
+interface PricingConfigItemView {
+  id: string
+  label: string
+  basePriceLabel: string
+  adjustmentInput: string
+  selected: boolean
+}
+
+interface PricingGroupView {
+  tier: MerchantPriceTier
+  title: string
+  selectedCount: number
+  items: PricingConfigItemView[]
 }
 
 interface MerchantProductsSceneData {
@@ -101,27 +131,32 @@ interface MerchantProductsSceneData {
   nextProductIdPreview: string
   productTitleInput: string
   productDescriptionInput: string
-  productPriceInput: string
   productSpecSizes: ProductSpecSize[]
   productLayers: MerchantProductLayer[]
   productCreamTypes: MerchantCreamType[]
-  productSizePriceInputs: PriceInputMap<ProductSpecSize>
-  productLayerPriceInputs: PriceInputMap<MerchantProductLayer>
-  productCreamPriceInputs: PriceInputMap<MerchantCreamType>
+  productEnabledConfigIdsByTier: MerchantEnabledConfigIdsByTier
+  productPriceAdjustmentInputs: Record<string, string>
+  productPricingGroups: PricingGroupView[]
   productImageUrls: string[]
   batchPriceInput: string
   batchSpecSizes: ProductSpecSize[]
   batchLayers: MerchantProductLayer[]
   batchCreamTypes: MerchantCreamType[]
-  batchSizePriceInputs: PriceInputMap<ProductSpecSize>
-  batchLayerPriceInputs: PriceInputMap<MerchantProductLayer>
-  batchCreamPriceInputs: PriceInputMap<MerchantCreamType>
+  batchEnabledConfigIdsByTier: MerchantEnabledConfigIdsByTier
+  batchPriceAdjustmentInputs: Record<string, string>
+  batchPricingGroups: PricingGroupView[]
   specOptions: SpecOption[]
   layerOptions: LayerOption[]
   creamOptions: CreamOption[]
   selectionCircleIcons: string[]
-  deleteDialogVisible: boolean
+  confirmDialogVisible: boolean
+  confirmDialogTitle: string
+  confirmDialogContent: string
+  confirmDialogConfirmText: string
+  confirmDialogMode: 'delete-product' | 'delete-recycle-product' | ''
   pendingDeleteProductId: string
+  pendingRecycleDeleteProductId: string
+  confirmDialogReturnToRecycle: boolean
   validationDialogVisible: boolean
   validationMissingFields: string[]
 }
@@ -148,26 +183,18 @@ const LAYER_OPTIONS: LayerOption[] = [
   { value: '1-layer', label: '1 层' },
   { value: '2-layer', label: '2 层' },
   { value: '3-layer', label: '3 层' },
-  { value: '4-layer', label: '4 层' },
-  { value: '5-layer', label: '5 层' },
-  { value: '6-layer', label: '6 层' },
-  { value: '7-layer', label: '7 层' },
-  { value: '8-layer', label: '8 层' },
-  { value: '9-layer', label: '9 层' },
-  { value: '10-layer', label: '10 层' },
 ]
 
 const LAYER_LABEL_MAP: Record<MerchantProductLayer, string> = {
   '1-layer': '1 层',
   '2-layer': '2 层',
   '3-layer': '3 层',
-  '4-layer': '4 层',
-  '5-layer': '5 层',
-  '6-layer': '6 层',
-  '7-layer': '7 层',
-  '8-layer': '8 层',
-  '9-layer': '9 层',
-  '10-layer': '10 层',
+}
+
+const PRICING_GROUP_LABEL_MAP: Record<MerchantPriceTier, string> = {
+  single: '单层加价',
+  double: '双层加价',
+  triple: '三层加价',
 }
 
 const CREAM_OPTIONS: CreamOption[] = [
@@ -237,14 +264,7 @@ function normalizeLayers(rawValue: unknown): MerchantProductLayer[] {
   const values = rawValue.filter((item): item is MerchantProductLayer =>
     item === '1-layer' ||
     item === '2-layer' ||
-    item === '3-layer' ||
-    item === '4-layer' ||
-    item === '5-layer' ||
-    item === '6-layer' ||
-    item === '7-layer' ||
-    item === '8-layer' ||
-    item === '9-layer' ||
-    item === '10-layer',
+    item === '3-layer',
   )
 
   return Array.from(new Set(values))
@@ -262,6 +282,84 @@ function normalizeCreamTypeSelection(rawValue: unknown): MerchantCreamType[] {
   return Array.from(new Set(values))
 }
 
+function createEmptyEnabledConfigIdsByTier(): MerchantEnabledConfigIdsByTier {
+  return {
+    single: [],
+    double: [],
+    triple: [],
+  }
+}
+
+function collectEnabledConfigIds(enabledConfigIdsByTier: MerchantEnabledConfigIdsByTier): string[] {
+  return [
+    ...enabledConfigIdsByTier.single,
+    ...enabledConfigIdsByTier.double,
+    ...enabledConfigIdsByTier.triple,
+  ]
+}
+
+function hasEnabledConfigIds(enabledConfigIdsByTier: MerchantEnabledConfigIdsByTier): boolean {
+  return collectEnabledConfigIds(enabledConfigIdsByTier).length > 0
+}
+
+function resolveLayerFromTier(tier: MerchantPriceTier): MerchantProductLayer {
+  if (tier === 'triple') {
+    return '3-layer'
+  }
+
+  if (tier === 'double') {
+    return '2-layer'
+  }
+
+  return '1-layer'
+}
+
+function updateEnabledConfigIdsByTier(
+  enabledConfigIdsByTier: MerchantEnabledConfigIdsByTier,
+  tier: MerchantPriceTier,
+  configId: string,
+  selected: boolean,
+): MerchantEnabledConfigIdsByTier {
+  const nextIds = selected
+    ? Array.from(new Set([...enabledConfigIdsByTier[tier], configId]))
+    : enabledConfigIdsByTier[tier].filter((value) => value !== configId)
+
+  return {
+    ...enabledConfigIdsByTier,
+    [tier]: nextIds,
+  }
+}
+
+function buildSummaryFromEnabledPricingItems(
+  product: MerchantProductRecord,
+  pricingSnapshot: MerchantDefaultPricingSnapshot,
+): Pick<MerchantProductDisplayRecord, 'specSummary' | 'layerSummary' | 'creamSummary'> {
+  const pricingItems = resolveMerchantProductEnabledPricingItems(product, pricingSnapshot)
+  if (pricingItems.length === 0) {
+    return {
+      specSummary: formatSpecSummary(product.specSizes),
+      layerSummary: formatLayerSummary(product.layers),
+      creamSummary: formatCreamSummary(product.creamTypes),
+    }
+  }
+
+  const specSet = new Set<ProductSpecSize>()
+  const layerSet = new Set<MerchantProductLayer>()
+  const creamSet = new Set<MerchantCreamType>()
+
+  pricingItems.forEach((item) => {
+    item.sizes.forEach((size) => specSet.add(size))
+    layerSet.add(resolveLayerFromTier(item.tier))
+    creamSet.add(item.creamType)
+  })
+
+  return {
+    specSummary: formatSpecSummary(SPEC_OPTIONS.map((item) => item.value).filter((size) => specSet.has(size))),
+    layerSummary: formatLayerSummary(LAYER_OPTIONS.map((item) => item.value).filter((layer) => layerSet.has(layer))),
+    creamSummary: formatCreamSummary(CREAM_OPTIONS.map((item) => item.value).filter((creamType) => creamSet.has(creamType))),
+  }
+}
+
 function formatSpecSummary(specSizes: ProductSpecSize[]): string {
   return specSizes.map((size) => SPEC_LABEL_MAP[size]).join(' / ')
 }
@@ -272,31 +370,6 @@ function formatLayerSummary(layers: MerchantProductLayer[]): string {
 
 function formatCreamSummary(creamTypes: MerchantCreamType[]): string {
   return creamTypes.map((creamType) => CREAM_LABEL_MAP[creamType]).join(' / ')
-}
-
-function createEmptyPriceInputMap<T extends string>(options: Array<{ value: T }>): PriceInputMap<T> {
-  return options.reduce<PriceInputMap<T>>((result, option) => {
-    result[option.value] = ''
-    return result
-  }, {})
-}
-
-function buildPriceInputMap<T extends string>(
-  options: Array<{ value: T }>,
-  adjustments: MerchantProductPriceAdjustmentMap<T>,
-): PriceInputMap<T> {
-  return options.reduce<PriceInputMap<T>>((result, option) => {
-    const adjustment = adjustments[option.value]
-    result[option.value] = typeof adjustment === 'number' ? String(adjustment) : ''
-    return result
-  }, {})
-}
-
-function setPriceInputValue<T extends string>(inputMap: PriceInputMap<T>, key: T, value: string): PriceInputMap<T> {
-  return {
-    ...inputMap,
-    [key]: value,
-  }
 }
 
 function normalizeImageUrls(rawValue: unknown): string[] {
@@ -351,14 +424,19 @@ function formatDateTime(isoText: string): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
-function mapProductToDisplay(product: MerchantProductRecord, now: Date): MerchantProductDisplayRecord {
-  const minSalePrice = resolveMerchantProductMinSalePrice(product)
+function mapProductToDisplay(
+  product: MerchantProductRecord,
+  now: Date,
+  pricingSnapshot: MerchantDefaultPricingSnapshot,
+): MerchantProductDisplayRecord {
+  const summary = buildSummaryFromEnabledPricingItems(product, pricingSnapshot)
+
   return {
     ...product,
-    specSummary: formatSpecSummary(product.specSizes),
-    layerSummary: formatLayerSummary(product.layers),
-    creamSummary: formatCreamSummary(product.creamTypes),
-    priceSummary: `¥${minSalePrice} 起`,
+    specSummary: summary.specSummary,
+    layerSummary: summary.layerSummary,
+    creamSummary: summary.creamSummary,
+    priceSummary: `¥${product.basePrice} 起`,
     recycleLeftDays: resolveRecycleLeftDays(product, now),
     coverImageUrl: resolveCoverImageUrl(product.coverImage),
     deletedSummary: product.recycleMeta === undefined ? '--' : formatDateTime(product.recycleMeta.deletedAt),
@@ -381,38 +459,6 @@ function parseAdjustmentInput(priceInput: string): number | null {
   }
 
   return Math.round(price)
-}
-
-function buildAdjustmentMap<T extends string>(
-  selectedValues: T[],
-  inputMap: PriceInputMap<T>,
-  labelMap: Record<T, string>,
-  groupLabel: string,
-): { adjustments: MerchantProductPriceAdjustmentMap<T>; missingFields: string[] } {
-  const adjustments: MerchantProductPriceAdjustmentMap<T> = {}
-  const missingFields: string[] = []
-
-  selectedValues.forEach((value) => {
-    const rawInput = inputMap[value]
-    const normalizedInput = typeof rawInput === 'string' ? rawInput.trim() : ''
-    if (normalizedInput.length === 0) {
-      missingFields.push(`${groupLabel}（${labelMap[value]}）`)
-      return
-    }
-
-    const parsedPrice = parseAdjustmentInput(normalizedInput)
-    if (parsedPrice === null) {
-      missingFields.push(`${groupLabel}（${labelMap[value]}，请输入 0 或正整数）`)
-      return
-    }
-
-    adjustments[value] = parsedPrice
-  })
-
-  return {
-    adjustments,
-    missingFields,
-  }
 }
 
 function resolveCardWeight(product: MerchantProductDisplayRecord): number {
@@ -573,14 +619,16 @@ function buildEditorSelectionPatch(
   specSizes: ProductSpecSize[],
   layers: MerchantProductLayer[],
   creamTypes: MerchantCreamType[],
+  enabledConfigIdsByTier: MerchantEnabledConfigIdsByTier,
 ): Pick<
   MerchantProductsSceneData,
-  'productSpecSizes' | 'productLayers' | 'productCreamTypes'
+  'productSpecSizes' | 'productLayers' | 'productCreamTypes' | 'productEnabledConfigIdsByTier'
 > {
   return {
     productSpecSizes: specSizes,
     productLayers: layers,
     productCreamTypes: creamTypes,
+    productEnabledConfigIdsByTier: enabledConfigIdsByTier,
   }
 }
 
@@ -588,14 +636,151 @@ function buildBatchSelectionPatch(
   specSizes: ProductSpecSize[],
   layers: MerchantProductLayer[],
   creamTypes: MerchantCreamType[],
+  enabledConfigIdsByTier: MerchantEnabledConfigIdsByTier,
 ): Pick<
   MerchantProductsSceneData,
-  'batchSpecSizes' | 'batchLayers' | 'batchCreamTypes'
+  'batchSpecSizes' | 'batchLayers' | 'batchCreamTypes' | 'batchEnabledConfigIdsByTier'
 > {
   return {
     batchSpecSizes: specSizes,
     batchLayers: layers,
     batchCreamTypes: creamTypes,
+    batchEnabledConfigIdsByTier: enabledConfigIdsByTier,
+  }
+}
+
+function buildEmptyConfigAdjustmentInputMap(): Record<string, string> {
+  return {}
+}
+
+function resolveCompatiblePricingItems(
+  pricingSnapshot: MerchantDefaultPricingSnapshot,
+  specSizes: ProductSpecSize[],
+  layers: MerchantProductLayer[],
+  creamTypes: MerchantCreamType[],
+): MerchantDefaultPriceConfigItem[] {
+  const allowedTiers = new Set(layers.map((layer) => resolveMerchantPriceTierFromLayer(layer)))
+
+  return flattenMerchantDefaultPricingSnapshot(pricingSnapshot).filter((item) => {
+    if (!allowedTiers.has(item.tier)) {
+      return false
+    }
+
+    return isDefaultPricingItemCompatible(item, specSizes, creamTypes)
+  })
+}
+
+function resolveConfigAdjustmentInput(
+  product: MerchantProductRecord | null,
+  configItem: MerchantDefaultPriceConfigItem,
+  pricingSnapshot: MerchantDefaultPricingSnapshot,
+  existingInputMap: Record<string, string>,
+): string {
+  const existingInput = existingInputMap[configItem.id]
+  if (typeof existingInput === 'string') {
+    return existingInput
+  }
+
+  if (product === null) {
+    return '0'
+  }
+
+  const totalPrice = resolveMerchantProductConfiguredPrice(product, configItem.id, pricingSnapshot)
+  const defaultPrice = resolveMerchantDefaultPriceByConfigId(pricingSnapshot, configItem.id)
+  return String(Math.max(totalPrice - defaultPrice, 0))
+}
+
+function buildPricingGroups(
+  pricingSnapshot: MerchantDefaultPricingSnapshot,
+  specSizes: ProductSpecSize[],
+  layers: MerchantProductLayer[],
+  creamTypes: MerchantCreamType[],
+  enabledConfigIdsByTier: MerchantEnabledConfigIdsByTier,
+  inputMap: Record<string, string>,
+  product: MerchantProductRecord | null = null,
+): {
+  groups: PricingGroupView[]
+  nextInputMap: Record<string, string>
+  nextEnabledConfigIdsByTier: MerchantEnabledConfigIdsByTier
+} {
+  const compatibleItems = resolveCompatiblePricingItems(pricingSnapshot, specSizes, layers, creamTypes)
+  const tierOrder: MerchantPriceTier[] = ['single', 'double', 'triple']
+  const nextInputMap: Record<string, string> = {}
+  const nextEnabledConfigIdsByTier = createEmptyEnabledConfigIdsByTier()
+
+  const groups = tierOrder.reduce<PricingGroupView[]>((result, tier) => {
+    if (!layers.includes(resolveLayerFromTier(tier))) {
+      return result
+    }
+
+    const tierItems = compatibleItems.filter((item) => item.tier === tier)
+    const selectedConfigIds = new Set(enabledConfigIdsByTier[tier])
+    const viewItems = tierItems.map((item) => {
+      const adjustmentInput = resolveConfigAdjustmentInput(product, item, pricingSnapshot, inputMap)
+      nextInputMap[item.id] = adjustmentInput
+      if (selectedConfigIds.has(item.id)) {
+        nextEnabledConfigIdsByTier[tier].push(item.id)
+      }
+      return {
+        id: item.id,
+        label: item.label,
+        basePriceLabel: `基础价 ¥${resolveMerchantDefaultPriceByConfigId(pricingSnapshot, item.id)}`,
+        adjustmentInput,
+        selected: selectedConfigIds.has(item.id),
+      }
+    })
+
+    result.push({
+      tier,
+      title: PRICING_GROUP_LABEL_MAP[tier],
+      selectedCount: viewItems.filter((item) => item.selected).length,
+      items: viewItems,
+    })
+    return result
+  }, [])
+
+  return {
+    groups,
+    nextInputMap,
+    nextEnabledConfigIdsByTier,
+  }
+}
+
+function buildConfigAdjustmentMap(
+  inputMap: Record<string, string>,
+  groups: PricingGroupView[],
+  requireSelectionByGroup: boolean,
+): { adjustments: MerchantProductConfigAdjustmentMap; missingFields: string[] } {
+  const adjustments: MerchantProductConfigAdjustmentMap = {}
+  const missingFields: string[] = []
+
+  groups.forEach((group) => {
+    const selectedItems = group.items.filter((item) => item.selected)
+    if (requireSelectionByGroup && selectedItems.length === 0) {
+      missingFields.push(`${group.title}至少选择一项`)
+      return
+    }
+
+    selectedItems.forEach((item) => {
+      const rawInput = (inputMap[item.id] ?? '').trim()
+      if (rawInput.length === 0) {
+        missingFields.push(`${item.label}加价`)
+        return
+      }
+
+      const parsedPrice = parseAdjustmentInput(rawInput)
+      if (parsedPrice === null) {
+        missingFields.push(`${item.label}加价（请输入 0 或正整数）`)
+        return
+      }
+
+      adjustments[item.id] = parsedPrice
+    })
+  })
+
+  return {
+    adjustments,
+    missingFields,
   }
 }
 
@@ -623,27 +808,32 @@ Component({
     nextProductIdPreview: 'A001',
     productTitleInput: '',
     productDescriptionInput: '',
-    productPriceInput: '',
     productSpecSizes: ['6-inch'],
     productLayers: ['1-layer'],
     productCreamTypes: ['dairy-cream'],
-    productSizePriceInputs: createEmptyPriceInputMap(SPEC_OPTIONS),
-    productLayerPriceInputs: createEmptyPriceInputMap(LAYER_OPTIONS),
-    productCreamPriceInputs: createEmptyPriceInputMap(CREAM_OPTIONS),
+    productEnabledConfigIdsByTier: createEmptyEnabledConfigIdsByTier(),
+    productPriceAdjustmentInputs: buildEmptyConfigAdjustmentInputMap(),
+    productPricingGroups: [],
     productImageUrls: [],
     batchPriceInput: '',
     batchSpecSizes: [],
     batchLayers: [],
     batchCreamTypes: [],
-    batchSizePriceInputs: createEmptyPriceInputMap(SPEC_OPTIONS),
-    batchLayerPriceInputs: createEmptyPriceInputMap(LAYER_OPTIONS),
-    batchCreamPriceInputs: createEmptyPriceInputMap(CREAM_OPTIONS),
+    batchEnabledConfigIdsByTier: createEmptyEnabledConfigIdsByTier(),
+    batchPriceAdjustmentInputs: buildEmptyConfigAdjustmentInputMap(),
+    batchPricingGroups: [],
     specOptions: SPEC_OPTIONS,
     layerOptions: LAYER_OPTIONS,
     creamOptions: CREAM_OPTIONS,
     selectionCircleIcons: [...SELECTION_CIRCLE_ICONS],
-    deleteDialogVisible: false,
+    confirmDialogVisible: false,
+    confirmDialogTitle: '',
+    confirmDialogContent: '',
+    confirmDialogConfirmText: '',
+    confirmDialogMode: '',
     pendingDeleteProductId: '',
+    pendingRecycleDeleteProductId: '',
+    confirmDialogReturnToRecycle: false,
     validationDialogVisible: false,
     validationMissingFields: [],
   } as MerchantProductsSceneData,
@@ -663,9 +853,10 @@ Component({
   methods: {
     syncProducts(): void {
       const now = new Date()
+      const pricingSnapshot = loadStoredMerchantDefaultPricing(wx)
       const products = loadStoredMerchantProducts()
       const splitState = splitMerchantProductsByRecycleState(products, now)
-      const activeProducts = splitState.activeProducts.map((product) => mapProductToDisplay(product, now))
+      const activeProducts = splitState.activeProducts.map((product) => mapProductToDisplay(product, now, pricingSnapshot))
       const activeIdSet = new Set(activeProducts.map((product) => product.id))
       const selectedProductIds = this.data.selectedProductIds.filter((id) => activeIdSet.has(id))
       const nextBatchPhase =
@@ -677,7 +868,7 @@ Component({
 
       this.setData({
         activeProducts,
-        recycleProducts: splitState.recycleProducts.map((product) => mapProductToDisplay(product, now)),
+        recycleProducts: splitState.recycleProducts.map((product) => mapProductToDisplay(product, now, pricingSnapshot)),
         selectedProductIds,
         selectedProductMap: buildSelectedProductMap(selectedProductIds),
         batchEditorVisible: nextBatchPhase === 'editing' && selectedProductIds.length > 0,
@@ -700,11 +891,56 @@ Component({
       })
     },
 
+    refreshProductPricingGroups(product: MerchantProductRecord | null = null): void {
+      const pricingSnapshot = loadStoredMerchantDefaultPricing(wx)
+      const { groups, nextInputMap, nextEnabledConfigIdsByTier } = buildPricingGroups(
+        pricingSnapshot,
+        this.data.productSpecSizes,
+        this.data.productLayers,
+        this.data.productCreamTypes,
+        this.data.productEnabledConfigIdsByTier,
+        this.data.productPriceAdjustmentInputs,
+        product,
+      )
+
+      this.setData({
+        productPricingGroups: groups,
+        productEnabledConfigIdsByTier: nextEnabledConfigIdsByTier,
+        productPriceAdjustmentInputs: nextInputMap,
+      })
+    },
+
+    refreshBatchPricingGroups(): void {
+      const pricingSnapshot = loadStoredMerchantDefaultPricing(wx)
+      const { groups, nextInputMap, nextEnabledConfigIdsByTier } = buildPricingGroups(
+        pricingSnapshot,
+        this.data.batchSpecSizes,
+        this.data.batchLayers,
+        this.data.batchCreamTypes,
+        this.data.batchEnabledConfigIdsByTier,
+        this.data.batchPriceAdjustmentInputs,
+        null,
+      )
+
+      this.setData({
+        batchPricingGroups: groups,
+        batchEnabledConfigIdsByTier: nextEnabledConfigIdsByTier,
+        batchPriceAdjustmentInputs: nextInputMap,
+      })
+    },
+
     handleProductSearchChange(event: WechatMiniprogram.CustomEvent<ProductInputDetail>): void {
       const productSearchKeyword = parseInputValue(event.detail)
       this.setData({
         productSearchKeyword,
         ...buildVisibleProductPatch(this.data.activeProducts, productSearchKeyword),
+      })
+    },
+
+    handleClearProductSearch(): void {
+      this.setData({
+        productSearchKeyword: '',
+        ...buildVisibleProductPatch(this.data.activeProducts, ''),
       })
     },
 
@@ -751,12 +987,12 @@ Component({
       this.setData({
         batchEditorVisible: true,
         batchPriceInput: '',
-        ...buildBatchSelectionPatch([], [], []),
-        batchSizePriceInputs: createEmptyPriceInputMap(SPEC_OPTIONS),
-        batchLayerPriceInputs: createEmptyPriceInputMap(LAYER_OPTIONS),
-        batchCreamPriceInputs: createEmptyPriceInputMap(CREAM_OPTIONS),
+        ...buildBatchSelectionPatch([], [], [], createEmptyEnabledConfigIdsByTier()),
+        batchPriceAdjustmentInputs: buildEmptyConfigAdjustmentInputMap(),
+        batchPricingGroups: [],
         ...buildBatchPhasePatch('editing', this.data.selectedProductIds.length),
       })
+      this.refreshBatchPricingGroups()
     },
 
     handleExitBatchEdit(): void {
@@ -765,10 +1001,9 @@ Component({
         selectedProductMap: {},
         batchEditorVisible: false,
         batchPriceInput: '',
-        ...buildBatchSelectionPatch([], [], []),
-        batchSizePriceInputs: createEmptyPriceInputMap(SPEC_OPTIONS),
-        batchLayerPriceInputs: createEmptyPriceInputMap(LAYER_OPTIONS),
-        batchCreamPriceInputs: createEmptyPriceInputMap(CREAM_OPTIONS),
+        ...buildBatchSelectionPatch([], [], [], createEmptyEnabledConfigIdsByTier()),
+        batchPriceAdjustmentInputs: buildEmptyConfigAdjustmentInputMap(),
+        batchPricingGroups: [],
         ...buildBatchPhasePatch('idle', 0),
       })
     },
@@ -798,15 +1033,14 @@ Component({
         editingProductId: '',
         productTitleInput: '',
         productDescriptionInput: '',
-        productPriceInput: '',
-        ...buildEditorSelectionPatch(['6-inch'], ['1-layer'], ['dairy-cream']),
-        productSizePriceInputs: createEmptyPriceInputMap(SPEC_OPTIONS),
-        productLayerPriceInputs: createEmptyPriceInputMap(LAYER_OPTIONS),
-        productCreamPriceInputs: createEmptyPriceInputMap(CREAM_OPTIONS),
+        ...buildEditorSelectionPatch(['6-inch'], ['1-layer'], ['dairy-cream'], createEmptyEnabledConfigIdsByTier()),
+        productPriceAdjustmentInputs: buildEmptyConfigAdjustmentInputMap(),
+        productPricingGroups: [],
         productImageUrls: [],
         validationDialogVisible: false,
         validationMissingFields: [],
       })
+      this.refreshProductPricingGroups()
     },
 
     handleOpenEditEditor(event: WechatMiniprogram.BaseEvent): void {
@@ -820,21 +1054,28 @@ Component({
         return
       }
 
+      const pricingSnapshot = loadStoredMerchantDefaultPricing(wx)
+      const enabledConfigIdsByTier = resolveMerchantProductEnabledConfigIdsByTier(targetProduct, pricingSnapshot)
+
       this.setData({
         productEditorVisible: true,
         productEditorMode: 'edit',
         editingProductId: targetProduct.id,
         productTitleInput: targetProduct.title,
         productDescriptionInput: targetProduct.description,
-        productPriceInput: String(targetProduct.basePrice),
-        ...buildEditorSelectionPatch(targetProduct.specSizes, targetProduct.layers, targetProduct.creamTypes),
-        productSizePriceInputs: buildPriceInputMap(SPEC_OPTIONS, targetProduct.sizePriceAdjustments),
-        productLayerPriceInputs: buildPriceInputMap(LAYER_OPTIONS, targetProduct.layerPriceAdjustments),
-        productCreamPriceInputs: buildPriceInputMap(CREAM_OPTIONS, targetProduct.creamPriceAdjustments),
+        ...buildEditorSelectionPatch(
+          targetProduct.specSizes,
+          targetProduct.layers,
+          targetProduct.creamTypes,
+          enabledConfigIdsByTier,
+        ),
+        productPriceAdjustmentInputs: buildEmptyConfigAdjustmentInputMap(),
+        productPricingGroups: [],
         productImageUrls: targetProduct.imageUrls,
         validationDialogVisible: false,
         validationMissingFields: [],
       })
+      this.refreshProductPricingGroups(targetProduct)
     },
 
     handleProductEditorVisibleChange(event: WechatMiniprogram.CustomEvent<PopupVisibleChangeDetail>): void {
@@ -864,6 +1105,14 @@ Component({
       this.handleCloseValidationDialog()
     },
 
+    handleConfirmDialogVisibleChange(event: WechatMiniprogram.CustomEvent<PopupVisibleChangeDetail>): void {
+      if (parsePopupVisible(event.detail)) {
+        return
+      }
+
+      this.handleCloseConfirmDialog()
+    },
+
     handleProductTitleChange(event: WechatMiniprogram.CustomEvent<ProductInputDetail>): void {
       this.setData({
         productTitleInput: parseInputValue(event.detail),
@@ -876,97 +1125,83 @@ Component({
       })
     },
 
-    handleProductPriceChange(event: WechatMiniprogram.CustomEvent<ProductInputDetail>): void {
-      this.setData({
-        productPriceInput: parseInputValue(event.detail),
-      })
-    },
-
     handleProductSpecChange(event: WechatMiniprogram.CustomEvent<ProductSelectionChangeDetail>): void {
       const productSpecSizes = normalizeSpecSizes(event.detail.value)
       this.setData({
         productSpecSizes,
       })
+      this.refreshProductPricingGroups()
     },
 
     handleProductLayerChange(event: WechatMiniprogram.CustomEvent<ProductSelectionChangeDetail>): void {
       this.setData({
         productLayers: normalizeLayers(event.detail.value),
       })
+      this.refreshProductPricingGroups()
     },
 
     handleProductCreamChange(event: WechatMiniprogram.CustomEvent<{ value?: unknown }>): void {
       this.setData({
         productCreamTypes: normalizeCreamTypeSelection(event.detail.value),
       })
+      this.refreshProductPricingGroups()
     },
 
     handleToggleAllSpecSizes(): void {
       this.setData({
         productSpecSizes: this.data.productSpecSizes.length === SPEC_OPTIONS.length ? [] : SPEC_OPTIONS.map((item) => item.value),
       })
+      this.refreshProductPricingGroups()
     },
 
     handleToggleAllLayers(): void {
       this.setData({
         productLayers: this.data.productLayers.length === LAYER_OPTIONS.length ? [] : LAYER_OPTIONS.map((item) => item.value),
       })
+      this.refreshProductPricingGroups()
     },
 
     handleToggleAllCreamTypes(): void {
       this.setData({
         productCreamTypes: this.data.productCreamTypes.length === CREAM_OPTIONS.length ? [] : CREAM_OPTIONS.map((item) => item.value),
       })
+      this.refreshProductPricingGroups()
     },
 
-    handleProductSizePriceChange(event: WechatMiniprogram.CustomEvent<ProductInputDetail>): void {
-      const optionValue = (event.currentTarget.dataset as PriceInputDataset).optionValue
+    handleToggleTierConfigItem(event: WechatMiniprogram.CustomEvent<ProductToggleChangeDetail>): void {
+      const dataset = event.currentTarget.dataset as ConfigPriceInputDataset
+      const tier = dataset.tier
+      const configId = dataset.configId
       if (
-        optionValue !== '6-inch' &&
-        optionValue !== '8-inch' &&
-        optionValue !== '10-inch' &&
-        optionValue !== '12-inch' &&
-        optionValue !== '14-inch' &&
-        optionValue !== '16-inch'
+        (tier !== 'single' && tier !== 'double' && tier !== 'triple') ||
+        typeof configId !== 'string' ||
+        configId.length === 0
       ) {
         return
       }
 
       this.setData({
-        productSizePriceInputs: setPriceInputValue(this.data.productSizePriceInputs, optionValue, parseInputValue(event.detail)),
+        productEnabledConfigIdsByTier: updateEnabledConfigIdsByTier(
+          this.data.productEnabledConfigIdsByTier,
+          tier,
+          configId,
+          event.detail.checked === true,
+        ),
       })
+      this.refreshProductPricingGroups()
     },
 
-    handleProductLayerPriceChange(event: WechatMiniprogram.CustomEvent<ProductInputDetail>): void {
-      const optionValue = (event.currentTarget.dataset as PriceInputDataset).optionValue
-      if (
-        optionValue !== '1-layer' &&
-        optionValue !== '2-layer' &&
-        optionValue !== '3-layer' &&
-        optionValue !== '4-layer' &&
-        optionValue !== '5-layer' &&
-        optionValue !== '6-layer' &&
-        optionValue !== '7-layer' &&
-        optionValue !== '8-layer' &&
-        optionValue !== '9-layer' &&
-        optionValue !== '10-layer'
-      ) {
+    handleProductConfigPriceChange(event: WechatMiniprogram.CustomEvent<ProductInputDetail>): void {
+      const configId = (event.currentTarget.dataset as ConfigPriceInputDataset).configId
+      if (typeof configId !== 'string' || configId.length === 0) {
         return
       }
 
       this.setData({
-        productLayerPriceInputs: setPriceInputValue(this.data.productLayerPriceInputs, optionValue, parseInputValue(event.detail)),
-      })
-    },
-
-    handleProductCreamPriceChange(event: WechatMiniprogram.CustomEvent<ProductInputDetail>): void {
-      const optionValue = (event.currentTarget.dataset as PriceInputDataset).optionValue
-      if (optionValue !== 'animal-cream-i' && optionValue !== 'dairy-cream' && optionValue !== 'naked-cake') {
-        return
-      }
-
-      this.setData({
-        productCreamPriceInputs: setPriceInputValue(this.data.productCreamPriceInputs, optionValue, parseInputValue(event.detail)),
+        productPriceAdjustmentInputs: {
+          ...this.data.productPriceAdjustmentInputs,
+          [configId]: parseInputValue(event.detail),
+        },
       })
     },
 
@@ -1042,7 +1277,6 @@ Component({
     collectMissingRequiredFields(): { missingFields: string[]; draftInput: MerchantProductDraftInput | null } {
       const title = this.data.productTitleInput.trim()
       const description = this.data.productDescriptionInput.trim()
-      const parsedBasePrice = parsePriceInput(this.data.productPriceInput.trim())
       const missingFields: string[] = []
 
       if (title.length === 0) {
@@ -1051,10 +1285,6 @@ Component({
 
       if (this.data.productImageUrls.length === 0) {
         missingFields.push('商品图片')
-      }
-
-      if (parsedBasePrice === null) {
-        missingFields.push('基础价格')
       }
 
       if (this.data.productSpecSizes.length === 0) {
@@ -1069,28 +1299,19 @@ Component({
         missingFields.push('奶油类型')
       }
 
-      const sizeAdjustments = buildAdjustmentMap(
-        this.data.productSpecSizes,
-        this.data.productSizePriceInputs,
-        SPEC_LABEL_MAP,
-        '尺寸加价',
-      )
-      const layerAdjustments = buildAdjustmentMap(
-        this.data.productLayers,
-        this.data.productLayerPriceInputs,
-        LAYER_LABEL_MAP,
-        '层数加价',
-      )
-      const creamAdjustments = buildAdjustmentMap(
-        this.data.productCreamTypes,
-        this.data.productCreamPriceInputs,
-        CREAM_LABEL_MAP,
-        '奶油加价',
+      if (this.data.productPricingGroups.length === 0) {
+        missingFields.push('默认价格配置')
+      }
+
+      const configAdjustments = buildConfigAdjustmentMap(
+        this.data.productPriceAdjustmentInputs,
+        this.data.productPricingGroups,
+        true,
       )
 
-      missingFields.push(...sizeAdjustments.missingFields, ...layerAdjustments.missingFields, ...creamAdjustments.missingFields)
+      missingFields.push(...configAdjustments.missingFields)
 
-      if (missingFields.length > 0 || parsedBasePrice === null) {
+      if (missingFields.length > 0) {
         return {
           missingFields: Array.from(new Set(missingFields)),
           draftInput: null,
@@ -1102,14 +1323,15 @@ Component({
         draftInput: {
           title,
           description,
-          basePrice: parsedBasePrice,
           specSizes: this.data.productSpecSizes,
           layers: this.data.productLayers,
           creamTypes: this.data.productCreamTypes,
           creamType: this.data.productCreamTypes[0] ?? 'dairy-cream',
-          sizePriceAdjustments: sizeAdjustments.adjustments,
-          layerPriceAdjustments: layerAdjustments.adjustments,
-          creamPriceAdjustments: creamAdjustments.adjustments,
+          enabledConfigIdsByTier: this.data.productEnabledConfigIdsByTier,
+          priceAdjustmentsByConfigId: configAdjustments.adjustments,
+          sizePriceAdjustments: {},
+          layerPriceAdjustments: {},
+          creamPriceAdjustments: {},
           imageUrls: this.data.productImageUrls,
           coverImage: this.data.productImageUrls[0] ?? '',
         },
@@ -1150,29 +1372,74 @@ Component({
       }
 
       this.setData({
-        deleteDialogVisible: true,
+        confirmDialogVisible: true,
+        confirmDialogMode: 'delete-product',
+        confirmDialogTitle: '删除商品',
+        confirmDialogContent: '删除后商品会进入回收站，可在 7 天内恢复。',
+        confirmDialogConfirmText: '确认删除',
         pendingDeleteProductId: productId,
+        confirmDialogReturnToRecycle: false,
       })
     },
 
-    handleCloseDeleteDialog(): void {
+    handleDeleteRecycleProductPermanently(event: WechatMiniprogram.BaseEvent): void {
+      const productId = (event.currentTarget.dataset as { productId?: unknown }).productId
+      if (typeof productId !== 'string' || productId.length === 0) {
+        return
+      }
+
       this.setData({
-        deleteDialogVisible: false,
-        pendingDeleteProductId: '',
+        recyclePopupVisible: false,
+        confirmDialogVisible: true,
+        confirmDialogMode: 'delete-recycle-product',
+        confirmDialogTitle: '永久删除商品',
+        confirmDialogContent: '永久删除后无法恢复，回收站中的该商品会被彻底清除。',
+        confirmDialogConfirmText: '永久删除',
+        pendingRecycleDeleteProductId: productId,
+        confirmDialogReturnToRecycle: true,
       })
     },
 
-    handleConfirmDelete(): void {
-      const productId = this.data.pendingDeleteProductId
-      if (productId) {
+    handleCloseConfirmDialog(): void {
+      const shouldReturnToRecycle =
+        this.data.confirmDialogReturnToRecycle && this.data.confirmDialogMode === 'delete-recycle-product'
+
+      this.setData({
+        confirmDialogVisible: false,
+        confirmDialogMode: '',
+        confirmDialogTitle: '',
+        confirmDialogContent: '',
+        confirmDialogConfirmText: '',
+        pendingDeleteProductId: '',
+        pendingRecycleDeleteProductId: '',
+        confirmDialogReturnToRecycle: false,
+        recyclePopupVisible: shouldReturnToRecycle,
+      })
+    },
+
+    handleConfirmProductDialog(): void {
+      if (this.data.confirmDialogMode === 'delete-product' && this.data.pendingDeleteProductId) {
+        const productId = this.data.pendingDeleteProductId
         deleteMerchantProduct(wx, productId)
         this.syncProducts()
         wx.showToast({
           title: '已将商品移至回收站',
           icon: 'none',
         })
+        this.handleCloseConfirmDialog()
+        return
       }
-      this.handleCloseDeleteDialog()
+
+      if (this.data.confirmDialogMode === 'delete-recycle-product' && this.data.pendingRecycleDeleteProductId) {
+        deleteRecycledMerchantProduct(wx, this.data.pendingRecycleDeleteProductId)
+        this.syncProducts()
+        wx.showToast({
+          title: '已永久删除商品',
+          icon: 'none',
+        })
+      }
+
+      this.handleCloseConfirmDialog()
     },
 
     handleBatchEditorVisibleChange(event: WechatMiniprogram.CustomEvent<PopupVisibleChangeDetail>): void {
@@ -1181,10 +1448,9 @@ Component({
         this.setData({
           batchEditorVisible: false,
           batchPriceInput: '',
-          ...buildBatchSelectionPatch([], [], []),
-          batchSizePriceInputs: createEmptyPriceInputMap(SPEC_OPTIONS),
-          batchLayerPriceInputs: createEmptyPriceInputMap(LAYER_OPTIONS),
-          batchCreamPriceInputs: createEmptyPriceInputMap(CREAM_OPTIONS),
+          ...buildBatchSelectionPatch([], [], [], createEmptyEnabledConfigIdsByTier()),
+          batchPriceAdjustmentInputs: buildEmptyConfigAdjustmentInputMap(),
+          batchPricingGroups: [],
           ...buildBatchPhasePatch('selecting', this.data.selectedProductIds.length),
         })
         return
@@ -1200,10 +1466,9 @@ Component({
       this.setData({
         batchEditorVisible: false,
         batchPriceInput: '',
-        ...buildBatchSelectionPatch([], [], []),
-        batchSizePriceInputs: createEmptyPriceInputMap(SPEC_OPTIONS),
-        batchLayerPriceInputs: createEmptyPriceInputMap(LAYER_OPTIONS),
-        batchCreamPriceInputs: createEmptyPriceInputMap(CREAM_OPTIONS),
+        ...buildBatchSelectionPatch([], [], [], createEmptyEnabledConfigIdsByTier()),
+        batchPriceAdjustmentInputs: buildEmptyConfigAdjustmentInputMap(),
+        batchPricingGroups: [],
         ...buildBatchPhasePatch('selecting', this.data.selectedProductIds.length),
       })
     },
@@ -1218,86 +1483,78 @@ Component({
       this.setData({
         batchSpecSizes: normalizeSpecSizes(event.detail.value),
       })
+      this.refreshBatchPricingGroups()
     },
 
     handleBatchLayerChange(event: WechatMiniprogram.CustomEvent<ProductSelectionChangeDetail>): void {
       this.setData({
         batchLayers: normalizeLayers(event.detail.value),
       })
+      this.refreshBatchPricingGroups()
     },
 
     handleBatchCreamChange(event: WechatMiniprogram.CustomEvent<{ value?: unknown }>): void {
       this.setData({
         batchCreamTypes: normalizeCreamTypeSelection(event.detail.value),
       })
+      this.refreshBatchPricingGroups()
     },
 
     handleToggleAllBatchSpecSizes(): void {
       this.setData({
         batchSpecSizes: this.data.batchSpecSizes.length === SPEC_OPTIONS.length ? [] : SPEC_OPTIONS.map((item) => item.value),
       })
+      this.refreshBatchPricingGroups()
     },
 
     handleToggleAllBatchLayers(): void {
       this.setData({
         batchLayers: this.data.batchLayers.length === LAYER_OPTIONS.length ? [] : LAYER_OPTIONS.map((item) => item.value),
       })
+      this.refreshBatchPricingGroups()
     },
 
     handleToggleAllBatchCreamTypes(): void {
       this.setData({
         batchCreamTypes: this.data.batchCreamTypes.length === CREAM_OPTIONS.length ? [] : CREAM_OPTIONS.map((item) => item.value),
       })
+      this.refreshBatchPricingGroups()
     },
 
-    handleBatchSizePriceChange(event: WechatMiniprogram.CustomEvent<ProductInputDetail>): void {
-      const optionValue = (event.currentTarget.dataset as PriceInputDataset).optionValue
+    handleToggleBatchTierConfigItem(event: WechatMiniprogram.CustomEvent<ProductToggleChangeDetail>): void {
+      const dataset = event.currentTarget.dataset as ConfigPriceInputDataset
+      const tier = dataset.tier
+      const configId = dataset.configId
       if (
-        optionValue !== '6-inch' &&
-        optionValue !== '8-inch' &&
-        optionValue !== '10-inch' &&
-        optionValue !== '12-inch' &&
-        optionValue !== '14-inch' &&
-        optionValue !== '16-inch'
+        (tier !== 'single' && tier !== 'double' && tier !== 'triple') ||
+        typeof configId !== 'string' ||
+        configId.length === 0
       ) {
         return
       }
 
       this.setData({
-        batchSizePriceInputs: setPriceInputValue(this.data.batchSizePriceInputs, optionValue, parseInputValue(event.detail)),
+        batchEnabledConfigIdsByTier: updateEnabledConfigIdsByTier(
+          this.data.batchEnabledConfigIdsByTier,
+          tier,
+          configId,
+          event.detail.checked === true,
+        ),
       })
+      this.refreshBatchPricingGroups()
     },
 
-    handleBatchLayerPriceChange(event: WechatMiniprogram.CustomEvent<ProductInputDetail>): void {
-      const optionValue = (event.currentTarget.dataset as PriceInputDataset).optionValue
-      if (
-        optionValue !== '1-layer' &&
-        optionValue !== '2-layer' &&
-        optionValue !== '3-layer' &&
-        optionValue !== '4-layer' &&
-        optionValue !== '5-layer' &&
-        optionValue !== '6-layer' &&
-        optionValue !== '7-layer' &&
-        optionValue !== '8-layer' &&
-        optionValue !== '9-layer' &&
-        optionValue !== '10-layer'
-      ) {
+    handleBatchConfigPriceChange(event: WechatMiniprogram.CustomEvent<ProductInputDetail>): void {
+      const configId = (event.currentTarget.dataset as ConfigPriceInputDataset).configId
+      if (typeof configId !== 'string' || configId.length === 0) {
         return
       }
 
       this.setData({
-        batchLayerPriceInputs: setPriceInputValue(this.data.batchLayerPriceInputs, optionValue, parseInputValue(event.detail)),
-      })
-    },
-
-    handleBatchCreamPriceChange(event: WechatMiniprogram.CustomEvent<ProductInputDetail>): void {
-      const optionValue = (event.currentTarget.dataset as PriceInputDataset).optionValue
-      if (optionValue !== 'animal-cream-i' && optionValue !== 'dairy-cream' && optionValue !== 'naked-cake') {
-        return
-      }
-
-      this.setData({
-        batchCreamPriceInputs: setPriceInputValue(this.data.batchCreamPriceInputs, optionValue, parseInputValue(event.detail)),
+        batchPriceAdjustmentInputs: {
+          ...this.data.batchPriceAdjustmentInputs,
+          [configId]: parseInputValue(event.detail),
+        },
       })
     },
 
@@ -1325,34 +1582,15 @@ Component({
       const hasLayerPatch = this.data.batchLayers.length > 0
       const batchCreamTypes = this.data.batchCreamTypes
       const hasCreamPatch = batchCreamTypes.length > 0
-      const sizeAdjustments = buildAdjustmentMap(
-        this.data.batchSpecSizes,
-        this.data.batchSizePriceInputs,
-        SPEC_LABEL_MAP,
-        '尺寸加价',
+      const hasEnabledConfigPatch = hasEnabledConfigIds(this.data.batchEnabledConfigIdsByTier)
+      const configAdjustments = buildConfigAdjustmentMap(
+        this.data.batchPriceAdjustmentInputs,
+        this.data.batchPricingGroups,
+        false,
       )
-      const layerAdjustments = buildAdjustmentMap(
-        this.data.batchLayers,
-        this.data.batchLayerPriceInputs,
-        LAYER_LABEL_MAP,
-        '层数加价',
-      )
-      const creamAdjustments = buildAdjustmentMap(
-        batchCreamTypes,
-        this.data.batchCreamPriceInputs,
-        CREAM_LABEL_MAP,
-        '奶油加价',
-      )
-      const hasSizeAdjustmentPatch = Object.keys(sizeAdjustments.adjustments).length > 0
-      const hasLayerAdjustmentPatch = Object.keys(layerAdjustments.adjustments).length > 0
-      const hasCreamAdjustmentPatch = Object.keys(creamAdjustments.adjustments).length > 0
+      const hasConfigAdjustmentPatch = Object.keys(configAdjustments.adjustments).length > 0
 
-      const invalidAdjustmentFields = [
-        ...sizeAdjustments.missingFields,
-        ...layerAdjustments.missingFields,
-        ...creamAdjustments.missingFields,
-      ]
-      if (invalidAdjustmentFields.length > 0) {
+      if (configAdjustments.missingFields.length > 0) {
         wx.showToast({
           title: '请补全已选项对应加价',
           icon: 'none',
@@ -1360,7 +1598,14 @@ Component({
         return
       }
 
-      if (!hasPricePatch && !hasSpecPatch && !hasLayerPatch && !hasCreamPatch && !hasSizeAdjustmentPatch && !hasLayerAdjustmentPatch && !hasCreamAdjustmentPatch) {
+      if (
+        !hasPricePatch &&
+        !hasSpecPatch &&
+        !hasLayerPatch &&
+        !hasCreamPatch &&
+        !hasEnabledConfigPatch &&
+        !hasConfigAdjustmentPatch
+      ) {
         wx.showToast({
           title: '请至少选择一项修改内容',
           icon: 'none',
@@ -1389,16 +1634,12 @@ Component({
         batchInput.creamType = batchCreamTypes[0]
       }
 
-      if (hasSizeAdjustmentPatch) {
-        batchInput.sizePriceAdjustments = sizeAdjustments.adjustments
+      if (hasEnabledConfigPatch) {
+        batchInput.enabledConfigIdsByTier = this.data.batchEnabledConfigIdsByTier
       }
 
-      if (hasLayerAdjustmentPatch) {
-        batchInput.layerPriceAdjustments = layerAdjustments.adjustments
-      }
-
-      if (hasCreamAdjustmentPatch) {
-        batchInput.creamPriceAdjustments = creamAdjustments.adjustments
+      if (hasConfigAdjustmentPatch) {
+        batchInput.priceAdjustmentsByConfigId = configAdjustments.adjustments
       }
 
       batchEditMerchantProducts(wx, batchInput)
@@ -1407,10 +1648,9 @@ Component({
         selectedProductIds: [],
         selectedProductMap: {},
         batchPriceInput: '',
-        ...buildBatchSelectionPatch([], [], []),
-        batchSizePriceInputs: createEmptyPriceInputMap(SPEC_OPTIONS),
-        batchLayerPriceInputs: createEmptyPriceInputMap(LAYER_OPTIONS),
-        batchCreamPriceInputs: createEmptyPriceInputMap(CREAM_OPTIONS),
+        ...buildBatchSelectionPatch([], [], [], createEmptyEnabledConfigIdsByTier()),
+        batchPriceAdjustmentInputs: buildEmptyConfigAdjustmentInputMap(),
+        batchPricingGroups: [],
         ...buildBatchPhasePatch('idle', 0),
       })
 

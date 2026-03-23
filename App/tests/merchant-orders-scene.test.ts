@@ -49,6 +49,22 @@ test('merchant orders scene includes status tabs search and auto cleanup entry',
   assert.match(wxss, /\.merchant-orders-scene__search/)
 })
 
+test('merchant orders scene uses a single controlled search clear action and no built-in clearable icon', () => {
+  const wxml = readWorkspaceFile('App/miniprogram/components/merchant-orders-scene/merchant-orders-scene.wxml')
+  const source = readWorkspaceFile('App/miniprogram/components/merchant-orders-scene/merchant-orders-scene.ts')
+
+  assert.match(wxml, /merchant-orders-scene__search-clear/)
+  assert.match(source, /handleClearOrderSearch/)
+  assert.doesNotMatch(wxml, /clearable="\{\{true\}\}"/)
+})
+
+test('merchant orders scene rebuilds visible orders with explicit keyword patch on search clear', () => {
+  const source = readWorkspaceFile('App/miniprogram/components/merchant-orders-scene/merchant-orders-scene.ts')
+
+  assert.match(source, /handleOrderSearchChange\([\s\S]*orderSearchKeyword[\s\S]*buildVisibleOrdersPatch\(this\.data\.orders, this\.data\.selectedDateKey, orderSearchKeyword, this\.data\.activeStatusTab\)/)
+  assert.match(source, /handleClearOrderSearch\(\): void[\s\S]*orderSearchKeyword:\s*''[\s\S]*buildVisibleOrdersPatch\(this\.data\.orders, this\.data\.selectedDateKey, '', this\.data\.activeStatusTab\)/)
+})
+
 test('merchant orders scene includes order detail entry and cleanup recycle actions', () => {
   const wxml = readWorkspaceFile('App/miniprogram/components/merchant-orders-scene/merchant-orders-scene.wxml')
   const source = readWorkspaceFile('App/miniprogram/components/merchant-orders-scene/merchant-orders-scene.ts')
@@ -110,7 +126,7 @@ test('merchant orders scene loads and sorts orders through merchant pipeline hel
   assert.match(source, /loadMerchantOrderAutoCleanupDays/)
   assert.match(source, /updateMerchantOrderStatus/)
   assert.match(source, /deleteCompletedMerchantOrder/)
+  assert.match(json, /"shared-search-shell":\s*"\/components\/shared-search-shell\/shared-search-shell"/)
   assert.match(json, /"t-calendar":\s*"tdesign-miniprogram\/calendar\/calendar"/)
-  assert.match(json, /"t-input":\s*"tdesign-miniprogram\/input\/input"/)
   assert.match(json, /"t-popup":\s*"tdesign-miniprogram\/popup\/popup"/)
 })

@@ -5,12 +5,16 @@
   </view>
 
   <view class="customer-home-scene__search">
-    <t-search
+    <shared-search-shell
       value="{{keyword}}"
       placeholder="搜索蛋糕名 / 商品 ID"
-      left-icon=""
+      shell-class="customer-home-scene__search-shell"
+      input-class="customer-home-scene__search-input"
+      clear-class="customer-home-scene__search-clear"
+      clear-text-class="customer-home-scene__search-clear-text"
       bind:change="handleSearchChange"
-    ></t-search>
+      bind:clear="handleClearSearch"
+    ></shared-search-shell>
   </view>
 
   <view class="customer-home-scene__filters">

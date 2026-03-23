@@ -1,8 +1,9 @@
 <view class="merchant-profile-scene">
   <view class="glass-card merchant-profile-scene__hero">
-    <text class="merchant-profile-scene__title">客户风控</text>
+    <text class="merchant-profile-scene__title">我的</text>
     <view class="merchant-profile-scene__tag-row">
       <t-tag theme="danger" variant="light">黑名单 {{blacklistCount}}</t-tag>
+      <t-tag theme="primary" variant="light">默认价格 {{pricingGroups.length}} 组</t-tag>
       <t-tag wx:if="{{isPreviewMode}}" theme="warning" variant="light">管理员预览</t-tag>
     </view>
     <view class="merchant-profile-scene__actions">
@@ -18,6 +19,80 @@
     </view>
   </view>
 
+  <view class="glass-card merchant-profile-scene__section">
+    <view class="merchant-profile-scene__section-head">
+      <view class="merchant-profile-scene__section-copy">
+        <text class="merchant-profile-scene__section-title">默认价格</text>
+        <text class="merchant-profile-scene__section-status" wx:if="{{pricingDraftDirty}}">有未保存修改</text>
+      </view>
+      <t-button
+        size="small"
+        theme="primary"
+        t-class="merchant-button-token merchant-button-token--primary merchant-profile-scene__save-btn"
+        disabled="{{!pricingDraftDirty}}"
+        bindtap="handleSavePricingDraft"
+      >
+        保存默认价格
+      </t-button>
+    </view>
+
+    <view wx:for="{{pricingGroups}}" wx:for-item="group" wx:key="tier" class="merchant-profile-scene__pricing-group">
+      <view class="merchant-profile-scene__pricing-head">
+        <view class="merchant-profile-scene__pricing-main" data-tier="{{group.tier}}" bindtap="handleTogglePricingTier">
+          <text class="merchant-profile-scene__pricing-title">{{group.label}}</text>
+          <t-tag theme="default" variant="light">{{group.itemCount}} 项</t-tag>
+        </view>
+        <view class="merchant-profile-scene__pricing-actions">
+          <t-button
+            size="small"
+            theme="default"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--outline merchant-profile-scene__mini-btn"
+            data-tier="{{group.tier}}"
+            bindtap="handleTogglePricingSetting"
+          >
+            {{group.settingMode ? '完成设置' : '设置'}}
+          </t-button>
+          <t-button
+            size="small"
+            theme="primary"
+            t-class="merchant-button-token merchant-button-token--primary merchant-profile-scene__mini-btn"
+            data-tier="{{group.tier}}"
+            bindtap="handleOpenCustomPricingDialog"
+          >
+            自定义添加
+          </t-button>
+        </view>
+      </view>
+
+      <view class="merchant-profile-scene__pricing-body" wx:if="{{group.expanded}}">
+        <view wx:if="{{group.items.length === 0}}" class="merchant-profile-scene__pricing-empty">
+          <text class="merchant-profile-scene__pricing-empty-text">当前没有默认价格项，点击“自定义”新增。</text>
+        </view>
+
+        <view wx:for="{{group.items}}" wx:for-item="pricingItem" wx:key="id" class="merchant-profile-scene__pricing-item">
+          <text class="merchant-profile-scene__pricing-item-label">{{pricingItem.label}}</text>
+          <t-input
+            class="merchant-profile-scene__pricing-item-input"
+            type="digit"
+            placeholder="0"
+            value="{{pricingItem.basePriceInput}}"
+            data-item-id="{{pricingItem.id}}"
+            bind:change="handlePricingInputChange"
+          ></t-input>
+          <view
+            wx:if="{{group.settingMode}}"
+            class="merchant-profile-scene__pricing-delete"
+            data-item-id="{{pricingItem.id}}"
+            bindtap="handleDeletePricingItem"
+          >
+            <text class="merchant-profile-scene__pricing-delete-text">删除</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <view class="glass-card merchant-profile-scene__section" wx:if="{{canBackToAdmin}}">
     <text class="merchant-profile-scene__section-title">预览切换</text>
     <t-button
@@ -30,4 +105,131 @@
       返回管理员视角
     </t-button>
   </view>
+
+  <root-portal enable="{{true}}">
+    <t-popup visible="{{customDialogVisible}}" placement="center" bind:visible-change="handleCustomDialogVisibleChange">
+      <view class="merchant-profile-scene__dialog-shell">
+        <view class="merchant-profile-scene__dialog-head">
+          <text class="merchant-profile-scene__dialog-title">{{customDialogTitle}}</text>
+          <text class="merchant-profile-scene__dialog-copy">选择尺寸和奶油后，会在当前分组新增一个可设置默认价位的配置项。</text>
+        </view>
+
+        <view class="merchant-profile-scene__dialog-grid">
+          <picker
+            wx:if="{{customDialogTier === 'single' || customDialogTier === 'double' || customDialogTier === 'triple'}}"
+            class="merchant-profile-scene__picker"
+            mode="selector"
+            range="{{customSizeOptionLabels}}"
+            value="{{customSizeIndexes[0]}}"
+            data-index="0"
+            bindchange="handleCustomSizeChange"
+          >
+            <view class="merchant-profile-scene__picker-shell">
+              <text class="merchant-profile-scene__picker-label">尺寸（一层）</text>
+              <text class="merchant-profile-scene__picker-value">{{customSizeOptionLabels[customSizeIndexes[0]]}}</text>
+            </view>
+          </picker>
+
+          <picker
+            wx:if="{{customDialogTier === 'double' || customDialogTier === 'triple'}}"
+            class="merchant-profile-scene__picker"
+            mode="selector"
+            range="{{customSizeOptionLabels}}"
+            value="{{customSizeIndexes[1]}}"
+            data-index="1"
+            bindchange="handleCustomSizeChange"
+          >
+            <view class="merchant-profile-scene__picker-shell">
+              <text class="merchant-profile-scene__picker-label">尺寸（二层）</text>
+              <text class="merchant-profile-scene__picker-value">{{customSizeOptionLabels[customSizeIndexes[1]]}}</text>
+            </view>
+          </picker>
+
+          <picker
+            wx:if="{{customDialogTier === 'triple'}}"
+            class="merchant-profile-scene__picker"
+            mode="selector"
+            range="{{customSizeOptionLabels}}"
+            value="{{customSizeIndexes[2]}}"
+            data-index="2"
+            bindchange="handleCustomSizeChange"
+          >
+            <view class="merchant-profile-scene__picker-shell">
+              <text class="merchant-profile-scene__picker-label">尺寸（三层）</text>
+              <text class="merchant-profile-scene__picker-value">{{customSizeOptionLabels[customSizeIndexes[2]]}}</text>
+            </view>
+          </picker>
+
+          <picker
+            class="merchant-profile-scene__picker"
+            mode="selector"
+            range="{{customCreamOptionLabels}}"
+            value="{{customCreamIndex}}"
+            bindchange="handleCustomCreamChange"
+          >
+            <view class="merchant-profile-scene__picker-shell">
+              <text class="merchant-profile-scene__picker-label">奶油</text>
+              <text class="merchant-profile-scene__picker-value">{{customCreamOptionLabels[customCreamIndex]}}</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="merchant-profile-scene__dialog-actions">
+          <t-button
+            size="small"
+            theme="default"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--outline merchant-profile-scene__dialog-btn"
+            bindtap="handleCloseCustomPricingDialog"
+          >
+            取消
+          </t-button>
+          <t-button
+            size="small"
+            theme="primary"
+            t-class="merchant-button-token merchant-button-token--primary merchant-profile-scene__dialog-btn"
+            bindtap="handleConfirmCustomPricing"
+          >
+            确定
+          </t-button>
+        </view>
+      </view>
+    </t-popup>
+  </root-portal>
+
+  <root-portal enable="{{true}}">
+    <t-popup
+      visible="{{deletePricingConfirmVisible}}"
+      placement="center"
+      bind:visible-change="handleDeletePricingConfirmVisibleChange"
+    >
+      <view class="merchant-profile-scene__confirm-dialog">
+        <view class="merchant-profile-scene__dialog-head">
+          <text class="merchant-profile-scene__dialog-title">{{deletePricingConfirmTitle}}</text>
+          <text class="merchant-profile-scene__dialog-copy">{{deletePricingConfirmContent}}</text>
+        </view>
+
+        <view class="merchant-profile-scene__dialog-actions">
+          <t-button
+            size="small"
+            theme="default"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--outline merchant-profile-scene__dialog-btn"
+            bindtap="handleCloseDeletePricingConfirmDialog"
+          >
+            取消
+          </t-button>
+          <t-button
+            size="small"
+            theme="danger"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--danger merchant-profile-scene__dialog-btn"
+            bindtap="handleConfirmDeletePricingItem"
+          >
+            {{deletePricingConfirmConfirmText}}
+          </t-button>
+        </view>
+      </view>
+    </t-popup>
+  </root-portal>
 </view>

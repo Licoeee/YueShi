@@ -1,0 +1,19 @@
+<view class="shared-search-shell shell-class">
+  <t-input
+    class="shared-search-shell__input input-class"
+    value="{{value}}"
+    placeholder="{{placeholder}}"
+    clearable="{{false}}"
+    disabled="{{disabled}}"
+    bind:change="handleInputChange"
+  ></t-input>
+
+  <view
+    wx:if="{{!disabled && value.length > 0}}"
+    class="shared-search-shell__clear clear-class"
+    hover-class="shared-search-shell__clear--active"
+    catchtap="handleClearTap"
+  >
+    <text class="shared-search-shell__clear-text clear-text-class">×</text>
+  </view>
+</view>

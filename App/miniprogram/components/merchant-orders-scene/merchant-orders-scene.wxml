@@ -7,13 +7,17 @@
       <t-tag theme="default" variant="light">筛选 {{selectedDateLabel}}</t-tag>
     </view>
 
-    <t-input
+    <shared-search-shell
       class="merchant-orders-scene__search"
       placeholder="搜索订单号、手机号、商品名称"
       value="{{orderSearchKeyword}}"
-      clearable="{{true}}"
+      shell-class="merchant-orders-scene__search-shell"
+      input-class="merchant-orders-scene__search-input"
+      clear-class="merchant-orders-scene__search-clear"
+      clear-text-class="merchant-orders-scene__search-clear-text"
       bind:change="handleOrderSearchChange"
-    ></t-input>
+      bind:clear="handleClearOrderSearch"
+    ></shared-search-shell>
 
     <view class="merchant-orders-scene__status-tabs">
       <view class="merchant-orders-scene__tab-list">

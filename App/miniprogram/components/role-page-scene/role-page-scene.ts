@@ -23,6 +23,40 @@ type RolePageSceneRenderMode =
 interface RolePageSceneData {
   scene: RolePageScene | null
   renderMode: RolePageSceneRenderMode
+  mountedMerchantProducts: boolean
+  mountedMerchantOrders: boolean
+  mountedMerchantInventory: boolean
+  mountedMerchantAccountBook: boolean
+  mountedMerchantProfile: boolean
+}
+
+function buildMerchantMountPatch(
+  renderMode: RolePageSceneRenderMode,
+  data: RolePageSceneData,
+): Partial<RolePageSceneData> {
+  const patch: Partial<RolePageSceneData> = {}
+
+  if (renderMode === 'merchant-products' && !data.mountedMerchantProducts) {
+    patch.mountedMerchantProducts = true
+  }
+
+  if (renderMode === 'merchant-orders' && !data.mountedMerchantOrders) {
+    patch.mountedMerchantOrders = true
+  }
+
+  if (renderMode === 'merchant-inventory' && !data.mountedMerchantInventory) {
+    patch.mountedMerchantInventory = true
+  }
+
+  if (renderMode === 'merchant-account-book' && !data.mountedMerchantAccountBook) {
+    patch.mountedMerchantAccountBook = true
+  }
+
+  if (renderMode === 'merchant-profile' && !data.mountedMerchantProfile) {
+    patch.mountedMerchantProfile = true
+  }
+
+  return patch
 }
 
 function parseRoleType(rawValue: unknown): RoleType | null {
@@ -68,6 +102,11 @@ Component({
   data: {
     scene: null,
     renderMode: 'placeholder',
+    mountedMerchantProducts: false,
+    mountedMerchantOrders: false,
+    mountedMerchantInventory: false,
+    mountedMerchantAccountBook: false,
+    mountedMerchantProfile: false,
   } as RolePageSceneData,
 
   observers: {
@@ -87,7 +126,10 @@ Component({
       const scenePath = this.properties.scenePath
       if (typeof scenePath !== 'string' || scenePath.length === 0) {
         if (this.data.scene !== null) {
-          this.setData({ scene: null })
+          this.setData({
+            scene: null,
+            renderMode: 'placeholder',
+          })
         }
         return
       }
@@ -114,13 +156,19 @@ Component({
               ? 'merchant-profile'
             : 'placeholder'
 
-      if (this.data.scene?.path === nextScene.path && this.data.renderMode === renderMode) {
+      const mountPatch = buildMerchantMountPatch(renderMode, this.data)
+      if (
+        this.data.scene?.path === nextScene.path &&
+        this.data.renderMode === renderMode &&
+        Object.keys(mountPatch).length === 0
+      ) {
         return
       }
 
       this.setData({
         scene: nextScene,
         renderMode,
+        ...mountPatch,
       })
     },
 

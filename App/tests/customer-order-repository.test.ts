@@ -3,6 +3,7 @@ import test from 'node:test'
 
 import type { CheckoutDraftRecord } from '../types/checkout'
 import {
+  CUSTOMER_ORDER_BLACKLIST_ERROR_CODE,
   canCustomerCancelOrder,
   createLocalCustomerOrderRepository,
 } from '../miniprogram/utils/customer-order-repository'
@@ -12,6 +13,10 @@ import {
   saveOrderSnapshot,
 } from '../miniprogram/utils/customer-order-storage'
 import type { OrderRecord } from '../types/order'
+import {
+  addOpenIdToMerchantBlacklist,
+  createMemoryMerchantBlacklistStorage,
+} from '../miniprogram/utils/merchant-blacklist-storage'
 
 function createCheckoutDraft(): CheckoutDraftRecord {
   return {
@@ -51,6 +56,7 @@ function createStoredOrder(input: {
   note?: string
   hasNote?: boolean
   customerRecycleMeta?: OrderRecord['customerRecycleMeta']
+  merchantRecycleMeta?: OrderRecord['merchantRecycleMeta']
 }): OrderRecord {
   return {
     id: input.id,
@@ -86,6 +92,7 @@ function createStoredOrder(input: {
     note: input.note ?? '',
     hasNote: input.hasNote ?? false,
     customerRecycleMeta: input.customerRecycleMeta,
+    merchantRecycleMeta: input.merchantRecycleMeta,
     totalAmount: 168,
     createdAt: '2026-03-14T02:30:00.000Z',
     updatedAt: '2026-03-14T02:30:00.000Z',
@@ -107,6 +114,25 @@ test('createDraftOrder prepends the new order and derives phone tail and selecti
   assert.equal(storedOrders[0]?.items[0]?.creamId, 'fresh')
 })
 
+test('createDraftOrder blocks customers in merchant blacklist', async () => {
+  const storage = createMemoryOrderStorage()
+  const blacklistStorage = createMemoryMerchantBlacklistStorage()
+  addOpenIdToMerchantBlacklist(blacklistStorage, 'local-customer')
+
+  const runtimeGlobal = globalThis as { wx?: unknown }
+  const previousWx = runtimeGlobal.wx
+  runtimeGlobal.wx = blacklistStorage
+
+  try {
+    const repository = createLocalCustomerOrderRepository(storage)
+    await assert.rejects(() => repository.createDraftOrder(createCheckoutDraft()), (error: unknown) => {
+      return error instanceof Error && error.message === CUSTOMER_ORDER_BLACKLIST_ERROR_CODE
+    })
+  } finally {
+    runtimeGlobal.wx = previousWx
+  }
+})
+
 test('getOrderById returns the stored order detail by id', async () => {
   const storage = createMemoryOrderStorage()
   saveOrderSnapshot(storage, [createStoredOrder({ id: 'order-1' })])
@@ -115,6 +141,25 @@ test('getOrderById returns the stored order detail by id', async () => {
   const order = await repository.getOrderById('order-1')
 
   assert.equal(order?.id, 'order-1')
+})
+
+test('getOrderById hides orders moved into merchant recycle bin', async () => {
+  const storage = createMemoryOrderStorage()
+  saveOrderSnapshot(storage, [
+    createStoredOrder({
+      id: 'merchant-recycled-order',
+      status: 'completed',
+      merchantRecycleMeta: {
+        deletedAt: '2026-03-21T00:00:00.000Z',
+        source: 'manual',
+      },
+    }),
+  ])
+  const repository = createLocalCustomerOrderRepository(storage)
+
+  const order = await repository.getOrderById('merchant-recycled-order')
+
+  assert.equal(order, null)
 })
 
 test('updateOrderNote persists note content and note flags', async () => {

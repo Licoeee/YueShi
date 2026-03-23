@@ -452,6 +452,13 @@ Component({
       })
     },
 
+    handleClearOrderSearch(): void {
+      this.setData({
+        orderSearchKeyword: '',
+        ...buildVisibleOrdersPatch(this.data.orders, this.data.selectedDateKey, '', this.data.activeStatusTab),
+      })
+    },
+
     handleOpenCalendar(): void {
       this.setData({
         calendarVisible: true,

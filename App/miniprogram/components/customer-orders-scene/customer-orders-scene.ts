@@ -3,6 +3,7 @@ import { splitCustomerOrdersByRecycleState } from '../../utils/customer-order-re
 import { loadStoredCustomerOrders, saveStoredCustomerOrders } from '../../utils/customer-order-storage'
 import { resolveCakeImageUrl } from '../../utils/customer-image-fallback'
 import { formatPickupSlot } from '../../utils/customer-pickup-slot'
+import { splitMerchantOrdersByRecycleState } from '../../utils/merchant-order-management'
 
 type CustomerOrderTabKey = 'pending-confirmation' | 'in-production' | 'ready-for-pickup' | 'completed'
 
@@ -143,7 +144,8 @@ Component({
         saveStoredCustomerOrders(retainedOrders)
       }
 
-      const orders = activeOrders.map(mapOrderToDisplay)
+      const merchantVisibility = splitMerchantOrdersByRecycleState(activeOrders)
+      const orders = merchantVisibility.activeOrders.map(mapOrderToDisplay)
       this.setData({
         orders,
         visibleOrders: filterOrdersByTab(orders, this.data.activeTab),

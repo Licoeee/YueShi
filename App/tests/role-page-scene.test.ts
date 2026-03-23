@@ -96,6 +96,18 @@ test('wraps customer scenes with a top safe-area shell to avoid status-bar overl
   assert.match(wxss, /padding:\s*calc\(14rpx \+ env\(safe-area-inset-top\) \+ 88rpx\)\s*30rpx\s*0;/)
 })
 
+test('keeps merchant business scenes mounted after first visit to avoid tab switch remount churn', () => {
+  const wxml = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.wxml')
+  const source = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.ts')
+
+  assert.match(wxml, /wx:if="\{\{mountedMerchantProducts\}\}"/)
+  assert.match(wxml, /hidden="\{\{renderMode !== 'merchant-products'\}\}"/)
+  assert.match(wxml, /wx:if="\{\{mountedMerchantOrders\}\}"/)
+  assert.match(wxml, /hidden="\{\{renderMode !== 'merchant-orders'\}\}"/)
+  assert.match(source, /mountedMerchantProducts:\s*false/)
+  assert.match(source, /mountedMerchantOrders:\s*false/)
+})
+
 test('forwards cart delete requests to the page with a bubbling composed sceneaction event', () => {
   const source = readWorkspaceFile('App/miniprogram/components/role-page-scene/role-page-scene.ts')
 

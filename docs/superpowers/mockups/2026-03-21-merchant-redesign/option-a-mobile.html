@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>商家端手机稿 - 方案A</title>
+  <style>
+    :root {
+      --bg-start: #fff5f7;
+      --bg-end: #ffe5d6;
+      --card: rgba(255, 255, 255, 0.94);
+      --line: rgba(244, 210, 198, 0.9);
+      --text: #553633;
+      --muted: #7a5750;
+      --accent: #ff7e5f;
+      --accent-2: #feb47b;
+      --note: rgba(255, 240, 244, 0.96);
+      --shadow: 0 8px 20px rgba(188, 113, 96, 0.14);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 16% 10%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 42%),
+        radial-gradient(circle at 82% 8%, rgba(255,232,220,0.56) 0%, rgba(255,232,220,0) 40%),
+        linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      min-height: 100vh;
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .phone {
+      width: min(100vw - 16px, 390px);
+      min-height: 844px;
+      border-radius: 30px;
+      border: 1px solid rgba(235, 201, 190, 0.9);
+      background: rgba(255, 247, 244, 0.8);
+      box-shadow: 0 20px 40px rgba(140, 88, 72, 0.22);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .notch {
+      width: 120px;
+      height: 24px;
+      border-radius: 0 0 14px 14px;
+      background: rgba(67, 45, 39, 0.9);
+      margin: 0 auto;
+    }
+
+    .content {
+      padding: 12px 12px 84px;
+    }
+
+    .header-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 0.03em;
+    }
+
+    .sub {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .tabs {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 4px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tab.active {
+      border-color: rgba(255, 153, 124, 0.85);
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+
+    .panel {
+      margin-top: 10px;
+      display: none;
+      gap: 10px;
+    }
+
+    .panel.active {
+      display: grid;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 10px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1px solid rgba(236, 191, 174, 0.9);
+      background: rgba(255, 244, 240, 0.95);
+      color: #7a5750;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+    }
+
+    .btn {
+      border: 1px solid rgba(255, 167, 136, 0.9);
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .btn.outline {
+      border-color: var(--line);
+      background: #fff;
+      color: var(--muted);
+    }
+
+    .order {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 8px;
+      background: #fff;
+      display: grid;
+      gap: 4px;
+      font-size: 12px;
+    }
+
+    .order.note {
+      background: var(--note);
+      border-color: rgba(242, 185, 197, 0.96);
+    }
+
+    .order-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      font-weight: 700;
+    }
+
+    .waterfall {
+      column-count: 2;
+      column-gap: 8px;
+    }
+
+    .product {
+      break-inside: avoid;
+      margin-bottom: 8px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .thumb {
+      height: 110px;
+      background: linear-gradient(135deg, rgba(255, 198, 179, 0.72), rgba(255, 229, 210, 0.86));
+    }
+
+    .product-body {
+      padding: 8px;
+      display: grid;
+      gap: 5px;
+      font-size: 12px;
+    }
+
+    .id {
+      color: #a46557;
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    .product-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .inventory-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .inventory-item {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+    }
+
+    .inventory-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255, 198, 179, 0.72), rgba(255, 229, 210, 0.86));
+    }
+
+    .chart {
+      width: 100%;
+      height: 140px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #fffefc, #fff6f1);
+      padding: 6px;
+    }
+
+    .dialog {
+      border: 1px dashed rgba(229, 180, 163, 0.95);
+      border-radius: 12px;
+      background: rgba(255, 250, 247, 0.95);
+      padding: 8px;
+      display: grid;
+      gap: 5px;
+      font-size: 12px;
+    }
+
+    .picker {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .pick {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: #77564f;
+      font-size: 11px;
+      text-align: center;
+      padding: 6px 4px;
+      font-weight: 700;
+    }
+
+    .bottom-tabs {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-top: 1px solid rgba(236, 201, 189, 0.9);
+      background: rgba(255, 249, 246, 0.95);
+      padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 4px;
+      font-size: 11px;
+      color: #7a5750;
+      text-align: center;
+    }
+
+    .bottom-tabs .active {
+      color: #cf5f43;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="content">
+      <section class="header-card">
+        <h1>商家端手机稿</h1>
+        <div class="sub">390 宽度基线，覆盖：订单管理、商品管理、回收站、商品库存、资金流水、关键弹窗状态</div>
+        <div class="tabs">
+          <div class="tab active" data-panel="orders">订单管理</div>
+          <div class="tab" data-panel="products">商品管理</div>
+          <div class="tab" data-panel="recycle">回收站</div>
+          <div class="tab" data-panel="inventory">商品库存</div>
+          <div class="tab" data-panel="ledger">资金流水</div>
+          <div class="tab" data-panel="dialogs">弹窗状态</div>
+        </div>
+      </section>
+
+      <section class="panel active" id="orders">
+        <div class="card row">
+          <button class="btn outline">选择日期</button>
+          <span class="chip">2026-03-21</span>
+          <span class="chip">含备注 5</span>
+        </div>
+        <article class="order note">
+          <div class="order-head"><span>订单号 A20260321006</span><span class="chip">待制作</span></div>
+          <div>取货：03-21 17:30</div>
+          <div>联系人：138****5678</div>
+          <div>金额：¥268</div>
+          <div>备注：蜡烛写“生日快乐”</div>
+        </article>
+        <article class="order">
+          <div class="order-head"><span>订单号 A20260321007</span><span class="chip">待取货</span></div>
+          <div>取货：03-21 19:00</div>
+          <div>联系人：136****0021</div>
+          <div>金额：¥199</div>
+        </article>
+      </section>
+
+      <section class="panel" id="products">
+        <div class="card row">
+          <button class="btn">新增商品</button>
+          <button class="btn outline">商品回收站</button>
+          <button class="btn outline">批量编辑</button>
+          <button class="btn outline">退出修改</button>
+        </div>
+        <div class="waterfall">
+          <article class="product">
+            <div class="thumb"></div>
+            <div class="product-body">
+              <div class="id">ID A001</div>
+              <strong>云朵鲜奶生日蛋糕</strong>
+              <div>¥168 · 6/8 寸</div>
+              <div class="product-actions"><button class="btn outline">编辑</button><button class="btn outline">删除</button></div>
+            </div>
+          </article>
+          <article class="product">
+            <div class="thumb"></div>
+            <div class="product-body">
+              <div class="id">ID A002</div>
+              <strong>蜜桃日落双层蛋糕</strong>
+              <div>¥238 · 8/10 寸</div>
+              <div class="product-actions"><button class="btn outline">编辑</button><button class="btn outline">删除</button></div>
+            </div>
+          </article>
+          <article class="product">
+            <div class="thumb"></div>
+            <div class="product-body">
+              <div class="id">ID A003</div>
+              <strong>暖雾香草蛋糕</strong>
+              <div>¥158 · 6 寸</div>
+              <div class="product-actions"><button class="btn outline">编辑</button><button class="btn outline">删除</button></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="recycle">
+        <div class="card">
+          <div class="row" style="justify-content:space-between"><strong>ID A009 · 奶油草莓塔</strong><span class="chip">剩余 4 天</span></div>
+          <div class="sub" style="margin:0">删除时间：2026-03-18 10:24</div>
+          <div class="row" style="margin-top:6px"><button class="btn outline">恢复商品</button></div>
+        </div>
+        <div class="card">
+          <div class="row" style="justify-content:space-between"><strong>ID A010 · 开心果慕斯</strong><span class="chip">剩余 6 天</span></div>
+          <div class="sub" style="margin:0">删除时间：2026-03-20 08:40</div>
+          <div class="row" style="margin-top:6px"><button class="btn outline">恢复商品</button></div>
+        </div>
+      </section>
+
+      <section class="panel" id="inventory">
+        <div class="card">
+          <strong>入库登记（弹窗）</strong>
+          <div class="picker" style="margin-top:6px"><div class="pick">2026 年</div><div class="pick">03 月</div><div class="pick">21 日</div></div>
+          <div class="sub" style="margin-top:6px">生产日期：2026-03-21</div>
+          <div class="sub" style="margin-top:2px">保质期（天）：30</div>
+          <div class="sub" style="margin-top:2px">过期日期：2026-04-20（自动计算）</div>
+          <div class="row" style="margin-top:8px"><button class="btn">保存入库</button><button class="btn outline">上传图片</button></div>
+        </div>
+        <div class="card inventory-list">
+          <div class="inventory-item">
+            <div class="inventory-thumb"></div>
+            <div>
+              <strong>预制曲奇</strong>
+              <div class="sub" style="margin:2px 0 0">生产 2026-03-12 · 保质期 20 天</div>
+              <div class="sub" style="margin:2px 0 0">过期 2026-04-01 · 剩余 9 天</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="ledger">
+        <div class="card row">
+          <button class="btn outline">日</button>
+          <button class="btn">周</button>
+          <button class="btn outline">月</button>
+          <span class="chip">收入 ¥4,280</span>
+          <span class="chip">支出 ¥1,190</span>
+        </div>
+        <div class="card">
+          <svg class="chart" viewBox="0 0 800 180" preserveAspectRatio="none">
+            <polyline fill="none" stroke="#ff8a69" stroke-width="4" points="16,140 120,118 224,126 328,102 432,96 536,88 640,78 744,82"></polyline>
+            <polyline fill="none" stroke="#cb6976" stroke-width="4" points="16,160 120,150 224,146 328,140 432,130 536,126 640,120 744,115"></polyline>
+          </svg>
+        </div>
+      </section>
+
+      <section class="panel" id="dialogs">
+        <div class="dialog">
+          <strong>新增商品弹窗</strong>
+          <div>自动 ID：A011（序列只增不回退）</div>
+          <div class="row"><button class="btn">确认新增</button><button class="btn outline">取消</button></div>
+        </div>
+        <div class="dialog">
+          <strong>批量修改弹窗</strong>
+          <div>奶油：动物奶油i / 乳脂奶油</div>
+          <div class="row"><button class="btn">批量修改</button><button class="btn outline">退出修改</button></div>
+        </div>
+        <div class="dialog">
+          <strong>首次入库后授权询问</strong>
+          <div>同意后不再询问；拒绝则下次入库后再次询问。</div>
+          <div class="row"><button class="btn">同意并开启</button><button class="btn outline">暂不</button></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="bottom-tabs">
+      <div>商品管理</div>
+      <div class="active">订单管理</div>
+      <div>账本</div>
+      <div>商品库存</div>
+      <div>我的</div>
+    </div>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.panel');
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((node) => node.classList.remove('active'));
+        tab.classList.add('active');
+        const target = tab.getAttribute('data-panel');
+        panels.forEach((panel) => panel.classList.toggle('active', panel.id === target));
+      });
+    });
+  </script>
+</body>
+</html>

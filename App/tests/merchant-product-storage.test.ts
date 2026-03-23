@@ -7,14 +7,17 @@ import {
   batchEditMerchantProducts,
   createMemoryMerchantProductStorage,
   createMerchantProduct,
+  deleteRecycledMerchantProduct,
   deleteMerchantProduct,
   loadMerchantProductSnapshot,
   loadStoredMerchantProducts,
+  resolveMerchantProductConfiguredPrice,
   resolveMerchantProductSalePrice,
   restoreMerchantProduct,
   splitMerchantProductsByRecycleState,
   updateMerchantProduct,
 } from '../miniprogram/utils/merchant-product-storage'
+import { createMemoryMerchantDefaultPricingStorage, loadStoredMerchantDefaultPricing } from '../miniprogram/utils/merchant-default-pricing-storage'
 
 function createNow(isoText: string): () => Date {
   return () => new Date(isoText)
@@ -30,6 +33,12 @@ function createProductSeed(id: string): MerchantProductRecord {
     layers: ['1-layer'],
     creamTypes: ['dairy-cream'],
     creamType: 'dairy-cream',
+    enabledConfigIdsByTier: {
+      single: [],
+      double: [],
+      triple: [],
+    },
+    priceAdjustmentsByConfigId: {},
     sizePriceAdjustments: {},
     layerPriceAdjustments: {},
     creamPriceAdjustments: {},
@@ -122,20 +131,92 @@ test('merchant product storage supports extended sizes and multiple cream types'
   assert.equal(createdProduct.creamPriceAdjustments['naked-cake'], 28)
 })
 
-test('merchant product storage resolves sale price from base price and dimension adjustments', () => {
+test('merchant product storage resolves sale price from default pricing and config surcharge', () => {
+  const pricingStorage = createMemoryMerchantDefaultPricingStorage()
+  const pricingSnapshot = loadStoredMerchantDefaultPricing(pricingStorage)
   const product: MerchantProductRecord = {
     ...createProductSeed('A009'),
     basePrice: 168,
     specSizes: ['6-inch', '8-inch'],
     layers: ['1-layer', '2-layer'],
     creamTypes: ['dairy-cream', 'animal-cream-i'],
-    sizePriceAdjustments: { '8-inch': 36 },
-    layerPriceAdjustments: { '2-layer': 88 },
-    creamPriceAdjustments: { 'animal-cream-i': 20 },
+    priceAdjustmentsByConfigId: {
+      'single-6-inch-dairy-cream': 168,
+      'single-8-inch-dairy-cream': 204,
+      'double-10-inch-6-inch-animal-cream-i': 320,
+    },
   }
 
-  assert.equal(resolveMerchantProductSalePrice(product, '6-inch', '1-layer', 'dairy-cream'), 168)
-  assert.equal(resolveMerchantProductSalePrice(product, '8-inch', '2-layer', 'animal-cream-i'), 312)
+  assert.equal(resolveMerchantProductSalePrice(product, '6-inch', '1-layer', 'dairy-cream', pricingSnapshot), 168)
+  assert.equal(resolveMerchantProductConfiguredPrice(product, 'single-8-inch-dairy-cream', pricingSnapshot), 204)
+})
+
+test('merchant product storage persists enabled config ids across multiple tiers on the same product', () => {
+  const storage = createMemoryMerchantProductStorage()
+  const pricingStorage = createMemoryMerchantDefaultPricingStorage()
+  const pricingSnapshot = loadStoredMerchantDefaultPricing(pricingStorage)
+  const createdProductView = createMerchantProduct as unknown
+
+  type MerchantMultiTierView = MerchantProductRecord & {
+    enabledConfigIdsByTier?: {
+      single?: string[]
+      double?: string[]
+      triple?: string[]
+    }
+  }
+
+  const createdProduct = createdProductView(
+    storage,
+    {
+      title: '多层级联动蛋糕',
+      description: '同一商品支持多个层级',
+      specSizes: ['6-inch', '8-inch', '10-inch'],
+      layers: ['1-layer', '2-layer'],
+      creamTypes: ['dairy-cream', 'animal-cream-i'],
+      creamType: 'dairy-cream',
+      enabledConfigIdsByTier: {
+        single: ['single-6-inch-dairy-cream', 'single-8-inch-dairy-cream'],
+        double: ['double-10-inch-6-inch-animal-cream-i'],
+        triple: [],
+      },
+      priceAdjustmentsByConfigId: {
+        'single-6-inch-dairy-cream': 0,
+        'single-8-inch-dairy-cream': 12,
+        'double-10-inch-6-inch-animal-cream-i': 24,
+      },
+      sizePriceAdjustments: {},
+      layerPriceAdjustments: {},
+      creamPriceAdjustments: {},
+      imageUrls: ['/tmp/multi-tier.png'],
+      coverImage: '/tmp/multi-tier.png',
+    },
+    createNow('2026-03-23T08:00:00.000Z'),
+    pricingSnapshot,
+  ) as MerchantMultiTierView
+
+  assert.ok(createdProduct.enabledConfigIdsByTier)
+  assert.deepEqual(createdProduct.enabledConfigIdsByTier.single, ['single-6-inch-dairy-cream', 'single-8-inch-dairy-cream'])
+  assert.deepEqual(createdProduct.enabledConfigIdsByTier.double, ['double-10-inch-6-inch-animal-cream-i'])
+  assert.deepEqual(createdProduct.enabledConfigIdsByTier.triple, [])
+
+  const updatedProduct = updateMerchantProduct(
+    storage,
+    createdProduct.id,
+    {
+      enabledConfigIdsByTier: {
+        single: ['single-6-inch-dairy-cream'],
+        double: ['double-10-inch-6-inch-animal-cream-i'],
+        triple: ['triple-12-inch-10-inch-6-inch-dairy-cream'],
+      },
+    },
+    createNow('2026-03-23T08:30:00.000Z'),
+    pricingSnapshot,
+  ) as MerchantMultiTierView
+
+  assert.ok(updatedProduct.enabledConfigIdsByTier)
+  assert.deepEqual(updatedProduct.enabledConfigIdsByTier.single, ['single-6-inch-dairy-cream'])
+  assert.deepEqual(updatedProduct.enabledConfigIdsByTier.double, ['double-10-inch-6-inch-animal-cream-i'])
+  assert.deepEqual(updatedProduct.enabledConfigIdsByTier.triple, ['triple-12-inch-10-inch-6-inch-dairy-cream'])
 })
 
 test('merchant product storage keeps imageUrls and derives coverImage from the first image', () => {
@@ -220,6 +301,8 @@ test('splitMerchantProductsByRecycleState purges expired recycle records after 7
 
 test('batchEditMerchantProducts applies unified price, spec sizes, and cream type', () => {
   const storage = createMemoryMerchantProductStorage()
+  const pricingStorage = createMemoryMerchantDefaultPricingStorage()
+  const pricingSnapshot = loadStoredMerchantDefaultPricing(pricingStorage)
   const products = [createProductSeed('A001'), createProductSeed('A002')]
   storage.setStorageSync('merchant-products-v1', JSON.stringify(products))
   storage.setStorageSync(MERCHANT_PRODUCT_ID_COUNTER_KEY, '2')
@@ -238,13 +321,14 @@ test('batchEditMerchantProducts applies unified price, spec sizes, and cream typ
       creamPriceAdjustments: { 'animal-cream-i': 18, 'naked-cake': 30 },
     },
     createNow('2026-03-20T06:30:00.000Z'),
+    pricingSnapshot,
   )
 
   const productA = result.find((item) => item.id === 'A001')
   const productB = result.find((item) => item.id === 'A002')
 
   assert.equal(productA?.basePrice, 188)
-  assert.equal(productB?.basePrice, 199)
+  assert.equal(productB?.basePrice, 217)
   assert.deepEqual(productB?.specSizes, ['6-inch', '8-inch', '10-inch', '12-inch'])
   assert.deepEqual(productB?.layers, ['1-layer', '2-layer', '3-layer'])
   assert.deepEqual(productB?.creamTypes, ['animal-cream-i', 'naked-cake'])
@@ -287,4 +371,48 @@ test('product id counter does not reuse deleted ids across delete create restore
 
   const ids = loadMerchantProductSnapshot(storage).map((item) => item.id)
   assert.equal(new Set(ids).size, ids.length)
+})
+
+test('merchant product storage restricts layers to 1/2/3 and resolves configured price from default pricing plus surcharge', () => {
+  const storage = createMemoryMerchantProductStorage()
+  const pricingStorage = createMemoryMerchantDefaultPricingStorage()
+  const pricingSnapshot = loadStoredMerchantDefaultPricing(pricingStorage)
+
+  const createdProduct = createMerchantProduct(
+    storage,
+    {
+      title: '默认价格联动蛋糕',
+      description: '联动测试',
+      specSizes: ['6-inch', '10-inch'],
+      layers: ['5-layer' as unknown as MerchantProductLayer],
+      creamTypes: ['animal-cream-i'],
+      creamType: 'animal-cream-i',
+      priceAdjustmentsByConfigId: {
+        'double-10-inch-6-inch-animal-cream-i': 10,
+      },
+      imageUrls: ['/tmp/linked.png'],
+      coverImage: '/tmp/linked.png',
+    },
+    createNow('2026-03-21T08:00:00.000Z'),
+    pricingSnapshot,
+  )
+
+  assert.deepEqual(createdProduct.layers, ['1-layer'])
+  assert.equal(
+    resolveMerchantProductConfiguredPrice(createdProduct, 'double-10-inch-6-inch-animal-cream-i', pricingSnapshot),
+    10,
+  )
+})
+
+test('deleteRecycledMerchantProduct physically removes recycle records without resetting id counter', () => {
+  const storage = createMemoryMerchantProductStorage()
+  const product = createProductSeed('A001')
+  storage.setStorageSync('merchant-products-v1', JSON.stringify([product]))
+  storage.setStorageSync(MERCHANT_PRODUCT_ID_COUNTER_KEY, '1')
+
+  deleteMerchantProduct(storage, 'A001', createNow('2026-03-21T09:00:00.000Z'))
+  deleteRecycledMerchantProduct(storage, 'A001', createNow('2026-03-21T09:30:00.000Z'))
+
+  assert.deepEqual(loadMerchantProductSnapshot(storage), [])
+  assert.equal(storage.snapshot[MERCHANT_PRODUCT_ID_COUNTER_KEY], '1')
 })

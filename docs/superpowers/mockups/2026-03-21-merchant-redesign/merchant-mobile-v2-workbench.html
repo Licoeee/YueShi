@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>商家端手机版方案 V2 - 分段运营工作台</title>
+  <style>
+    :root {
+      --bg: #fff3ee;
+      --panel: #fffdfb;
+      --line: #efd9ce;
+      --text: #4f332f;
+      --muted: #785850;
+      --accent: #f77758;
+      --accent-soft: #ffd8c8;
+      --danger: #bf5a67;
+      --shadow: 0 10px 22px rgba(162, 95, 79, 0.14);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at 82% 8%, rgba(255, 214, 194, 0.45) 0, rgba(255, 214, 194, 0) 40%),
+        radial-gradient(circle at 12% 12%, rgba(255, 255, 255, 0.72) 0, rgba(255, 255, 255, 0) 38%),
+        var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .phone {
+      width: min(100vw - 16px, 390px);
+      min-height: 844px;
+      border-radius: 28px;
+      border: 1px solid #e8cdc1;
+      background: #fff8f4;
+      box-shadow: 0 24px 44px rgba(110, 69, 58, 0.22);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .top {
+      background: rgba(255, 248, 244, 0.94);
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 9;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.04em;
+    }
+
+    .desc {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .switch {
+      margin-top: 8px;
+      display: flex;
+      overflow-x: auto;
+      gap: 6px;
+      padding-bottom: 2px;
+    }
+
+    .switch::-webkit-scrollbar { display: none; }
+
+    .tab {
+      white-space: nowrap;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: #fff;
+      border-color: rgba(245, 124, 91, 0.9);
+      background: linear-gradient(135deg, #f77758, #f9a870);
+      box-shadow: 0 8px 14px rgba(247, 119, 88, 0.26);
+    }
+
+    .container {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+
+    .scene { display: none; gap: 8px; }
+    .scene.active { display: grid; }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 7px;
+    }
+
+    .btn {
+      border: 1px solid rgba(246, 132, 100, 0.86);
+      border-radius: 9px;
+      padding: 7px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      color: #fff;
+      background: linear-gradient(135deg, #f77758, #f9a870);
+      cursor: pointer;
+    }
+
+    .btn.outline {
+      border-color: var(--line);
+      color: var(--muted);
+      background: #fff;
+    }
+
+    .btn.danger {
+      border-color: rgba(194, 90, 104, 0.72);
+      color: #9f3f4d;
+      background: rgba(255, 236, 239, 0.96);
+    }
+
+    .btn:disabled,
+    .btn.disabled {
+      cursor: not-allowed;
+      border-color: #e0d2cb;
+      background: #f2ebe8;
+      color: #9b8c85;
+      box-shadow: none;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .table th,
+    .table td {
+      border-bottom: 1px solid #f1e2da;
+      text-align: left;
+      padding: 6px 4px;
+      vertical-align: top;
+    }
+
+    .table th { color: #8a675f; font-weight: 700; }
+    .note-row { background: rgba(255, 239, 243, 0.95); }
+
+    .masonry {
+      column-count: 2;
+      column-gap: 8px;
+    }
+
+    .item {
+      break-inside: avoid;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #fff;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+
+    .media {
+      height: 104px;
+      background: linear-gradient(135deg, rgba(255, 201, 182, 0.75), rgba(255, 233, 218, 0.9));
+    }
+
+    .item-body {
+      display: grid;
+      gap: 4px;
+      padding: 7px;
+      font-size: 12px;
+    }
+
+    .id { color: #9e6658; font-size: 11px; font-weight: 700; }
+
+    .mini-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+
+    .inventory-card {
+      display: grid;
+      grid-template-columns: 68px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+    }
+
+    .inventory-image {
+      width: 68px;
+      height: 68px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255, 201, 182, 0.75), rgba(255, 233, 218, 0.9));
+    }
+
+    .field {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px;
+      font-size: 12px;
+      color: var(--muted);
+      background: #fff;
+    }
+
+    .picker {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+    }
+
+    .pick {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 4px;
+      color: #73544d;
+    }
+
+    .chart {
+      width: 100%;
+      height: 128px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: linear-gradient(180deg, #fffefc, #fff6f1);
+      padding: 6px;
+    }
+
+    .bottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 251, 249, 0.95);
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      font-size: 11px;
+      text-align: center;
+      color: #7a5b54;
+      padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    }
+
+    .bottom .active { color: #d16247; font-weight: 700; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(70, 48, 42, 0.5);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0 12px 14px;
+      z-index: 999;
+    }
+
+    .overlay.show { display: flex; }
+
+    .sheet {
+      width: min(100%, 390px);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 10px;
+      display: grid;
+      gap: 7px;
+      box-shadow: 0 -14px 28px rgba(97, 63, 53, 0.26);
+    }
+
+    .sheet h3 { margin: 0; font-size: 14px; }
+    .sheet p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <header class="top">
+      <h1 class="title">V2 分段运营工作台</h1>
+      <p class="desc">强调“操作区 + 数据区 + 弹窗层”分离，信息密度更高。</p>
+      <div class="switch">
+        <div class="tab active" data-scene="orders">订单管理</div>
+        <div class="tab" data-scene="products">商品管理</div>
+        <div class="tab" data-scene="recycle">商品回收站</div>
+        <div class="tab" data-scene="inventory">商品库存</div>
+        <div class="tab" data-scene="ledger">资金流水</div>
+        <div class="tab" data-scene="risk">客户风控</div>
+        <div class="tab" data-scene="buttons">按钮状态</div>
+        <div class="tab" data-scene="dialogs">弹窗样式</div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="scene active" id="orders">
+        <article class="card row">
+          <button class="btn outline" data-open="v2-date">选择日期</button>
+          <button class="btn outline" disabled>清除筛选</button>
+          <span class="chip">待制作 8</span>
+          <span class="chip">含备注 5</span>
+        </article>
+        <article class="card">
+          <table class="table">
+            <thead><tr><th>订单号</th><th>取货</th><th>状态</th><th>金额</th></tr></thead>
+            <tbody>
+              <tr class="note-row"><td>A20260321006<br /><span class="chip">有备注</span></td><td>03-21 17:30</td><td>待制作</td><td>¥268</td></tr>
+              <tr><td>A20260321007</td><td>03-21 19:00</td><td>待取货</td><td>¥199</td></tr>
+              <tr><td>A20260322002</td><td>03-22 10:20</td><td>待确认</td><td>¥318</td></tr>
+            </tbody>
+          </table>
+        </article>
+      </section>
+
+      <section class="scene" id="products">
+        <article class="card row">
+          <button class="btn" data-open="v2-create">新增商品</button>
+          <button class="btn outline">商品回收站</button>
+          <button class="btn outline">批量编辑</button>
+          <button class="btn" disabled>批量修改</button>
+          <button class="btn outline" disabled>退出修改</button>
+        </article>
+
+        <div class="masonry">
+          <article class="item"><div class="media"></div><div class="item-body"><div class="id">ID A001</div><strong>云朵鲜奶生日蛋糕</strong><div>¥168 · 6/8 寸</div><div class="mini-actions"><button class="btn outline">编辑</button><button class="btn danger">删除</button></div></div></article>
+          <article class="item"><div class="media" style="height:126px"></div><div class="item-body"><div class="id">ID A002</div><strong>蜜桃日落双层蛋糕</strong><div>¥238 · 8/10 寸</div><div class="mini-actions"><button class="btn outline">编辑</button><button class="btn danger">删除</button></div></div></article>
+          <article class="item"><div class="media" style="height:92px"></div><div class="item-body"><div class="id">ID A003</div><strong>暖雾香草蛋糕</strong><div>¥158 · 6 寸</div><div class="mini-actions"><button class="btn outline">编辑</button><button class="btn danger" disabled>删除</button></div></div></article>
+        </div>
+      </section>
+
+      <section class="scene" id="recycle">
+        <article class="card">
+          <h3 class="section-title">待恢复商品</h3>
+          <table class="table">
+            <thead><tr><th>ID</th><th>剩余</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>A009</td><td>4 天</td><td><button class="btn outline">恢复</button></td></tr>
+              <tr><td>A010</td><td>6 天</td><td><button class="btn outline">恢复</button></td></tr>
+            </tbody>
+          </table>
+        </article>
+      </section>
+
+      <section class="scene" id="inventory">
+        <article class="card">
+          <h3 class="section-title">入库表单</h3>
+          <div class="picker"><div class="pick">2026 年</div><div class="pick">03 月</div><div class="pick">21 日</div></div>
+          <div class="field">生产日期：2026-03-21</div>
+          <div class="field">保质期（天）：30</div>
+          <div class="field">过期日期：2026-04-20</div>
+          <div class="row"><button class="btn">上传图片</button><button class="btn">保存入库</button><button class="btn outline" data-open="v2-subscribe">订阅询问</button></div>
+        </article>
+
+        <article class="card">
+          <h3 class="section-title">入库列表（带图）</h3>
+          <div class="inventory-card">
+            <div class="inventory-image"></div>
+            <div style="font-size:12px;line-height:1.4;">
+              <strong>预制曲奇</strong><br />生产：2026-03-12<br />保质期：20 天<br />过期：2026-04-01
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="scene" id="ledger">
+        <article class="card row">
+          <button class="btn">日</button>
+          <button class="btn outline">周</button>
+          <button class="btn outline">月</button>
+          <span class="chip">收入 ¥1,180</span>
+          <span class="chip">支出 ¥320</span>
+          <button class="btn outline" disabled>导出</button>
+        </article>
+
+        <article class="card">
+          <svg class="chart" viewBox="0 0 820 180" preserveAspectRatio="none">
+            <polyline fill="none" stroke="#f78362" stroke-width="4" points="16,140 120,118 224,126 328,102 432,96 536,89 640,82 744,78"></polyline>
+            <polyline fill="none" stroke="#c96a76" stroke-width="4" points="16,160 120,150 224,146 328,140 432,132 536,126 640,118 744,112"></polyline>
+          </svg>
+        </article>
+      </section>
+
+      <section class="scene" id="risk">
+        <article class="card">
+          <h3 class="section-title">新增拉黑 OpenID</h3>
+          <div class="field">oXxXxxA1B2C3D4E5F6</div>
+          <div class="row"><button class="btn danger">拉黑用户</button><button class="btn outline" disabled>批量导入</button></div>
+        </article>
+
+        <article class="card">
+          <h3 class="section-title">黑名单列表</h3>
+          <table class="table">
+            <thead><tr><th>OpenID</th><th>加入时间</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>oAbC1234567</td><td>03-20 09:30</td><td><button class="btn outline">解除</button></td></tr>
+              <tr><td>oMno9876543</td><td>03-19 13:10</td><td><button class="btn outline">解除</button></td></tr>
+            </tbody>
+          </table>
+        </article>
+      </section>
+
+      <section class="scene" id="buttons">
+        <article class="card">
+          <h3 class="section-title">按钮启用 / 禁用</h3>
+          <div class="row"><button class="btn">主按钮可点击</button><button class="btn" disabled>主按钮不可点击</button></div>
+          <div class="row"><button class="btn outline">描边可点击</button><button class="btn outline" disabled>描边不可点击</button></div>
+          <div class="row"><button class="btn danger">危险可点击</button><button class="btn danger" disabled>危险不可点击</button></div>
+        </article>
+      </section>
+
+      <section class="scene" id="dialogs">
+        <article class="card">
+          <h3 class="section-title">弹窗预览入口</h3>
+          <div class="row">
+            <button class="btn outline" data-open="v2-date">日期筛选</button>
+            <button class="btn outline" data-open="v2-create">新增商品</button>
+            <button class="btn outline" data-open="v2-batch">批量修改</button>
+            <button class="btn outline" data-open="v2-stock">入库表单</button>
+            <button class="btn outline" data-open="v2-subscribe">订阅询问</button>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="bottom">
+      <div>商品管理</div>
+      <div class="active">订单管理</div>
+      <div>账本</div>
+      <div>商品库存</div>
+      <div>我的</div>
+    </footer>
+  </div>
+
+  <div class="overlay" id="v2-date"><div class="sheet"><h3>选择日期</h3><p>按日筛选历史/未来订单。</p><div class="picker"><div class="pick">2026 年</div><div class="pick">03 月</div><div class="pick">21 日</div></div><div class="row"><button class="btn">确认</button><button class="btn outline" data-close>取消</button></div></div></div>
+  <div class="overlay" id="v2-create"><div class="sheet"><h3>新增商品</h3><p>自动 ID：A011；支持图片与规格。</p><div class="field">名称：云朵鲜奶生日蛋糕</div><div class="field">价格：168</div><div class="row"><button class="btn">上传图片</button><button class="btn">保存</button><button class="btn outline" data-close>取消</button></div></div></div>
+  <div class="overlay" id="v2-batch"><div class="sheet"><h3>批量修改</h3><p>奶油：动物奶油i / 乳脂奶油。</p><div class="field">统一价格：198</div><div class="row"><span class="chip">6 寸</span><span class="chip">8 寸</span></div><div class="row"><button class="btn">批量修改</button><button class="btn outline" data-close>取消</button></div></div></div>
+  <div class="overlay" id="v2-stock"><div class="sheet"><h3>入库登记</h3><p>生产日期 + 保质期天数 -> 自动计算过期日期。</p><div class="picker"><div class="pick">2026 年</div><div class="pick">03 月</div><div class="pick">21 日</div></div><div class="field">保质期：30</div><div class="field">过期：2026-04-20</div><div class="row"><button class="btn">确认入库</button><button class="btn outline" data-close>取消</button></div></div></div>
+  <div class="overlay" id="v2-subscribe"><div class="sheet"><h3>开启临期提醒</h3><p>首次入库后询问；同意后不再重复询问，拒绝则下次再问。</p><div class="row"><button class="btn">同意</button><button class="btn outline" data-close>暂不</button></div></div></div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const scenes = document.querySelectorAll('.scene');
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const id = tab.getAttribute('data-scene');
+        tabs.forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+        scenes.forEach((scene) => scene.classList.toggle('active', scene.id === id));
+      });
+    });
+
+    document.querySelectorAll('[data-open]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById(btn.getAttribute('data-open'));
+        if (modal) modal.classList.add('show');
+      });
+    });
+
+    document.querySelectorAll('[data-close]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const overlay = btn.closest('.overlay');
+        if (overlay) overlay.classList.remove('show');
+      });
+    });
+
+    document.querySelectorAll('.overlay').forEach((overlay) => {
+      overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) overlay.classList.remove('show');
+      });
+    });
+  </script>
+</body>
+</html>

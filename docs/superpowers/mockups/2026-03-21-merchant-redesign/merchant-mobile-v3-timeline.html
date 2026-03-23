@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>商家端手机版方案 V3 - 时间轴任务流</title>
+  <style>
+    :root {
+      --bg-top: #fff7f0;
+      --bg-bottom: #ffeede;
+      --panel: rgba(255, 255, 255, 0.96);
+      --line: rgba(232, 198, 182, 0.95);
+      --text: #4d332e;
+      --muted: #775851;
+      --accent: #e86b4e;
+      --accent-2: #f2a76f;
+      --danger: #b34d5f;
+      --danger-bg: #ffe9ee;
+      --shadow: 0 12px 24px rgba(155, 95, 75, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 88% 8%, rgba(255, 218, 197, 0.46) 0%, rgba(255, 218, 197, 0) 44%),
+        radial-gradient(circle at 6% 12%, rgba(255, 255, 255, 0.74) 0%, rgba(255, 255, 255, 0) 40%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      display: flex;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .phone {
+      width: min(100vw - 16px, 390px);
+      min-height: 844px;
+      border-radius: 30px;
+      border: 1px solid rgba(226, 191, 176, 0.9);
+      background: rgba(255, 250, 246, 0.84);
+      box-shadow: 0 24px 44px rgba(112, 72, 59, 0.22);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .top {
+      padding: 12px 10px 8px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 250, 247, 0.95);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 21px;
+      letter-spacing: 0.04em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .nav {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      padding: 7px 6px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tab.active {
+      color: #fff;
+      border-color: rgba(232, 107, 78, 0.82);
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 8px 14px rgba(232, 107, 78, 0.24);
+    }
+
+    .main {
+      padding: 10px 10px calc(98px + env(safe-area-inset-bottom));
+      display: grid;
+      gap: 8px;
+    }
+
+    .scene { display: none; gap: 8px; }
+    .scene.active { display: grid; }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 9px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .panel h3 {
+      margin: 0;
+      font-size: 13px;
+    }
+
+    .row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+    }
+
+    .btn {
+      border: 1px solid rgba(232, 107, 78, 0.85);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .btn.outline {
+      border-color: var(--line);
+      background: #fff;
+      color: var(--muted);
+    }
+
+    .btn.danger {
+      border-color: rgba(179, 77, 95, 0.7);
+      background: var(--danger-bg);
+      color: #9a3c4d;
+    }
+
+    .btn:disabled,
+    .btn.disabled {
+      cursor: not-allowed;
+      border-color: #dfd2cb;
+      background: #f2ece9;
+      color: #9a8d86;
+      box-shadow: none;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 8px;
+    }
+
+    .node {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 8px;
+      display: grid;
+      gap: 4px;
+      font-size: 12px;
+      position: relative;
+    }
+
+    .node::before {
+      content: "";
+      position: absolute;
+      left: -6px;
+      top: 12px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ffd4c6;
+      border: 1px solid rgba(232, 107, 78, 0.5);
+    }
+
+    .node.note {
+      background: linear-gradient(180deg, rgba(255, 240, 244, 0.98), rgba(255, 252, 252, 0.98));
+      border-color: rgba(242, 185, 197, 0.94);
+    }
+
+    .masonry {
+      column-count: 2;
+      column-gap: 8px;
+    }
+
+    .product {
+      break-inside: avoid;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+
+    .cover {
+      height: 112px;
+      background: linear-gradient(135deg, rgba(255, 201, 182, 0.76), rgba(255, 234, 220, 0.9));
+    }
+
+    .body {
+      display: grid;
+      gap: 4px;
+      padding: 7px;
+      font-size: 12px;
+    }
+
+    .id { color: #9f6558; font-size: 11px; font-weight: 700; }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+
+    .inventory {
+      display: grid;
+      grid-template-columns: 70px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+    }
+
+    .inventory .image {
+      width: 70px;
+      height: 70px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255, 201, 182, 0.76), rgba(255, 234, 220, 0.9));
+    }
+
+    .field {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 7px;
+      font-size: 12px;
+      color: var(--muted);
+      background: #fff;
+    }
+
+    .picker {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .pick {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #70544d;
+      padding: 6px 4px;
+    }
+
+    .chart {
+      width: 100%;
+      height: 130px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: linear-gradient(180deg, #fffefc, #fff7f3);
+      padding: 6px;
+    }
+
+    .foot {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 251, 249, 0.96);
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      text-align: center;
+      font-size: 11px;
+      color: #795a52;
+      padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    }
+
+    .foot .active { color: #d05f44; font-weight: 700; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      background: rgba(68, 46, 40, 0.52);
+      padding: 0 12px 14px;
+      z-index: 999;
+    }
+
+    .overlay.show { display: flex; }
+
+    .sheet {
+      width: min(100%, 390px);
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: #fff;
+      padding: 11px;
+      display: grid;
+      gap: 7px;
+      box-shadow: 0 -14px 30px rgba(108, 70, 59, 0.28);
+    }
+
+    .sheet h4 { margin: 0; font-size: 14px; }
+    .sheet p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <header class="top">
+      <h1 class="title">V3 时间轴任务流</h1>
+      <p class="subtitle">更强调流程感：订单/库存/风控均用任务节点表达，适合手机连续滑动浏览。</p>
+      <div class="nav">
+        <div class="tab active" data-scene="orders">订单管理</div>
+        <div class="tab" data-scene="products">商品管理</div>
+        <div class="tab" data-scene="recycle">商品回收站</div>
+        <div class="tab" data-scene="inventory">商品库存</div>
+        <div class="tab" data-scene="ledger">资金流水</div>
+        <div class="tab" data-scene="risk">客户风控</div>
+        <div class="tab" data-scene="buttons">按钮状态</div>
+        <div class="tab" data-scene="dialogs">弹窗样式</div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="scene active" id="orders">
+        <article class="panel row">
+          <button class="btn outline" data-open="v3-date">选择日期</button>
+          <button class="btn outline" disabled>清除筛选</button>
+          <span class="chip">含备注 5</span>
+          <span class="chip">待制作 8</span>
+        </article>
+
+        <div class="timeline">
+          <article class="node note">
+            <strong>A20260321006 · 待制作</strong>
+            <div>取货：03-21 17:30 · 联系人 138****5678</div>
+            <div>金额：¥268 · 备注：蜡烛写“生日快乐”</div>
+          </article>
+          <article class="node">
+            <strong>A20260321007 · 待取货</strong>
+            <div>取货：03-21 19:00 · 联系人 136****0021</div>
+            <div>金额：¥199</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="scene" id="products">
+        <article class="panel row">
+          <button class="btn" data-open="v3-create">新增商品</button>
+          <button class="btn outline">商品回收站</button>
+          <button class="btn outline">批量编辑</button>
+          <button class="btn" disabled>批量修改</button>
+          <button class="btn outline" disabled>退出修改</button>
+        </article>
+
+        <div class="masonry">
+          <article class="product"><div class="cover"></div><div class="body"><div class="id">ID A001</div><strong>云朵鲜奶生日蛋糕</strong><div>¥168 · 6/8 寸</div><div class="actions"><button class="btn outline">编辑</button><button class="btn danger">删除</button></div></div></article>
+          <article class="product"><div class="cover" style="height:128px"></div><div class="body"><div class="id">ID A002</div><strong>蜜桃日落双层蛋糕</strong><div>¥238 · 8/10 寸</div><div class="actions"><button class="btn outline">编辑</button><button class="btn danger">删除</button></div></div></article>
+          <article class="product"><div class="cover" style="height:92px"></div><div class="body"><div class="id">ID A003</div><strong>暖雾香草蛋糕</strong><div>¥158 · 6 寸</div><div class="actions"><button class="btn outline">编辑</button><button class="btn danger" disabled>删除</button></div></div></article>
+        </div>
+      </section>
+
+      <section class="scene" id="recycle">
+        <article class="panel">
+          <h3>回收站列表</h3>
+          <div class="timeline">
+            <article class="node"><strong>ID A009 · 奶油草莓塔</strong><div>删除：03-18 10:24 · 剩余 4 天</div><div class="row"><button class="btn outline">恢复商品</button><button class="btn danger" disabled>永久删除</button></div></article>
+            <article class="node"><strong>ID A010 · 开心果慕斯</strong><div>删除：03-20 08:40 · 剩余 6 天</div><div class="row"><button class="btn outline">恢复商品</button><button class="btn danger" disabled>永久删除</button></div></article>
+          </div>
+        </article>
+      </section>
+
+      <section class="scene" id="inventory">
+        <article class="panel">
+          <h3>入库登记</h3>
+          <div class="picker"><div class="pick">2026 年</div><div class="pick">03 月</div><div class="pick">21 日</div></div>
+          <div class="field">生产日期：2026-03-21</div>
+          <div class="field">保质期（天）：30</div>
+          <div class="field">过期日期：2026-04-20（自动计算）</div>
+          <div class="row"><button class="btn">上传图片</button><button class="btn">保存入库</button><button class="btn outline" data-open="v3-subscribe">订阅询问</button></div>
+        </article>
+
+        <article class="panel">
+          <h3>入库商品列表（带图）</h3>
+          <div class="inventory">
+            <div class="image"></div>
+            <div style="font-size:12px;line-height:1.4;"><strong>预制曲奇</strong><br />生产：2026-03-12<br />保质期：20 天<br />过期：2026-04-01</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="scene" id="ledger">
+        <article class="panel row">
+          <button class="btn">日</button>
+          <button class="btn outline">周</button>
+          <button class="btn outline">月</button>
+          <button class="btn outline" disabled>导出</button>
+          <span class="chip">收入 ¥4,280</span>
+          <span class="chip">支出 ¥1,190</span>
+        </article>
+
+        <article class="panel">
+          <svg class="chart" viewBox="0 0 820 180" preserveAspectRatio="none">
+            <polyline fill="none" stroke="#e87958" stroke-width="4" points="18,142 124,122 230,126 336,100 442,96 548,88 654,82 760,84"></polyline>
+            <polyline fill="none" stroke="#ba5f6e" stroke-width="4" points="18,162 124,152 230,148 336,140 442,132 548,126 654,120 760,114"></polyline>
+          </svg>
+        </article>
+      </section>
+
+      <section class="scene" id="risk">
+        <article class="panel">
+          <h3>黑名单新增</h3>
+          <div class="field">OpenID 输入：oXxXxxA1B2C3D4E5F6</div>
+          <div class="row"><button class="btn danger">拉黑用户</button><button class="btn outline" disabled>批量导入</button></div>
+        </article>
+
+        <article class="panel">
+          <h3>黑名单列表</h3>
+          <div class="timeline">
+            <article class="node"><strong>oAbC1234567</strong><div>加入：03-20 09:30</div><div class="row"><button class="btn outline">解除拉黑</button><button class="btn danger" data-open="v3-risk">删除记录</button></div></article>
+          </div>
+        </article>
+      </section>
+
+      <section class="scene" id="buttons">
+        <article class="panel">
+          <h3>按钮状态矩阵</h3>
+          <div class="row"><button class="btn">主按钮可点击</button><button class="btn" disabled>主按钮不可点击</button></div>
+          <div class="row"><button class="btn outline">描边可点击</button><button class="btn outline" disabled>描边不可点击</button></div>
+          <div class="row"><button class="btn danger">危险可点击</button><button class="btn danger" disabled>危险不可点击</button></div>
+        </article>
+      </section>
+
+      <section class="scene" id="dialogs">
+        <article class="panel">
+          <h3>弹窗页样式</h3>
+          <div class="row">
+            <button class="btn outline" data-open="v3-date">日期筛选</button>
+            <button class="btn outline" data-open="v3-create">新增商品</button>
+            <button class="btn outline" data-open="v3-batch">批量修改</button>
+            <button class="btn outline" data-open="v3-stock">入库表单</button>
+            <button class="btn outline" data-open="v3-subscribe">订阅询问</button>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div>商品管理</div>
+      <div class="active">订单管理</div>
+      <div>账本</div>
+      <div>商品库存</div>
+      <div>我的</div>
+    </footer>
+  </div>
+
+  <div class="overlay" id="v3-date"><div class="sheet"><h4>选择日期</h4><p>筛选历史/未来订单，修正下拉面板可见区域。</p><div class="picker"><div class="pick">2026 年</div><div class="pick">03 月</div><div class="pick">21 日</div></div><div class="row"><button class="btn">确认筛选</button><button class="btn outline" data-close>取消</button></div></div></div>
+  <div class="overlay" id="v3-create"><div class="sheet"><h4>新增商品</h4><p>自动 ID：A011；支持图片、价格、规格。</p><div class="field">名称：云朵鲜奶生日蛋糕</div><div class="field">价格：168</div><div class="row"><button class="btn">上传图片</button><button class="btn">保存</button><button class="btn outline" data-close>取消</button></div></div></div>
+  <div class="overlay" id="v3-batch"><div class="sheet"><h4>批量修改</h4><p>奶油选项：动物奶油i / 乳脂奶油。</p><div class="field">统一价格：198</div><div class="row"><span class="chip">6 寸</span><span class="chip">8 寸</span></div><div class="row"><button class="btn">批量修改</button><button class="btn outline" data-close>取消</button></div></div></div>
+  <div class="overlay" id="v3-stock"><div class="sheet"><h4>入库登记</h4><p>生产日期 + 保质期天数自动计算过期日期。</p><div class="picker"><div class="pick">2026 年</div><div class="pick">03 月</div><div class="pick">21 日</div></div><div class="field">保质期：30</div><div class="field">过期：2026-04-20</div><div class="row"><button class="btn">确认入库</button><button class="btn outline" data-close>取消</button></div></div></div>
+  <div class="overlay" id="v3-subscribe"><div class="sheet"><h4>开启临期提醒</h4><p>首次成功入库后询问；同意后不再询问，拒绝下次再询问。</p><div class="row"><button class="btn">同意并开启</button><button class="btn outline" data-close>暂不</button></div></div></div>
+  <div class="overlay" id="v3-risk"><div class="sheet"><h4>确认删除黑名单记录</h4><p>删除后不可恢复，请确认。</p><div class="row"><button class="btn danger">确认删除</button><button class="btn outline" data-close>取消</button></div></div></div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const scenes = document.querySelectorAll('.scene');
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const id = tab.getAttribute('data-scene');
+        tabs.forEach((node) => node.classList.remove('active'));
+        tab.classList.add('active');
+        scenes.forEach((scene) => scene.classList.toggle('active', scene.id === id));
+      });
+    });
+
+    document.querySelectorAll('[data-open]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const id = button.getAttribute('data-open');
+        const overlay = document.getElementById(id);
+        if (overlay) overlay.classList.add('show');
+      });
+    });
+
+    document.querySelectorAll('[data-close]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const overlay = button.closest('.overlay');
+        if (overlay) overlay.classList.remove('show');
+      });
+    });
+
+    document.querySelectorAll('.overlay').forEach((overlay) => {
+      overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) overlay.classList.remove('show');
+      });
+    });
+  </script>
+</body>
+</html>

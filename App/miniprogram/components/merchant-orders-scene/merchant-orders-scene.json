@@ -2,11 +2,11 @@
   "component": true,
   "styleIsolation": "apply-shared",
   "usingComponents": {
+    "shared-search-shell": "/components/shared-search-shell/shared-search-shell",
     "t-button": "tdesign-miniprogram/button/button",
     "t-calendar": "tdesign-miniprogram/calendar/calendar",
     "t-empty": "tdesign-miniprogram/empty/empty",
     "t-image": "tdesign-miniprogram/image/image",
-    "t-input": "tdesign-miniprogram/input/input",
     "t-popup": "tdesign-miniprogram/popup/popup",
     "t-radio": "tdesign-miniprogram/radio/radio",
     "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",

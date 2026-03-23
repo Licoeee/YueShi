@@ -444,6 +444,88 @@
   align-items: center;
 }
 
+.merchant-products-scene__pricing-empty {
+  padding: 16rpx;
+  border-radius: 18rpx;
+  background: rgba(255, 245, 242, 0.92);
+  border: 1px solid rgba(244, 210, 198, 0.74);
+}
+
+.merchant-products-scene__pricing-empty-text {
+  color: #8d6b64;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.merchant-products-scene__pricing-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-top: 14rpx;
+}
+
+.merchant-products-scene__tier-block {
+  padding: 16rpx;
+  border-radius: 20rpx;
+  border: 1px solid rgba(244, 210, 198, 0.88);
+  background: rgba(255, 252, 250, 0.96);
+}
+
+.merchant-products-scene__tier-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.merchant-products-scene__pricing-title {
+  color: #5b3934;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.merchant-products-scene__pricing-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220rpx;
+  align-items: center;
+  gap: 14rpx;
+  padding: 14rpx 16rpx;
+  border-radius: 18rpx;
+  border: 1px solid rgba(244, 210, 198, 0.9);
+  background: rgba(255, 251, 249, 0.95);
+}
+
+.merchant-products-scene__pricing-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.merchant-products-scene__pricing-check {
+  --td-checkbox-icon-size: 36rpx;
+  --td-checkbox-title-line-height: 40rpx;
+}
+
+.merchant-products-scene__pricing-check-label {
+  color: #6f4f49;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.merchant-products-scene__pricing-label {
+  color: #6f4f49;
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.merchant-products-scene__pricing-base {
+  color: #ab6659;
+  font-size: 20rpx;
+  line-height: 1.4;
+}
+
 .merchant-products-scene__price-grid {
   display: flex;
   flex-direction: column;
@@ -588,6 +670,15 @@
   display: flex;
   justify-content: center;
   margin-top: 22rpx;
+}
+
+.merchant-products-scene__dialog-shell--confirm .merchant-products-scene__dialog-actions {
+  gap: 12rpx;
+}
+
+.merchant-products-scene__dialog-shell--confirm .merchant-products-scene__dialog-btn {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .merchant-products-scene__dialog-btn {

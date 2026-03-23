@@ -17,7 +17,10 @@ import {
   loadStoredPhoneHistory,
   savePhoneToHistory,
 } from '../../../utils/customer-phone-history-storage'
-import { createLocalCustomerOrderRepository } from '../../../utils/customer-order-repository'
+import {
+  CUSTOMER_ORDER_BLACKLIST_ERROR_CODE,
+  createLocalCustomerOrderRepository,
+} from '../../../utils/customer-order-repository'
 import { loadStoredCustomerCart, saveStoredCustomerCart } from '../../../utils/customer-cart-storage'
 
 const PAYMENT_GUIDE_TEXT = '请在付款时备注手机号后四位，以便商家对账'
@@ -394,34 +397,49 @@ Page<
       return
     }
 
-    const allowed = await runCustomerAuthorizedAction(async () => {
-      const repository = createLocalCustomerOrderRepository(wx)
-      await repository.createDraftOrder({
-        source: this.data.checkoutSource,
-        items: this.data.checkoutItems,
-        contact: {
-          phone,
-        },
-        pickupSlot,
-        totalAmount: this.data.totalAmount,
+    try {
+      const allowed = await runCustomerAuthorizedAction(async () => {
+        const repository = createLocalCustomerOrderRepository(wx)
+        await repository.createDraftOrder({
+          source: this.data.checkoutSource,
+          items: this.data.checkoutItems,
+          contact: {
+            phone,
+          },
+          pickupSlot,
+          totalAmount: this.data.totalAmount,
+        })
+
+        savePhoneToHistory(wx, phone)
+
+        const nextCartItems = removeSubmittedCartItems(loadStoredCustomerCart(), this.data.checkoutItems)
+        saveStoredCustomerCart(nextCartItems)
+
+        this.setData({
+          paymentGuideVisible: true,
+          phoneError: '',
+          pickupError: '',
+          phoneHistoryItems: loadStoredPhoneHistory().map((historyPhone) => ({ label: historyPhone })),
+        })
       })
 
-      savePhoneToHistory(wx, phone)
+      if (!allowed) {
+        wx.showToast({
+          title: '请先完成微信登录',
+          icon: 'none',
+        })
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === CUSTOMER_ORDER_BLACKLIST_ERROR_CODE) {
+        wx.showToast({
+          title: '当前账号已被商家限制下单',
+          icon: 'none',
+        })
+        return
+      }
 
-      const nextCartItems = removeSubmittedCartItems(loadStoredCustomerCart(), this.data.checkoutItems)
-      saveStoredCustomerCart(nextCartItems)
-
-      this.setData({
-        paymentGuideVisible: true,
-        phoneError: '',
-        pickupError: '',
-        phoneHistoryItems: loadStoredPhoneHistory().map((historyPhone) => ({ label: historyPhone })),
-      })
-    })
-
-    if (!allowed) {
       wx.showToast({
-        title: '请先完成微信登录',
+        title: '提交订单失败，请稍后重试',
         icon: 'none',
       })
     }

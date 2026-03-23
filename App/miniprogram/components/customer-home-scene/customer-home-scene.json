@@ -3,8 +3,8 @@
   "styleIsolation": "apply-shared",
   "usingComponents": {
     "customer-product-sheet": "/components/customer-product-sheet/customer-product-sheet",
+    "shared-search-shell": "/components/shared-search-shell/shared-search-shell",
     "t-image": "tdesign-miniprogram/image/image",
-    "t-search": "tdesign-miniprogram/search/search",
     "t-tag": "tdesign-miniprogram/tag/tag"
   }
 }

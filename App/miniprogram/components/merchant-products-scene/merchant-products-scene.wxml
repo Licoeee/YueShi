@@ -6,13 +6,17 @@
       <t-tag theme="warning" variant="light">回收站 {{recycleProducts.length}}</t-tag>
     </view>
 
-    <t-input
+    <shared-search-shell
       class="merchant-products-scene__search"
       placeholder="搜索商品名称、ID、规格"
       value="{{productSearchKeyword}}"
-      clearable="{{true}}"
+      shell-class="merchant-products-scene__search-shell"
+      input-class="merchant-products-scene__search-input"
+      clear-class="merchant-products-scene__search-clear"
+      clear-text-class="merchant-products-scene__search-clear-text"
       bind:change="handleProductSearchChange"
-    ></t-input>
+      bind:clear="handleClearProductSearch"
+    ></shared-search-shell>
 
     <view class="merchant-products-scene__action-grid">
       <view class="merchant-products-scene__action-row merchant-products-scene__action-row--primary">
@@ -229,19 +233,6 @@
               ></t-input>
             </view>
 
-            <view class="merchant-products-scene__field">
-              <view class="merchant-products-scene__field-label">
-                <text class="merchant-products-scene__required-mark">*</text>
-                <text class="merchant-products-scene__field-label-text">基础价格</text>
-              </view>
-              <t-input
-                type="digit"
-                placeholder="输入基础价格"
-                value="{{productPriceInput}}"
-                bind:change="handleProductPriceChange"
-              ></t-input>
-            </view>
-
             <view class="merchant-products-scene__select-area">
               <view class="merchant-products-scene__select-head">
                 <view class="merchant-products-scene__field-label">
@@ -338,55 +329,48 @@
             <view class="merchant-products-scene__select-area">
               <view class="merchant-products-scene__field-label">
                 <text class="merchant-products-scene__required-mark">*</text>
-                <text class="merchant-products-scene__select-label">尺寸加价</text>
+                <text class="merchant-products-scene__select-label">默认价格参考</text>
               </view>
-              <view class="merchant-products-scene__price-grid">
-                <view wx:for="{{specOptions}}" wx:key="value" class="merchant-products-scene__price-item">
-                  <text class="merchant-products-scene__price-item-label">{{item.label}}</text>
-                  <t-input
-                    type="digit"
-                    placeholder="0 表示不加价"
-                    value="{{productSizePriceInputs[item.value] || ''}}"
-                    data-option-value="{{item.value}}"
-                    bind:change="handleProductSizePriceChange"
-                  ></t-input>
+              <view class="merchant-products-scene__pricing-empty" wx:if="{{productPricingGroups.length === 0}}">
+                <text class="merchant-products-scene__pricing-empty-text">当前规格、层数或奶油没有对应默认价格项，请先到“我的 - 默认价格”补齐。</text>
+              </view>
+              <view
+                wx:for="{{productPricingGroups}}"
+                wx:for-item="group"
+                wx:key="tier"
+                class="merchant-products-scene__pricing-group merchant-products-scene__tier-block"
+              >
+                <view class="merchant-products-scene__tier-head">
+                  <text class="merchant-products-scene__pricing-title">{{group.title}}</text>
+                  <t-tag theme="default" variant="light">已选 {{group.selectedCount}} / {{group.items.length}}</t-tag>
                 </view>
-              </view>
-            </view>
-
-            <view class="merchant-products-scene__select-area">
-              <view class="merchant-products-scene__field-label">
-                <text class="merchant-products-scene__required-mark">*</text>
-                <text class="merchant-products-scene__select-label">层数加价</text>
-              </view>
-              <view class="merchant-products-scene__price-grid">
-                <view wx:for="{{layerOptions}}" wx:key="value" class="merchant-products-scene__price-item">
-                  <text class="merchant-products-scene__price-item-label">{{item.label}}</text>
-                  <t-input
-                    type="digit"
-                    placeholder="0 表示不加价"
-                    value="{{productLayerPriceInputs[item.value] || ''}}"
-                    data-option-value="{{item.value}}"
-                    bind:change="handleProductLayerPriceChange"
-                  ></t-input>
+                <view class="merchant-products-scene__pricing-empty" wx:if="{{group.items.length === 0}}">
+                  <text class="merchant-products-scene__pricing-empty-text">当前层级下没有与所选规格和奶油匹配的默认价格项。</text>
                 </view>
-              </view>
-            </view>
-
-            <view class="merchant-products-scene__select-area">
-              <view class="merchant-products-scene__field-label">
-                <text class="merchant-products-scene__required-mark">*</text>
-                <text class="merchant-products-scene__select-label">奶油加价</text>
-              </view>
-              <view class="merchant-products-scene__price-grid">
-                <view wx:for="{{creamOptions}}" wx:key="value" class="merchant-products-scene__price-item">
-                  <text class="merchant-products-scene__price-item-label">{{item.label}}</text>
+                <view wx:for="{{group.items}}" wx:for-item="pricingItem" wx:key="id" class="merchant-products-scene__pricing-item">
+                  <view class="merchant-products-scene__pricing-copy">
+                    <t-checkbox
+                      checked="{{pricingItem.selected}}"
+                      icon="{{selectionCircleIcons}}"
+                      borderless="{{true}}"
+                      t-class="merchant-products-scene__choice-check merchant-products-scene__pricing-check"
+                      t-class-label="merchant-products-scene__choice-label merchant-products-scene__pricing-check-label"
+                      data-tier="{{group.tier}}"
+                      data-config-id="{{pricingItem.id}}"
+                      bind:change="handleToggleTierConfigItem"
+                    >
+                      {{pricingItem.label}}
+                    </t-checkbox>
+                    <text class="merchant-products-scene__pricing-base">{{pricingItem.basePriceLabel}}</text>
+                  </view>
                   <t-input
                     type="digit"
                     placeholder="0 表示不加价"
-                    value="{{productCreamPriceInputs[item.value] || ''}}"
-                    data-option-value="{{item.value}}"
-                    bind:change="handleProductCreamPriceChange"
+                    value="{{pricingItem.adjustmentInput}}"
+                    data-tier="{{group.tier}}"
+                    data-config-id="{{pricingItem.id}}"
+                    disabled="{{!pricingItem.selected}}"
+                    bind:change="handleProductConfigPriceChange"
                   ></t-input>
                 </view>
               </view>
@@ -595,53 +579,48 @@
 
             <view class="merchant-products-scene__select-area">
               <view class="merchant-products-scene__field-label">
-                <text class="merchant-products-scene__select-label">尺寸加价覆盖</text>
+                <text class="merchant-products-scene__select-label">默认价格加价覆盖</text>
               </view>
-              <view class="merchant-products-scene__price-grid">
-                <view wx:for="{{specOptions}}" wx:key="value" class="merchant-products-scene__price-item">
-                  <text class="merchant-products-scene__price-item-label">{{item.label}}</text>
-                  <t-input
-                    type="digit"
-                    placeholder="可选，0 表示不加价"
-                    value="{{batchSizePriceInputs[item.value] || ''}}"
-                    data-option-value="{{item.value}}"
-                    bind:change="handleBatchSizePriceChange"
-                  ></t-input>
+              <view class="merchant-products-scene__pricing-empty" wx:if="{{batchPricingGroups.length === 0}}">
+                <text class="merchant-products-scene__pricing-empty-text">未选择规格、层数或奶油时，不显示可覆盖的默认价格项。</text>
+              </view>
+              <view
+                wx:for="{{batchPricingGroups}}"
+                wx:for-item="group"
+                wx:key="tier"
+                class="merchant-products-scene__pricing-group merchant-products-scene__tier-block"
+              >
+                <view class="merchant-products-scene__tier-head">
+                  <text class="merchant-products-scene__pricing-title">{{group.title}}</text>
+                  <t-tag theme="default" variant="light">已选 {{group.selectedCount}} / {{group.items.length}}</t-tag>
                 </view>
-              </view>
-            </view>
-
-            <view class="merchant-products-scene__select-area">
-              <view class="merchant-products-scene__field-label">
-                <text class="merchant-products-scene__select-label">层数加价覆盖</text>
-              </view>
-              <view class="merchant-products-scene__price-grid">
-                <view wx:for="{{layerOptions}}" wx:key="value" class="merchant-products-scene__price-item">
-                  <text class="merchant-products-scene__price-item-label">{{item.label}}</text>
-                  <t-input
-                    type="digit"
-                    placeholder="可选，0 表示不加价"
-                    value="{{batchLayerPriceInputs[item.value] || ''}}"
-                    data-option-value="{{item.value}}"
-                    bind:change="handleBatchLayerPriceChange"
-                  ></t-input>
+                <view class="merchant-products-scene__pricing-empty" wx:if="{{group.items.length === 0}}">
+                  <text class="merchant-products-scene__pricing-empty-text">当前层级下没有与批量条件匹配的默认价格项。</text>
                 </view>
-              </view>
-            </view>
-
-            <view class="merchant-products-scene__select-area">
-              <view class="merchant-products-scene__field-label">
-                <text class="merchant-products-scene__select-label">奶油加价覆盖</text>
-              </view>
-              <view class="merchant-products-scene__price-grid">
-                <view wx:for="{{creamOptions}}" wx:key="value" class="merchant-products-scene__price-item">
-                  <text class="merchant-products-scene__price-item-label">{{item.label}}</text>
+                <view wx:for="{{group.items}}" wx:for-item="pricingItem" wx:key="id" class="merchant-products-scene__pricing-item">
+                  <view class="merchant-products-scene__pricing-copy">
+                    <t-checkbox
+                      checked="{{pricingItem.selected}}"
+                      icon="{{selectionCircleIcons}}"
+                      borderless="{{true}}"
+                      t-class="merchant-products-scene__choice-check merchant-products-scene__pricing-check"
+                      t-class-label="merchant-products-scene__choice-label merchant-products-scene__pricing-check-label"
+                      data-tier="{{group.tier}}"
+                      data-config-id="{{pricingItem.id}}"
+                      bind:change="handleToggleBatchTierConfigItem"
+                    >
+                      {{pricingItem.label}}
+                    </t-checkbox>
+                    <text class="merchant-products-scene__pricing-base">{{pricingItem.basePriceLabel}}</text>
+                  </view>
                   <t-input
                     type="digit"
-                    placeholder="可选，0 表示不加价"
-                    value="{{batchCreamPriceInputs[item.value] || ''}}"
-                    data-option-value="{{item.value}}"
-                    bind:change="handleBatchCreamPriceChange"
+                    placeholder="可选，不填则不改"
+                    value="{{pricingItem.adjustmentInput}}"
+                    data-tier="{{group.tier}}"
+                    data-config-id="{{pricingItem.id}}"
+                    disabled="{{!pricingItem.selected}}"
+                    bind:change="handleBatchConfigPriceChange"
                   ></t-input>
                 </view>
               </view>
@@ -719,7 +698,8 @@
                 theme="danger"
                 variant="outline"
                 t-class="merchant-button-token merchant-button-token--danger merchant-products-scene__card-btn"
-                disabled="{{true}}"
+                data-product-id="{{item.id}}"
+                bindtap="handleDeleteRecycleProductPermanently"
               >
                 永久删除
               </t-button>
@@ -759,13 +739,34 @@
   </root-portal>
 
   <root-portal enable="{{true}}">
-    <t-dialog
-      visible="{{deleteDialogVisible}}"
-      content="确认要删除这个商品吗？"
-      confirm-btn="删除"
-      cancel-btn="取消"
-      bind:confirm="handleConfirmDelete"
-      bind:cancel="handleCloseDeleteDialog"
-    />
+    <t-popup visible="{{confirmDialogVisible}}" placement="center" bind:visible-change="handleConfirmDialogVisibleChange">
+      <view class="merchant-products-scene__dialog-shell merchant-products-scene__dialog-shell--confirm">
+        <view class="merchant-products-scene__dialog-head">
+          <text class="merchant-products-scene__dialog-title">{{confirmDialogTitle}}</text>
+          <text class="merchant-products-scene__dialog-copy">{{confirmDialogContent}}</text>
+        </view>
+
+        <view class="merchant-products-scene__dialog-actions">
+          <t-button
+            size="small"
+            theme="default"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--outline merchant-products-scene__dialog-btn"
+            bindtap="handleCloseConfirmDialog"
+          >
+            取消
+          </t-button>
+          <t-button
+            size="small"
+            theme="danger"
+            variant="outline"
+            t-class="merchant-button-token merchant-button-token--danger merchant-products-scene__dialog-btn"
+            bindtap="handleConfirmProductDialog"
+          >
+            {{confirmDialogConfirmText}}
+          </t-button>
+        </view>
+      </view>
+    </t-popup>
   </root-portal>
 </view>
